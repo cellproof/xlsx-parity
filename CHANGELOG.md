@@ -2,9 +2,9 @@
 
 ## Milestone 4
 
-46 formula cells in fixtures F11–F25. Fourteen come from [HyperFormula's list of differences with Microsoft Excel](https://hyperformula.handsontable.com/docs/guide/list-of-differences). Thirty-two come from IronCalc issues that show Excel's output. Every expected value is copied from that page. Strength is strong when the page states the result for that input. None of these 46 is a weaker citation. F04 remains the only weaker case in the suite.
+47 formula cells in fixtures F11–F25. Fourteen come from [HyperFormula's list of differences with Microsoft Excel](https://hyperformula.handsontable.com/docs/guide/list-of-differences). Thirty-two come from IronCalc issues that show Excel's output. `T.INV(0,2)` comes from a desktop Windows Excel (Microsoft 365) run by Adam Marsh on 2026-11-22, which is also the primary source for `T.INV(0,1)`. Every expected value is copied from that source. Strength is strong when the source states the result for that input. None of these 47 is a weaker citation. F04 remains the only weaker case in the suite. Its expected `"-0"` is still the issue author's unverified statement. The MrExcel thread and the Microsoft Q&A on that fixture are supporting evidence that Excel picks the negative format section from the raw sign before rounding; that support is inferred, not a direct test of `TEXT(-0.4,"0")`.
 
-IronCalc 0.9.1, Python and `@ironcalc/nodejs`, agree on every new cell. Python matches Excel on 12 of the 46. The other 34 are recorded misses in [`suite/baseline.json`](suite/baseline.json).
+IronCalc 0.9.1, Python and `@ironcalc/nodejs`, agree on every new cell. Python matches Excel on 13 of the 47. The other 34 are recorded misses in [`suite/baseline.json`](suite/baseline.json).
 
 Formulas below are shown as Excel displays them. The stored strings, including `_xlfn.` and `_xlws.`, are in [`fixtures/fixtures.json`](fixtures/fixtures.json).
 
@@ -18,11 +18,12 @@ Formulas below are shown as Excel displays them. The stored strings, including `
 | F12 `Sheet1!A1` | `NPV(1,TRUE(),1)` | 0.75 | [HF differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences) | strong | 0.5 |
 | F12 `Sheet1!A2` | `NPV(1,B1)` with B1 TRUE | 0 | [HF differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences) | strong | 0 |
 | F12 `Sheet1!A3` | `COUNTA(1,)` | 2 | [HF differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences) | strong | 1 |
-| F12 `Sheet1!A4` | `T.INV(0,1)` | #DIV/0! | [HF differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences) | strong | #NUM! |
+| F12 `Sheet1!A4` | `T.INV(0,1)` | #DIV/0! | Adam Marsh, desktop Windows Excel (Microsoft 365), 2026-11-22; [HF differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences). [MS T.INV](https://support.microsoft.com/en-us/office/t-inv-function-2908272b-4e61-4942-9df9-a25fec9b0e2e) says #NUM! for probability <= 0, which is wrong for df=1 | strong | #NUM! |
 | F12 `Sheet1!A5` | `SEQUENCE(0)` | #CALC! | [HF differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences) | strong | #CALC! |
-| F12 `Sheet1!A6` | `WEIBULL.DIST(0,1,1,FALSE())` | 0 | [HF differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences) | strong | 1 |
+| F12 `Sheet1!A6` | `WEIBULL.DIST(0,1,1,FALSE())` | 0 | [HF differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences); [MS Q&A 5065194](https://learn.microsoft.com/en-us/answers/questions/5065194/weibull-dist-function-error) reports Excel returns 0, and the Microsoft reply does not dispute it | strong | 1 |
 | F12 `Sheet1!A7` | `ADDRESS(1,1,4,TRUE(),"")` | !A1 | [HF differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences) | strong | !A1 |
 | F12 `Sheet1!A8` | `DAYS(-1,0)` | #NUM! | [HF differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences) | strong | #NUM! |
+| F12 `Sheet1!A9` | `T.INV(0,2)` | #NUM! | Same desktop Excel check as `T.INV(0,1)` | strong | #NUM! |
 | F13 `Sheet1!A1` | `IF(FALSE(),A1,0)` | 0 | [HF differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences) | strong | 0 |
 | F14 `Sheet1!A1` | `LARGE(B1:B4,1.9)` | 5 | [IronCalc #1750](https://github.com/ironcalc/IronCalc/issues/1750) | strong | 8 |
 | F14 `Sheet1!A2` | `LARGE(B1:B4,4.5)` | #NUM! | [IronCalc #1750](https://github.com/ironcalc/IronCalc/issues/1750) | strong | 1 |
@@ -35,8 +36,8 @@ Formulas below are shown as Excel displays them. The stored strings, including `
 | F16 `Sheet1!A3` | `TEXT(100000000000/3,"General")` | 33333333333 | [IronCalc #1752](https://github.com/ironcalc/IronCalc/issues/1752) | strong | 33333333333.333332062 |
 | F17 `Sheet1!A1` | `LEFT("a string","6")` | a stri | [IronCalc #1605](https://github.com/ironcalc/IronCalc/issues/1605) | strong | #VALUE! |
 | F17 `Sheet1!A2` | `SUMSQ("2","3",4)` | 29 | [IronCalc #1605](https://github.com/ironcalc/IronCalc/issues/1605) | strong | 16 |
-| F17 `Sheet1!A3` | `STDEV("1","2")` | 0.7071067811865476 | [IronCalc #1605](https://github.com/ironcalc/IronCalc/issues/1605) | strong | #DIV/0! |
-| F17 `Sheet1!A4` | `VAR(TRUE,FALSE,TRUE)` | 0.33333333333333337 | [IronCalc #1605](https://github.com/ironcalc/IronCalc/issues/1605) | strong | #DIV/0! |
+| F17 `Sheet1!A3` | `STDEV("1","2")` | 0.7071067811865476 | [IronCalc #1605](https://github.com/ironcalc/IronCalc/issues/1605), [MS STDEV](https://support.microsoft.com/en-us/office/stdev-function-51fecaaa-231e-4bbb-9230-33650a72c9b0) (text numbers typed as arguments are counted) | strong | #DIV/0! |
+| F17 `Sheet1!A4` | `VAR(TRUE,FALSE,TRUE)` | 0.33333333333333337 | [IronCalc #1605](https://github.com/ironcalc/IronCalc/issues/1605), [MS VAR](https://support.microsoft.com/en-us/office/var-function-1f2b7ab2-954d-4e17-ba2c-9e58b15a7da2) (logicals typed as arguments are counted) | strong | #DIV/0! |
 | F18 `Sheet1!D1` | `XLOOKUP("b",A1:A3,B1:C3)` | x | [IronCalc #1789](https://github.com/ironcalc/IronCalc/issues/1789) | strong | #VALUE! |
 | F18 `Sheet1!G1` | `XLOOKUP(8,E1:E4,F1:F4,,,)` | a | [IronCalc #1718](https://github.com/ironcalc/IronCalc/issues/1718) | strong | #ERROR! |
 | F19 `Sheet1!B1` | `INDEX(SORT(A1:A4,,-1),1)` | 8 | [IronCalc #1597](https://github.com/ironcalc/IronCalc/issues/1597) | strong | #VALUE! |

@@ -1,10 +1,10 @@
 {
   "ironcalc_version": "0.9.1",
   "sheetjs_version": "0.20.3",
-  "cells_pass": 33,
-  "cells_pass_excluding_f04": 33,
-  "cells": 73,
-  "cells_excluding_f04": 72,
+  "cells_pass": 34,
+  "cells_pass_excluding_f04": 34,
+  "cells": 74,
+  "cells_excluding_f04": 73,
   "fixtures_pass": 10,
   "fixtures": 25,
   "errors": 0,
@@ -84,9 +84,9 @@
   "ironcalc_js": {
     "package": "@ironcalc/nodejs",
     "version": "0.9.1",
-    "cells_match_excel": 33,
-    "cells_match_python": 73,
-    "cells": 73,
+    "cells_match_excel": 34,
+    "cells_match_python": 74,
+    "cells": 74,
     "errors": 0,
     "failures": {
       "F04-text-negative-zero": {
@@ -175,9 +175,9 @@
       "rxjs": "7.8.2"
     },
     "hook": {
-      "cells": 73,
-      "cells_match_excel": 33,
-      "cells_match_ironcalc": 73,
+      "cells": 74,
+      "cells_match_excel": 34,
+      "cells_match_ironcalc": 74,
       "errors": 0,
       "results": {
         "F01-let-lambda-call": {
@@ -242,7 +242,8 @@
           "Sheet1!A5": "#CALC!",
           "Sheet1!A6": 1,
           "Sheet1!A7": "!A1",
-          "Sheet1!A8": "#NUM!"
+          "Sheet1!A8": "#NUM!",
+          "Sheet1!A9": "#NUM!"
         },
         "F13-hf-if-false-cycle": {
           "Sheet1!A1": 0
@@ -306,8 +307,8 @@
       }
     },
     "native": {
-      "cells": 73,
-      "cells_match_excel": 45,
+      "cells": 74,
+      "cells_match_excel": 47,
       "errors": 0,
       "results": {
         "F01-let-lambda-call": {
@@ -372,7 +373,8 @@
           "Sheet1!A5": "#CALC!",
           "Sheet1!A6": 1,
           "Sheet1!A7": "A1",
-          "Sheet1!A8": "#NUM!"
+          "Sheet1!A8": "#NUM!",
+          "Sheet1!A9": "#NUM!"
         },
         "F13-hf-if-false-cycle": {
           "Sheet1!A1": 0
@@ -440,8 +442,8 @@
     "product": "LibreOffice 26.2.5.2 620(Build:2)",
     "package": "libreoffice-calc",
     "package_version": "4:26.2.5.2-0ubuntu0.26.04.1~bpo24.04.1",
-    "cells": 73,
-    "cells_match_excel": 45,
+    "cells": 74,
+    "cells_match_excel": 46,
     "errors": 0,
     "recalc_proof": {
       "file": "F04-text-negative-zero.xlsx",
@@ -513,7 +515,8 @@
         "Sheet1!A5": "#VALUE!",
         "Sheet1!A6": 1,
         "Sheet1!A7": "A1",
-        "Sheet1!A8": "#NAME?"
+        "Sheet1!A8": "#NAME?",
+        "Sheet1!A9": "#VALUE!"
       },
       "F13-hf-if-false-cycle": {
         "Sheet1!A1": 0

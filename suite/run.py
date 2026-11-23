@@ -10,8 +10,13 @@ written xlsx, one feature and one library at a time. The process exits 0
 when every measured result matches that record, and nonzero when a result
 changes — a regression or an unexpected fix. A Univer-native miss or a
 LibreOffice miss that matches the record is a finding.
+
+Numeric checks against Excel use a relative tolerance of 1e-12. Strings,
+booleans, and errors match exactly. Comparisons between engines, and each
+engine's locked result, stay exact.
 """
 import json
+import math
 import os
 import re
 import subprocess
@@ -32,19 +37,38 @@ WEAKER_ORDER = (
 )
 
 
+# Excel displays 15 significant digits. The last bits of a stored double are
+# not reliable across implementations, so numeric checks against Excel use
+# this relative tolerance. Zero only matches zero (no absolute slack).
+EXCEL_REL_TOL = 1e-12
+
+
 def same(got, expected):
-    # bool is a subclass of int; a logical TRUE is not the number 1.
+    """Exact equality. Bool is a subclass of int; a logical TRUE is not the number 1."""
     if isinstance(expected, bool) or isinstance(got, bool):
         return isinstance(got, bool) and isinstance(expected, bool) and got is expected
-    if isinstance(expected, str):
+    if isinstance(expected, str) or isinstance(got, str):
         return got == expected
-    if not isinstance(got, (int, float)):
-        return False
-    return got == expected
+    if isinstance(expected, (int, float)) and isinstance(got, (int, float)):
+        return got == expected
+    return False
+
+
+def excel_match(got, expected):
+    """Match an Excel value. Strings, booleans, and errors are exact; numbers use EXCEL_REL_TOL."""
+    if isinstance(expected, bool) or isinstance(got, bool):
+        return isinstance(got, bool) and isinstance(expected, bool) and got is expected
+    if isinstance(expected, str) or isinstance(got, str):
+        return got == expected
+    if isinstance(expected, (int, float)) and isinstance(got, (int, float)):
+        return math.isclose(got, expected, rel_tol=EXCEL_REL_TOL, abs_tol=0.0)
+    return False
 
 
 def values_equal(a, b):
-    """Cross-engine equality. Bool is not a number; JSON ints still match Python floats."""
+    """Cross-engine and locked-result equality. Exact, including numbers.
+    Bool is not a number; JSON ints still match Python floats.
+    """
     if isinstance(a, bool) or isinstance(b, bool):
         return isinstance(a, bool) and isinstance(b, bool) and a is b
     if isinstance(a, str) or isinstance(b, str):
@@ -210,7 +234,7 @@ def hook_alignment(cases, rows):
             mismatches.append(
                 f"Univer hook {row['id']} {row['cell']}: hook {univer_show(case)} != IronCalc {direct_show(row)}"
             )
-        excel_ok = case.get("error") is None and same(case.get("got"), row["excel"])
+        excel_ok = case.get("error") is None and excel_match(case.get("got"), row["excel"])
         body.append((
             row["id"],
             row["cell"],
@@ -272,7 +296,7 @@ def attach_js(rows, js_cases):
             row["js_matches_python"] = bool(row["js_error"]) and row["js_error"] == row["error"]
         else:
             row["js_matches_python"] = values_equal(row["js_got"], row["got"])
-        row["js_matches_excel"] = row["js_error"] is None and same(row["js_got"], row["excel"])
+        row["js_matches_excel"] = row["js_error"] is None and excel_match(row["js_got"], row["excel"])
 
 
 def recorded_cell(mapping, fixture_id, cell):
@@ -391,7 +415,7 @@ def compare_saves(rows):
             formula_ok = bool(ic) and bool(orig) and ic["f"] == orig["f"]
             if row["error"]:
                 cache_ok = False
-            elif same(row["got"], row["excel"]):
+            elif excel_match(row["got"], row["excel"]):
                 cache_ok = bool(ic) and bool(orig) and ic["v"] == orig["v"]
             else:
                 # A wrong calculation must be written back, not left as the Excel cache.
@@ -406,7 +430,7 @@ def classify(rows, baseline):
         known = recorded_failure(baseline, row["id"], row["cell"])
         if row["error"]:
             row["status"] = "error"
-        elif same(row["got"], row["excel"]):
+        elif excel_match(row["got"], row["excel"]):
             row["status"] = "pass"
         elif known is not None and same(row["got"], known):
             row["status"] = "expected-fail"
@@ -698,7 +722,7 @@ def _univer_measured(cases, rows):
         ordered.append((row, case, got))
         if case.get("error"):
             errors += 1
-        elif same(got, row["excel"]):
+        elif excel_match(got, row["excel"]):
             match_excel += 1
     return measured, match_excel, errors, unknown, ordered
 
@@ -776,7 +800,7 @@ def _univer_body(cases, rows):
     _measured, _match, _errors, _unknown, ordered = _univer_measured(cases, rows)
     body = []
     for row, case, _got in ordered:
-        ok = case.get("error") is None and same(case.get("got"), row["excel"])
+        ok = case.get("error") is None and excel_match(case.get("got"), row["excel"])
         body.append((row["id"], row["cell"], show(row["excel"]), univer_show(case), "yes" if ok else "no"))
     return body
 
@@ -819,7 +843,7 @@ def print_univer_table(report, rows, guard):
     for fid in seen:
         group = [row for row in rows if row["id"] == fid]
         cells = native_measured.get(fid, {})
-        matched = sum(1 for row in group if row["cell"] in cells and same(cells[row["cell"]], row["excel"]))
+        matched = sum(1 for row in group if row["cell"] in cells and excel_match(cells[row["cell"]], row["excel"]))
         counts.append((fid, f"{matched}/{len(group)}"))
     _print_value_table(("fixture", "native=excel"), counts)
     _print_value_table(("fixture", "cell", "excel", "univer", "univer=excel"), _univer_body(native, rows))
@@ -889,7 +913,7 @@ def _engine_match(mapping, row):
     cells = mapping.get(row["id"]) or {}
     if row["cell"] not in cells:
         return False
-    return same(cells[row["cell"]], row["excel"])
+    return excel_match(cells[row["cell"]], row["excel"])
 
 
 def print_libreoffice(report, rows):

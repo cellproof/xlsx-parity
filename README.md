@@ -1,8 +1,24 @@
 # xlsx-parity
 
-Excel formula parity and XLSX round-trip checks for open spreadsheet libraries.
+This suite measures Excel formula parity and XLSX round-trip behavior for open spreadsheet libraries. It scores 25 fixtures (74 formula cells) against Excel, and it checks which features of `fixtures/RT-features.xlsx` survive a write.
 
-`make test` reproduces the baseline (25 fixtures, 74 formula cells, plus `fixtures/RT-features.xlsx`) on IronCalc's Python bindings, on IronCalc's JavaScript build, and on LibreOffice Calc. Expected values are Excel's. Each one is copied from a Univer issue, an IronCalc issue, [HyperFormula's list of differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences), a Microsoft Support page, or a recorded desktop Excel result, and the citation is in [`fixtures/fixtures.json`](fixtures/fixtures.json). The suite does not invent expected values. Milestone 4's new cases are listed in [`CHANGELOG.md`](CHANGELOG.md). Numeric comparisons with Excel use a relative tolerance of 1e-12. Strings, booleans, and errors are exact.
+Run it with `make test`.
+
+`make test` on this tree matched [`suite/baseline.json`](suite/baseline.json) (`baseline: match`). The summary was:
+
+| Check | Result |
+|---|---|
+| IronCalc 0.9.1 (Python bindings) | 34/74 cells match Excel |
+| Univer 1.6.0 engine hook (`@ironcalc/nodejs` 0.9.1) | 34/74 cells match Excel |
+| Univer 1.6.0 native (`@univerjs/engine-formula`) | 47/74 cells match Excel |
+| LibreOffice Calc 26.2.5.2 | 46/74 cells match Excel |
+| SheetJS CE 0.20.3 | 74/74 read and 74/74 write |
+
+`@ironcalc/nodejs` 0.9.1 also matches Excel on 34/74 and matches the Python bindings on 74/74. The Univer hook matches that IronCalc output on 74/74.
+
+A finding is a miss already recorded in `suite/baseline.json`. The run passes when every measurement matches that file, including those misses. A new miss, or a recorded miss that starts matching Excel, fails the run.
+
+Expected values are Excel's. Each one is copied from a Univer issue, an IronCalc issue, [HyperFormula's list of differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences), a Microsoft Support page, or a recorded desktop Excel result, and the citation is in [`fixtures/fixtures.json`](fixtures/fixtures.json). The suite does not invent expected values. Milestone 4's new cases are listed in [`CHANGELOG.md`](CHANGELOG.md). Numeric comparisons with Excel use a relative tolerance of 1e-12. Strings, booleans, and errors are exact.
 
 ## Run
 
@@ -45,41 +61,18 @@ IronCalc 0.9.1 (Python bindings) and `@ironcalc/nodejs` 0.9.1 calculate. SheetJS
 - `suite/baseline.json` — recorded IronCalc Python failures, the wrong cached cells, IronCalc JS results, Univer native results, the engine-hook results, LibreOffice results, and the feature table.
 - `CHANGELOG.md` — each Milestone 4 case, its Excel value, source, and IronCalc's result.
 
-## Licenses
+## License
 
-This project is [MIT](LICENSE).
+Licensed under either of the following, at your option:
 
-Installed by `make test`, not vendored:
+- [MIT License](LICENSE-MIT)
+- [Apache License, Version 2.0](LICENSE-APACHE)
 
-| Package | Version | License |
-|---|---|---|
-| [ironcalc](https://github.com/ironcalc/IronCalc) (Python bindings) | 0.9.1 | MIT OR Apache-2.0 |
-| [@ironcalc/nodejs](https://www.npmjs.com/package/@ironcalc/nodejs) | 0.9.1 | MIT OR Apache-2.0 |
-| [SheetJS Community Edition](https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz) (`xlsx`) | 0.20.3 | Apache-2.0 |
-| [openpyxl](https://openpyxl.readthedocs.io/) | 3.1.5 | MIT |
-| [XlsxWriter](https://xlsxwriter.readthedocs.io/) | 3.3.4 | BSD-2-Clause |
-| [@univerjs/core](https://www.npmjs.com/package/@univerjs/core) | 1.6.0 | Apache-2.0 |
-| [@univerjs/docs](https://www.npmjs.com/package/@univerjs/docs) | 1.6.0 | Apache-2.0 |
-| [@univerjs/engine-formula](https://www.npmjs.com/package/@univerjs/engine-formula) | 1.6.0 | Apache-2.0 |
-| [@univerjs/engine-render](https://www.npmjs.com/package/@univerjs/engine-render) | 1.6.0 | Apache-2.0 |
-| [@univerjs/sheets](https://www.npmjs.com/package/@univerjs/sheets) | 1.6.0 | Apache-2.0 |
-| [@univerjs/sheets-formula](https://www.npmjs.com/package/@univerjs/sheets-formula) | 1.6.0 | Apache-2.0 |
-| [@univerjs/sheets-numfmt](https://www.npmjs.com/package/@univerjs/sheets-numfmt) | 1.6.0 | Apache-2.0 |
-| [rxjs](https://github.com/ReactiveX/rxjs) | 7.8.2 | Apache-2.0 |
+SPDX identifier: `MIT OR Apache-2.0`.
 
-Installed in CI from Ubuntu, not by `make test` and not vendored:
+Copyright (c) 2026 CellProof contributors
 
-| Package | Version | License |
-|---|---|---|
-| [LibreOffice Calc](https://www.libreoffice.org/) (`libreoffice-calc`) | 26.2.5.2 | MPL-2.0 |
-
-SheetJS Community Edition only. This project does not use SheetJS Pro.
-
-Univer open-source packages only, release [v1.6.0](https://github.com/dream-num/univer/releases/tag/v1.6.0) (`eaf4cfa04fabdbcfc922c692f3450459f8a29546`). This project does not use `@univerjs-pro` or Univer Server. `npm ci` also installs the dependencies those packages declare. Each of those packages declares an OSI license (Apache-2.0, MIT, BSD-3-Clause, ISC, or 0BSD).
-
-`@ironcalc/nodejs` 0.9.1 ships both `LICENSE-MIT` and `LICENSE-Apache-2.0` (SPDX `MIT OR Apache-2.0`). npm also installs the matching platform binary. Those binaries declare MIT; on linux x64 this is `@ironcalc/nodejs-linux-x64-gnu` 0.9.1. No paid or non-open-source packages are installed.
-
-LibreOffice Calc is installed from Ubuntu's `libreoffice-calc` package, not vendored. The package copyright is MPL-2.0, and some files in that upstream tarball are Apache-2.0. This project does not install a LibreOffice language pack.
+Installed packages, the LibreOffice package used in CI, and the fixture sources are listed in [THIRD_PARTY.md](THIRD_PARTY.md). SheetJS Community Edition only. Univer open-source packages only. No SheetJS Pro, `@univerjs-pro`, or other paid package is installed.
 
 ## Limits
 

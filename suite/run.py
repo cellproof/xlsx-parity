@@ -3,11 +3,12 @@
 Excel-expected values and their citations live in fixtures/fixtures.json.
 Known IronCalc misses, including the JavaScript build, the six cells whose
 wrong values are written back as cached values, each feature kept/lost
-result, and Univer's headless result on fixture F01 are recorded in
-suite/baseline.json. Feature results are read from the written xlsx, one
-feature and one library at a time. The process exits 0 when every measured
-result matches that record, and nonzero when a result changes — a regression
-or an unexpected fix. A Univer miss that matches the record is a finding.
+result, Univer's own formula results, and the F01 values computed by the
+IronCalc engine hook are recorded in suite/baseline.json. Feature results
+are read from the written xlsx, one feature and one library at a time. The
+process exits 0 when every measured result matches that record, and nonzero
+when a result changes — a regression or an unexpected fix. A Univer-native
+miss that matches the record is a finding.
 """
 import json
 import os
@@ -599,39 +600,41 @@ def print_js_table(rows, js_pkg, js_ver):
         print(f"  {row['id']} {row['cell']}: python {py}, js {js}")
 
 
-def collect_univer_mismatches(report, rows, baseline):
-    """F01 results from the headless Univer model. A miss matching the record is a finding."""
-    spec = baseline["univer"]
-    mismatches = []
-    packages = report.get("packages") or {}
-    for name in sorted(set(packages) | set(spec["packages"])):
-        if packages.get(name) != spec["packages"].get(name):
-            mismatches.append(
-                f"Univer package {name}: measured {packages.get(name)!r}, baseline {spec['packages'].get(name)!r}"
-            )
+def _univer_measured(cases, rows):
     by_key = {(row["file"], row["cell"]): row for row in rows}
     measured = {}
     match_excel = 0
     errors = 0
-    for case in report["cases"]:
+    unknown = []
+    ordered = []
+    for case in cases:
         row = by_key.get((case["file"], case["cell"]))
         if row is None:
-            mismatches.append(f"Univer {case['file']} {case['cell']} is not a fixture cell")
+            unknown.append(f"{case['file']} {case['cell']}")
             continue
         got = univer_got(case)
         measured.setdefault(row["id"], {})[case["cell"]] = got
+        ordered.append((row, case, got))
         if case.get("error"):
             errors += 1
         elif same(got, row["excel"]):
             match_excel += 1
-    if len(report["cases"]) != spec["cells"]:
-        mismatches.append(f"univer cells: measured {len(report['cases'])}, baseline {spec['cells']}")
+    return measured, match_excel, errors, unknown, ordered
+
+
+def _locked_result_mismatches(label, cases, rows, spec):
+    mismatches = []
+    measured, match_excel, errors, unknown, _ordered = _univer_measured(cases, rows)
+    for item in unknown:
+        mismatches.append(f"{label} {item} is not a fixture cell")
+    if len(cases) != spec["cells"]:
+        mismatches.append(f"{label} cells: measured {len(cases)}, baseline {spec['cells']}")
     if match_excel != spec["cells_match_excel"]:
         mismatches.append(
-            f"univer cells_match_excel: measured {match_excel}, baseline {spec['cells_match_excel']}"
+            f"{label} cells_match_excel: measured {match_excel}, baseline {spec['cells_match_excel']}"
         )
     if errors != spec["errors"]:
-        mismatches.append(f"univer errors: measured {errors}, baseline {spec['errors']}")
+        mismatches.append(f"{label} errors: measured {errors}, baseline {spec['errors']}")
     known = {(fid, cell): recorded for fid, cells in spec["results"].items() for cell, recorded in cells.items()}
     seen = {(fid, cell) for fid, cells in measured.items() for cell in cells}
     for key in sorted(seen):
@@ -641,51 +644,81 @@ def collect_univer_mismatches(report, rows, baseline):
             excel = next(row["excel"] for row in rows if row["id"] == key[0] and row["cell"] == key[1])
             baseline_text = show(recorded) if key in known else "absent"
             mismatches.append(
-                f"Univer {key[0]} {key[1]}: baseline {baseline_text}, got {show(got)} (Excel {show(excel)})"
+                f"{label} {key[0]} {key[1]}: baseline {baseline_text}, got {show(got)} (Excel {show(excel)})"
             )
     for key in sorted(set(known) - seen):
-        mismatches.append(f"univer result {key[0]} {key[1]} was not measured")
+        mismatches.append(f"{label} result {key[0]} {key[1]} was not measured")
     return mismatches
 
 
-def print_univer_table(report, rows):
-    by_key = {(row["file"], row["cell"]): row for row in rows}
-    engine = report.get("packages", {}).get("@univerjs/engine-formula", "?")
-    matched = 0
-    errors = 0
-    body = []
-    for case in report["cases"]:
-        row = by_key.get((case["file"], case["cell"]))
-        excel = show(row["excel"]) if row else "?"
-        got = univer_show(case)
-        ok = bool(row) and case.get("error") is None and same(case.get("got"), row["excel"])
-        if case.get("error"):
-            errors += 1
-        elif ok:
-            matched += 1
-        body.append((
-            row["id"] if row else case["file"],
-            case["cell"],
-            excel,
-            got,
-            "yes" if ok else "no",
-        ))
-    print(
-        f"Univer headless @univerjs/engine-formula {engine} (F01): "
-        f"{matched}/{len(report['cases'])} cells match Excel, {errors} errors."
-    )
-    header = ("fixture", "cell", "excel", "univer", "univer=excel")
+def collect_univer_mismatches(report, rows, baseline):
+    """Hook results must match the lock. Native misses that match the lock are findings."""
+    spec = baseline["univer"]
+    mismatches = []
+    packages = report.get("packages") or {}
+    for name in sorted(set(packages) | set(spec["packages"])):
+        if packages.get(name) != spec["packages"].get(name):
+            mismatches.append(
+                f"Univer package {name}: measured {packages.get(name)!r}, baseline {spec['packages'].get(name)!r}"
+            )
+    mismatches.extend(_locked_result_mismatches("Univer hook", report.get("hook") or [], rows, spec["hook"]))
+    mismatches.extend(_locked_result_mismatches("Univer native", report.get("native") or [], rows, spec["native"]))
+    return mismatches
+
+
+def _print_value_table(header, body):
     width = [len(col) for col in header]
     for record in body:
         for i, col in enumerate(record):
-            width[i] = max(width[i], len(col))
+            width[i] = max(width[i], len(str(col)))
 
     def fmt(record):
-        return ("  " + "  ".join(col.ljust(width[i]) for i, col in enumerate(record))).rstrip()
+        return ("  " + "  ".join(str(col).ljust(width[i]) for i, col in enumerate(record))).rstrip()
 
     print(fmt(header))
     for record in body:
         print(fmt(record))
+
+
+def _univer_body(cases, rows):
+    _measured, _match, _errors, _unknown, ordered = _univer_measured(cases, rows)
+    body = []
+    for row, case, _got in ordered:
+        ok = case.get("error") is None and same(case.get("got"), row["excel"])
+        body.append((row["id"], row["cell"], show(row["excel"]), univer_show(case), "yes" if ok else "no"))
+    return body
+
+
+def print_univer_table(report, rows):
+    packages = report.get("packages") or {}
+    engine = packages.get("@univerjs/engine-formula", "?")
+    iron = packages.get("@ironcalc/nodejs", "?")
+    hook = report.get("hook") or []
+    native = report.get("native") or []
+    _hook_measured, hook_match, hook_errors, _hook_unknown, _hook_ordered = _univer_measured(hook, rows)
+    native_measured, native_match, native_errors, _native_unknown, _native_ordered = _univer_measured(native, rows)
+    print(
+        f"Univer engine hook (CalculateFormulaService -> @ironcalc/nodejs {iron}) F01: "
+        f"{hook_match}/{len(hook)} cells match Excel, {hook_errors} errors."
+    )
+    _print_value_table(("fixture", "cell", "excel", "univer", "univer=excel"), _univer_body(hook, rows))
+    print()
+    print(
+        f"Univer native @univerjs/engine-formula {engine}: "
+        f"{native_match}/{len(native)} cells match Excel, {native_errors} errors."
+    )
+    seen = []
+    for row in rows:
+        if row["id"] not in seen:
+            seen.append(row["id"])
+    counts = []
+    for fid in seen:
+        group = [row for row in rows if row["id"] == fid]
+        cells = native_measured.get(fid, {})
+        matched = sum(1 for row in group if row["cell"] in cells and same(cells[row["cell"]], row["excel"]))
+        counts.append((fid, f"{matched}/{len(group)}"))
+    _print_value_table(("fixture", "native=excel"), counts)
+    _print_value_table(("fixture", "cell", "excel", "univer", "univer=excel"), _univer_body(native, rows))
 
 
 def print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver, univer_report):

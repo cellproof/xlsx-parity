@@ -48,6 +48,7 @@
   },
   "univer": {
     "packages": {
+      "@ironcalc/nodejs": "0.9.1",
       "@univerjs/core": "1.6.0",
       "@univerjs/docs": "1.6.0",
       "@univerjs/engine-formula": "1.6.0",
@@ -57,13 +58,69 @@
       "@univerjs/sheets-numfmt": "1.6.0",
       "rxjs": "7.8.2"
     },
-    "cells": 2,
-    "cells_match_excel": 0,
-    "errors": 0,
-    "results": {
-      "F01-let-lambda-call": {
-        "Sheet1!A1": "#NAME?",
-        "Sheet1!A2": "#NAME?"
+    "hook": {
+      "cells": 2,
+      "cells_match_excel": 2,
+      "errors": 0,
+      "results": {
+        "F01-let-lambda-call": {
+          "Sheet1!A1": 2,
+          "Sheet1!A2": 3
+        }
+      }
+    },
+    "native": {
+      "cells": 27,
+      "cells_match_excel": 17,
+      "errors": 0,
+      "results": {
+        "F01-let-lambda-call": {
+          "Sheet1!A1": "#NAME?",
+          "Sheet1!A2": "#NAME?"
+        },
+        "F02-iso-ceiling": {
+          "Sheet1!A1": 5,
+          "Sheet1!A2": -4,
+          "Sheet1!A3": 6
+        },
+        "F03-edate-eomonth-negative-fraction": {
+          "Sheet1!A1": "2010/12/15",
+          "Sheet1!A2": 40543
+        },
+        "F04-text-negative-zero": {
+          "Sheet1!A1": "0"
+        },
+        "F05-search-wildcards-and-round-digits": {
+          "Sheet1!A1": 2,
+          "Sheet1!A2": 2,
+          "Sheet1!A3": 2,
+          "Sheet1!A4": 2,
+          "Sheet1!B1": 1.23,
+          "Sheet1!B2": 1.5,
+          "Sheet1!B3": "#NUM!",
+          "Sheet1!B4": "#NUM!"
+        },
+        "F06-char-range": {
+          "Sheet1!A1": "Ā",
+          "Sheet1!A2": "𐁁",
+          "Sheet1!A3": "A"
+        },
+        "F07-value-accounting-negatives": {
+          "Sheet1!A1": -5,
+          "Sheet1!A2": -1000,
+          "Sheet1!A3": -4
+        },
+        "F08-amordegrc": {
+          "Sheet1!A10": 776
+        },
+        "F09-ast-cache-collision-cells": {
+          "Sheet1!P1169": 26614,
+          "Sheet1!Q16084": 328105
+        },
+        "F10-sumifs-legacy-whole-column": {
+          "Summary!B2": "#SPILL!",
+          "Summary!B301": "#SPILL!"
+        }
       }
     }
   },
@@ -76,16 +133,60 @@
     "F10-sumifs-legacy-whole-column Summary!B301"
   ],
   "features": [
-    ["bold / fill", "kept / kept", "lost / lost"],
-    ["date number format", "kept", "kept"],
-    ["column width", "kept", "kept"],
-    ["merged cells", "kept", "kept"],
-    ["comment", "lost", "kept"],
-    ["data validation", "lost", "lost"],
-    ["freeze panes", "kept", "lost"],
-    ["hyperlink", "kept", "kept"],
-    ["defined name", "kept", "kept"],
-    ["conditional formatting", "kept", "lost"],
-    ["chart", "lost", "lost"]
+    [
+      "bold / fill",
+      "kept / kept",
+      "lost / lost"
+    ],
+    [
+      "date number format",
+      "kept",
+      "kept"
+    ],
+    [
+      "column width",
+      "kept",
+      "kept"
+    ],
+    [
+      "merged cells",
+      "kept",
+      "kept"
+    ],
+    [
+      "comment",
+      "lost",
+      "kept"
+    ],
+    [
+      "data validation",
+      "lost",
+      "lost"
+    ],
+    [
+      "freeze panes",
+      "kept",
+      "lost"
+    ],
+    [
+      "hyperlink",
+      "kept",
+      "kept"
+    ],
+    [
+      "defined name",
+      "kept",
+      "kept"
+    ],
+    [
+      "conditional formatting",
+      "kept",
+      "lost"
+    ],
+    [
+      "chart",
+      "lost",
+      "lost"
+    ]
   ]
 }

@@ -1,6 +1,6 @@
 # xlsx-parity
 
-This suite measures Excel formula parity and XLSX round-trip behavior for open spreadsheet libraries. It scores 25 fixtures (74 formula cells) against Excel, and it checks which features of `fixtures/RT-features.xlsx` survive a write.
+This suite measures Excel formula parity and XLSX round-trip behavior for open spreadsheet libraries. It scores 25 fixtures (74 formula cells) against Excel, and it checks which features of `fixtures/RT-features.xlsx` survive a write. Scores are in [SCOREBOARD.md](SCOREBOARD.md).
 
 Run it with `make test`.
 

@@ -4,9 +4,16 @@ VENV := .venv
 PY := $(VENV)/bin/python
 PIP := $(VENV)/bin/pip
 
-.PHONY: test
-test: $(VENV)/.installed node_modules/.installed
+.PHONY: test scoreboard check-scoreboard
+
+test: check-scoreboard $(VENV)/.installed node_modules/.installed
 	$(PY) suite/run.py
+
+scoreboard:
+	$(PYTHON) suite/scoreboard.py
+
+check-scoreboard:
+	$(PYTHON) suite/scoreboard.py --check
 
 $(VENV)/.installed: requirements.txt
 	$(PYTHON) -m venv $(VENV)

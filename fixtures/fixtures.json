@@ -317,42 +317,54 @@
    "https://support.microsoft.com/en-us/office/int-function-a6c4af9e-356d-4369-ab6a-cb1fd9d343ef",
    "https://support.microsoft.com/en-us/office/iseven-function-aa15929a-d77b-4fbb-92f4-2f479af55356"
   ],
-  "note": "HyperFormula differences table, negative-rounding rows. INT(-8.9)=-9 and ISEVEN(2.5)=TRUE are also the worked examples on the Microsoft pages.",
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-22",
+   "where": "desktop Excel for Microsoft 365",
+   "results": {
+    "=INT(-8.9)": -9,
+    "=ISEVEN(2.5)": true,
+    "=ISODD(3.5)": true,
+    "=CEILING.MATH(-4.3,2,2)": -6,
+    "=FLOOR.MATH(-4.7,2,2)": -4
+   }
+  },
+  "note": "Primary: Adam Marsh, desktop Excel 2026-11-22. HyperFormula's differences table is a secondary cross-reference for the negative-rounding rows. INT(-8.9)=-9 and ISEVEN(2.5)=TRUE are also the worked examples on the Microsoft pages.",
   "cases": [
    [
     "Sheet1",
     "A1",
     "INT(-8.9)",
     -9,
-    "HF differences / MS INT"
+    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences / MS INT"
    ],
    [
     "Sheet1",
     "A2",
     "ISEVEN(2.5)",
     true,
-    "HF differences / MS ISEVEN"
+    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences / MS ISEVEN"
    ],
    [
     "Sheet1",
     "A3",
     "ISODD(3.5)",
     true,
-    "HF differences table (Excel TRUE)"
+    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table (Excel TRUE)"
    ],
    [
     "Sheet1",
     "A4",
     "_xlfn.CEILING.MATH(-4.3,2,2)",
     -6,
-    "HF differences table"
+    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
    ],
    [
     "Sheet1",
     "A5",
     "_xlfn.FLOOR.MATH(-4.7,2,2)",
     -4,
-    "HF differences table"
+    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
    ]
   ],
   "file": "F11-hf-negative-rounding.xlsx"
@@ -367,34 +379,41 @@
   "primary_source": {
    "who": "Adam Marsh",
    "when": "2026-11-22",
-   "where": "desktop Windows Excel (Microsoft 365)",
+   "where": "desktop Excel for Microsoft 365",
    "results": {
+    "=NPV(1,TRUE(),1)": 0.75,
+    "=NPV(1,B1)": 0,
+    "=COUNTA(1,)": 2,
     "=T.INV(0,1)": "#DIV/0!",
+    "=SEQUENCE(0)": "#CALC!",
+    "=WEIBULL.DIST(0,1,1,FALSE())": 0,
+    "=ADDRESS(1,1,4,TRUE(),\"\")": "!A1",
+    "=DAYS(-1,0)": "#NUM!",
     "=T.INV(0,2)": "#NUM!"
    }
   },
-  "note": "Excel column of HyperFormula's differences table. Rounded 4-decimal rows are not included. DAYS is stored without _xlfn.: IronCalc 0.9.1 rewrites the prefixed form to DAYS on save. Primary source for T.INV(0,1) and T.INV(0,2) is Adam Marsh's desktop Excel run on 2026-11-22. Microsoft's T.INV page says #NUM! for probability <= 0, which is wrong for df=1. The WEIBULL.DIST Q&A reports Excel returns 0, and the Microsoft reply does not dispute that.",
+  "note": "Primary: Adam Marsh, desktop Excel 2026-11-22. HyperFormula's differences table is a secondary cross-reference. Rounded 4-decimal rows are not included. DAYS is stored without _xlfn.: IronCalc 0.9.1 rewrites the prefixed form to DAYS on save. Microsoft's T.INV page says #NUM! for probability <= 0, which is wrong for df=1. The WEIBULL.DIST Q&A reports Excel returns 0, and the Microsoft reply does not dispute that.",
   "cases": [
    [
     "Sheet1",
     "A1",
     "NPV(1,TRUE(),1)",
     0.75,
-    "HF differences table"
+    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
    ],
    [
     "Sheet1",
     "A2",
     "NPV(1,B1)",
     0,
-    "HF differences table (B1 = TRUE)"
+    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table (B1 = TRUE)"
    ],
    [
     "Sheet1",
     "A3",
     "COUNTA(1,)",
     2,
-    "HF differences table"
+    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
    ],
    [
     "Sheet1",
@@ -408,28 +427,28 @@
     "A5",
     "_xlfn.SEQUENCE(0)",
     "#CALC!",
-    "HF differences table"
+    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
    ],
    [
     "Sheet1",
     "A6",
     "_xlfn.WEIBULL.DIST(0,1,1,FALSE())",
     0,
-    "HF differences table; MS Q&A 5065194 (Excel returns 0, reply does not dispute it)"
+    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table; MS Q&A 5065194 (Excel returns 0, reply does not dispute it)"
    ],
    [
     "Sheet1",
     "A7",
     "ADDRESS(1,1,4,TRUE(),\"\")",
     "!A1",
-    "HF differences table"
+    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
    ],
    [
     "Sheet1",
     "A8",
     "DAYS(-1,0)",
     "#NUM!",
-    "HF differences table"
+    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
    ],
    [
     "Sheet1",
@@ -446,14 +465,22 @@
   "sources": [
    "https://hyperformula.handsontable.com/docs/guide/list-of-differences"
   ],
-  "note": "A1 refers to itself only on the branch IF does not take. HF says Excel returns 0, same as Google Sheets.",
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-22",
+   "where": "desktop Excel for Microsoft 365",
+   "results": {
+    "=IF(FALSE(),A1,0)": 0
+   }
+  },
+  "note": "Primary: Adam Marsh, desktop Excel 2026-11-22. IF(FALSE,A1,0) typed into A1 returns 0 with no circular-reference warning. HyperFormula's differences table is a secondary cross-reference. A1 refers to itself only on the branch IF does not take.",
   "cases": [
    [
     "Sheet1",
     "A1",
     "IF(FALSE(),A1,0)",
     0,
-    "HF differences table (dependency collection)"
+    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table (dependency collection)"
    ]
   ],
   "file": "F13-hf-if-false-cycle.xlsx"

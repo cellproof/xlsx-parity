@@ -2,9 +2,10 @@
 
 make test uses the committed workbooks. Run this only to regenerate them.
 Every expected value is copied from a cited source: a Univer issue, an
-IronCalc issue, HyperFormula's published Excel column, a Microsoft
-Support page that states the result for that input, or a recorded desktop
-Excel result. Each formula cell
+IronCalc issue, a Microsoft Support page that states the result for that
+input, or a recorded desktop Excel result. F11-F13 values are from Adam
+Marsh's desktop Excel run on 2026-11-22. HyperFormula's differences page
+is only a secondary reference for those formulas. Each formula cell
 stores that Excel value as its cached value, so a reader that does not
 calculate can be checked for cache survival.
 
@@ -35,12 +36,18 @@ MS = {
 WEIBULL_Q = "https://learn.microsoft.com/en-us/answers/questions/5065194/weibull-dist-function-error"
 MREXCEL_NEG = "https://www.mrexcel.com/board/threads/negative-number-format.120253/"
 SUM_NEG_ZERO = "https://learn.microsoft.com/en-us/answers/questions/4790299/sum-formula-returns-(0-00)-not-for-zero-sum"
-TINV_PRIMARY = {
-    "who": "Adam Marsh",
-    "when": "2026-11-22",
-    "where": "desktop Windows Excel (Microsoft 365)",
-    "results": {"=T.INV(0,1)": "#DIV/0!", "=T.INV(0,2)": "#NUM!"},
-}
+
+
+def excel_run(results):
+    """Adam Marsh, desktop Excel for Microsoft 365, 2026-11-22."""
+    return {
+        "who": "Adam Marsh",
+        "when": "2026-11-22",
+        "where": "desktop Excel for Microsoft 365",
+        "results": results,
+    }
+
+
 HF = "https://hyperformula.handsontable.com/docs/guide/list-of-differences"
 IC = "https://github.com/ironcalc/IronCalc/issues/"
 
@@ -135,46 +142,82 @@ FIXTURES = [
             ("Summary", "B2", "SUMIFS(Data!B:B,Data!A:A,$A:$A)", 10809, "issue #8154 text (k0 total)"),
             ("Summary", "B301", "SUMIFS(Data!B:B,Data!A:A,$A:$A)", 10800, "issue #8154 text (k299 total)"),
          ]),
-    # Milestone 4. Excel values below are copied from HyperFormula's differences
-    # table or from an IronCalc issue that shows Excel's output. None are inferred.
+    # Milestone 4. F11-F13 expected values are Adam Marsh's desktop Excel run
+    # on 2026-11-22. HyperFormula's differences table is a secondary
+    # cross-reference. F14-F25 values are copied from an IronCalc issue that
+    # shows Excel's output. None are inferred.
     dict(id="F11-hf-negative-rounding",
          sources=[HF, MS["INT"], MS["ISEVEN"]],
-         note=("HyperFormula differences table, negative-rounding rows. "
+         primary_source=excel_run({
+             "=INT(-8.9)": -9,
+             "=ISEVEN(2.5)": True,
+             "=ISODD(3.5)": True,
+             "=CEILING.MATH(-4.3,2,2)": -6,
+             "=FLOOR.MATH(-4.7,2,2)": -4,
+         }),
+         note=("Primary: Adam Marsh, desktop Excel 2026-11-22. "
+               "HyperFormula's differences table is a secondary cross-reference for the negative-rounding rows. "
                "INT(-8.9)=-9 and ISEVEN(2.5)=TRUE are also the worked examples on the Microsoft pages."),
          inputs={}, cases=[
-            ("Sheet1", "A1", "INT(-8.9)", -9, "HF differences / MS INT"),
-            ("Sheet1", "A2", "ISEVEN(2.5)", True, "HF differences / MS ISEVEN"),
-            ("Sheet1", "A3", "ISODD(3.5)", True, "HF differences table (Excel TRUE)"),
-            ("Sheet1", "A4", "_xlfn.CEILING.MATH(-4.3,2,2)", -6, "HF differences table"),
-            ("Sheet1", "A5", "_xlfn.FLOOR.MATH(-4.7,2,2)", -4, "HF differences table"),
+            ("Sheet1", "A1", "INT(-8.9)", -9,
+             "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences / MS INT"),
+            ("Sheet1", "A2", "ISEVEN(2.5)", True,
+             "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences / MS ISEVEN"),
+            ("Sheet1", "A3", "ISODD(3.5)", True,
+             "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table (Excel TRUE)"),
+            ("Sheet1", "A4", "_xlfn.CEILING.MATH(-4.3,2,2)", -6,
+             "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"),
+            ("Sheet1", "A5", "_xlfn.FLOOR.MATH(-4.7,2,2)", -4,
+             "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"),
          ]),
     dict(id="F12-hf-npv-sequence-errors",
          sources=[HF, MS["T.INV"], WEIBULL_Q],
-         primary_source=TINV_PRIMARY,
-         note=("Excel column of HyperFormula's differences table. Rounded 4-decimal rows are not included. "
+         primary_source=excel_run({
+             "=NPV(1,TRUE(),1)": 0.75,
+             "=NPV(1,B1)": 0,
+             "=COUNTA(1,)": 2,
+             "=T.INV(0,1)": "#DIV/0!",
+             "=SEQUENCE(0)": "#CALC!",
+             "=WEIBULL.DIST(0,1,1,FALSE())": 0,
+             '=ADDRESS(1,1,4,TRUE(),"")': "!A1",
+             "=DAYS(-1,0)": "#NUM!",
+             "=T.INV(0,2)": "#NUM!",
+         }),
+         note=("Primary: Adam Marsh, desktop Excel 2026-11-22. "
+               "HyperFormula's differences table is a secondary cross-reference. Rounded 4-decimal rows are not included. "
                "DAYS is stored without _xlfn.: IronCalc 0.9.1 rewrites the prefixed form to DAYS on save. "
-               "Primary source for T.INV(0,1) and T.INV(0,2) is Adam Marsh's desktop Excel run on 2026-11-22. "
                "Microsoft's T.INV page says #NUM! for probability <= 0, which is wrong for df=1. "
                "The WEIBULL.DIST Q&A reports Excel returns 0, and the Microsoft reply does not dispute that."),
          inputs={("Sheet1", "B1"): True}, cases=[
-            ("Sheet1", "A1", "NPV(1,TRUE(),1)", 0.75, "HF differences table"),
-            ("Sheet1", "A2", "NPV(1,B1)", 0, "HF differences table (B1 = TRUE)"),
-            ("Sheet1", "A3", "COUNTA(1,)", 2, "HF differences table"),
+            ("Sheet1", "A1", "NPV(1,TRUE(),1)", 0.75,
+             "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"),
+            ("Sheet1", "A2", "NPV(1,B1)", 0,
+             "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table (B1 = TRUE)"),
+            ("Sheet1", "A3", "COUNTA(1,)", 2,
+             "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"),
             ("Sheet1", "A4", "_xlfn.T.INV(0,1)", "#DIV/0!",
              "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"),
-            ("Sheet1", "A5", "_xlfn.SEQUENCE(0)", "#CALC!", "HF differences table"),
+            ("Sheet1", "A5", "_xlfn.SEQUENCE(0)", "#CALC!",
+             "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"),
             ("Sheet1", "A6", "_xlfn.WEIBULL.DIST(0,1,1,FALSE())", 0,
-             "HF differences table; MS Q&A 5065194 (Excel returns 0, reply does not dispute it)"),
-            ("Sheet1", "A7", 'ADDRESS(1,1,4,TRUE(),"")', "!A1", "HF differences table"),
-            ("Sheet1", "A8", "DAYS(-1,0)", "#NUM!", "HF differences table"),
+             "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table; MS Q&A 5065194 (Excel returns 0, reply does not dispute it)"),
+            ("Sheet1", "A7", 'ADDRESS(1,1,4,TRUE(),"")', "!A1",
+             "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"),
+            ("Sheet1", "A8", "DAYS(-1,0)", "#NUM!",
+             "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"),
             ("Sheet1", "A9", "_xlfn.T.INV(0,2)", "#NUM!",
              "primary: Adam Marsh, desktop Excel 2026-11-22"),
          ]),
     dict(id="F13-hf-if-false-cycle",
          sources=[HF],
-         note="A1 refers to itself only on the branch IF does not take. HF says Excel returns 0, same as Google Sheets.",
+         primary_source=excel_run({"=IF(FALSE(),A1,0)": 0}),
+         note=("Primary: Adam Marsh, desktop Excel 2026-11-22. "
+               "IF(FALSE,A1,0) typed into A1 returns 0 with no circular-reference warning. "
+               "HyperFormula's differences table is a secondary cross-reference. "
+               "A1 refers to itself only on the branch IF does not take."),
          inputs={}, cases=[
-            ("Sheet1", "A1", "IF(FALSE(),A1,0)", 0, "HF differences table (dependency collection)"),
+            ("Sheet1", "A1", "IF(FALSE(),A1,0)", 0,
+             "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table (dependency collection)"),
          ]),
     dict(id="F14-large-k", issue=1750,
          sources=[IC + "1750"],

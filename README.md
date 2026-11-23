@@ -18,7 +18,7 @@ Run it with `make test`.
 
 A finding is a miss already recorded in `suite/baseline.json`. The run passes when every measurement matches that file, including those misses. A new miss, or a recorded miss that starts matching Excel, fails the run.
 
-Expected values are Excel's. Each one is copied from a Univer issue, an IronCalc issue, [HyperFormula's list of differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences), a Microsoft Support page, or a recorded desktop Excel result, and the citation is in [`fixtures/fixtures.json`](fixtures/fixtures.json). The suite does not invent expected values. Milestone 4's new cases are listed in [`CHANGELOG.md`](CHANGELOG.md). Numeric comparisons with Excel use a relative tolerance of 1e-12. Strings, booleans, and errors are exact.
+Expected values are Excel's. Each one is copied from a Univer issue, an IronCalc issue, a Microsoft Support page, or a recorded desktop Excel result, and the citation is in [`fixtures/fixtures.json`](fixtures/fixtures.json). F11–F13 come from a desktop Excel for Microsoft 365 run by Adam Marsh on 2026-11-22. [HyperFormula's list of differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences) is a reference for those formulas, not the source of the values. The suite does not invent expected values. Milestone 4's new cases are listed in [`CHANGELOG.md`](CHANGELOG.md). Numeric comparisons with Excel use a relative tolerance of 1e-12. Strings, booleans, and errors are exact.
 
 ## Run
 
@@ -76,4 +76,4 @@ Installed packages, the LibreOffice package used in CI, and the fixture sources 
 
 ## Limits
 
-Expected values were taken from issue text, HyperFormula's published Excel column, Microsoft docs, and, for `T.INV(0,1)` and `T.INV(0,2)`, a desktop Windows Excel (Microsoft 365) run by Adam Marsh on 2026-11-22. Seventy-four cases is a small sample, not a draw of Excel as a whole. Univer's own engine, the IronCalc engine hook, and LibreOffice Calc are scored on those 74 cells. LibreOffice misses that match the baseline are findings. Numeric Excel checks use a relative tolerance of 1e-12; strings, booleans, and errors stay exact.
+Expected values were taken from issue text, Microsoft docs, and recorded desktop Excel results. F11–F13, including `T.INV(0,1)` and `T.INV(0,2)`, come from a desktop Excel for Microsoft 365 run by Adam Marsh on 2026-11-22. HyperFormula's differences page is a reference for those formulas only. Seventy-four cases is a small sample, not a draw of Excel as a whole. Univer's own engine, the IronCalc engine hook, and LibreOffice Calc are scored on those 74 cells. LibreOffice misses that match the baseline are findings. Numeric Excel checks use a relative tolerance of 1e-12; strings, booleans, and errors stay exact.

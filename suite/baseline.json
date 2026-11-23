@@ -1,0 +1,39 @@
+{
+  "ironcalc_version": "0.9.1",
+  "sheetjs_version": "0.20.3",
+  "cells_pass": 21,
+  "cells_pass_excluding_f04": 21,
+  "cells": 27,
+  "cells_excluding_f04": 26,
+  "fixtures_pass": 7,
+  "fixtures": 10,
+  "errors": 0,
+  "weaker_fixture": "F04-text-negative-zero",
+  "ironcalc_failures": {
+    "F04-text-negative-zero": {
+      "Sheet1!A1": "0"
+    },
+    "F07-value-accounting-negatives": {
+      "Sheet1!A1": "#VALUE!",
+      "Sheet1!A2": "#VALUE!",
+      "Sheet1!A3": "#VALUE!"
+    },
+    "F10-sumifs-legacy-whole-column": {
+      "Summary!B2": 0,
+      "Summary!B301": 0
+    }
+  },
+  "features": [
+    ["bold / fill", "kept / kept", "lost / lost"],
+    ["date number format", "kept", "kept"],
+    ["column width", "kept", "kept"],
+    ["merged cells", "kept", "kept"],
+    ["comment", "lost", "kept"],
+    ["data validation", "lost", "lost"],
+    ["freeze panes", "kept", "lost"],
+    ["hyperlink", "kept", "kept"],
+    ["defined name", "kept", "kept"],
+    ["conditional formatting", "kept", "lost"],
+    ["chart", "lost", "lost"]
+  ]
+}

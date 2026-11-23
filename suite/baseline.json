@@ -46,6 +46,14 @@
     },
     "divergences": {}
   },
+  "ironcalc_wrong_cached_cells": [
+    "F04-text-negative-zero Sheet1!A1",
+    "F07-value-accounting-negatives Sheet1!A1",
+    "F07-value-accounting-negatives Sheet1!A2",
+    "F07-value-accounting-negatives Sheet1!A3",
+    "F10-sumifs-legacy-whole-column Summary!B2",
+    "F10-sumifs-legacy-whole-column Summary!B301"
+  ],
   "features": [
     ["bold / fill", "kept / kept", "lost / lost"],
     ["date number format", "kept", "kept"],

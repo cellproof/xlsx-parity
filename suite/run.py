@@ -1,9 +1,12 @@
 """Test 1 baseline: IronCalc calculation, SheetJS CE read/write, feature round-trip.
 
 Excel-expected values and their citations live in fixtures/fixtures.json.
-Known IronCalc misses, including the JavaScript build, are recorded in
-suite/baseline.json. The process exits 0 when every measured result matches
-that record, and nonzero when a result changes — a regression or an unexpected fix.
+Known IronCalc misses, including the JavaScript build, the six cells whose
+wrong values are written back as cached values, and each feature kept/lost
+result are recorded in suite/baseline.json. Feature results are read from the
+written xlsx, one feature and one library at a time. The process exits 0 when
+every measured result matches that record, and nonzero when a result changes
+— a regression or an unexpected fix.
 """
 import json
 import os
@@ -300,42 +303,143 @@ def classify(rows, baseline):
             row["status"] = "fail"
 
 
+# One row of the feature table, then the flag keys that row is built from.
+# "bold / fill" is two flags joined with " / " so a change names bold or fill.
+FEATURE_ROWS = (
+    ("bold / fill", ("bold A1", "fill A1")),
+    ("date number format", ("date numfmt A2",)),
+    ("column width", ("column width A=30",)),
+    ("merged cells", ("merged C1:D1",)),
+    ("comment", ("comment A1",)),
+    ("data validation", ("data validation B2",)),
+    ("freeze panes", ("freeze panes",)),
+    ("hyperlink", ("hyperlink B5",)),
+    ("defined name", ("defined name MyName",)),
+    ("conditional formatting", ("conditional format",)),
+    ("chart", ("chart part (xl/charts/)",)),
+)
+WRITERS = ("IronCalc save", "SheetJS CE write")
+
+
 def feature_flags(path):
-    flags = {}
+    """Kept/lost signals read from one written RT-features.xlsx.
+
+    openpyxl reads the worksheet, workbook, and styles. The chart check reads
+    zip part names. Nothing here is a hand-written kept/lost label.
+    """
     wb = openpyxl.load_workbook(path)
     ws = wb["Data"]
     a1 = ws["A1"]
-    flags["bold A1"] = bool(a1.font and a1.font.b)
-    flags["fill A1"] = (a1.fill.fgColor.rgb if a1.fill and a1.fill.fill_type else None) not in (None, "00000000")
-    flags["date numfmt A2"] = ws["A2"].number_format == "yyyy-mm-dd"
-    flags["column width A=30"] = abs((ws.column_dimensions["A"].width or 0) - 30) < 1.5
-    flags["merged C1:D1"] = "C1:D1" in [str(x) for x in ws.merged_cells.ranges]
-    flags["comment A1"] = ws["A1"].comment is not None
-    flags["data validation B2"] = len(ws.data_validations.dataValidation) > 0
-    flags["freeze panes"] = ws.freeze_panes == "A2"
-    flags["hyperlink B5"] = ws["B5"].hyperlink is not None
-    flags["defined name MyName"] = "MyName" in wb.defined_names
-    flags["conditional format"] = len(list(ws.conditional_formatting)) > 0
-    flags["formula A4 '=MyName*2'"] = ws["A4"].value == "=MyName*2"
-    flags["chart part (xl/charts/)"] = any(name.startswith("xl/charts/") for name in xlsx_xml.parts(path))
-    return flags
+    return {
+        # xl/styles.xml font <b> on A1's cellXf.
+        "bold A1": bool(a1.font and a1.font.b),
+        # xl/styles.xml pattern fill <fgColor rgb="..."> on A1's cellXf.
+        "fill A1": (a1.fill.fgColor.rgb if a1.fill and a1.fill.fill_type else None) not in (None, "00000000"),
+        # xl/styles.xml <numFmt formatCode="yyyy-mm-dd"> on A2.
+        "date numfmt A2": ws["A2"].number_format == "yyyy-mm-dd",
+        # worksheet <col min="1" max="1" width="..."> within 1.5 of 30.
+        "column width A=30": abs((ws.column_dimensions["A"].width or 0) - 30) < 1.5,
+        # worksheet <mergeCell ref="C1:D1">.
+        "merged C1:D1": "C1:D1" in [str(item) for item in ws.merged_cells.ranges],
+        # xl/comments*.xml <comment ref="A1">.
+        "comment A1": ws["A1"].comment is not None,
+        # worksheet <dataValidations>/<dataValidation> (fixture sqref is B2).
+        "data validation B2": len(ws.data_validations.dataValidation) > 0,
+        # worksheet <pane state="frozen" topLeftCell="A2">.
+        "freeze panes": ws.freeze_panes == "A2",
+        # worksheet <hyperlink ref="B5">.
+        "hyperlink B5": ws["B5"].hyperlink is not None,
+        # workbook.xml <definedName name="MyName">.
+        "defined name MyName": "MyName" in wb.defined_names,
+        # worksheet <conditionalFormatting> (fixture sqref is A2:A3).
+        "conditional format": len(list(ws.conditional_formatting)) > 0,
+        # formula string on A4; not a feature-table row.
+        "formula A4 '=MyName*2'": ws["A4"].value == "=MyName*2",
+        # zip part xl/charts/* (xl/charts/chart1.xml in the fixture).
+        "chart part (xl/charts/)": any(name.startswith("xl/charts/") for name in xlsx_xml.parts(path)),
+    }
 
 
 def feature_table(flags):
-    kept = lambda name: "kept" if flags[name] else "lost"
+    rows = []
+    for name, keys in FEATURE_ROWS:
+        rows.append((name, " / ".join("kept" if flags[key] else "lost" for key in keys)))
+    return rows
+
+
+def _feature_change(name, writer, expected, got):
+    if got == "kept" and expected == "lost":
+        how = "newly kept"
+    elif got == "lost" and expected == "kept":
+        how = "newly lost"
+    else:
+        how = "changed"
+    return f"feature {name} {writer}: {how} (baseline {expected}, measured {got})"
+
+
+def _split_feature_change(name, writer, expected, got):
+    if " / " in str(expected) or " / " in str(got):
+        labels = name.split(" / ")
+        exp_parts = str(expected).split(" / ")
+        got_parts = str(got).split(" / ")
+        if len(labels) == len(exp_parts) == len(got_parts) and len(labels) > 1:
+            return [
+                _feature_change(label, writer, exp_part, got_part)
+                for label, exp_part, got_part in zip(labels, exp_parts, got_parts)
+                if exp_part != got_part
+            ]
+    return [_feature_change(name, writer, expected, got)]
+
+
+def feature_mismatches(measured, expected_rows):
+    """Name the feature and the library when a kept/lost result changes."""
+    mismatches = []
+    if len(measured) != len(expected_rows):
+        mismatches.append(f"feature rows: measured {len(measured)}, baseline {len(expected_rows)}")
+    for got, exp in zip(measured, expected_rows):
+        exp_name = exp[0] if exp else None
+        if got[0] != exp_name:
+            mismatches.append(f"feature row {got[0]!r} != baseline row {exp_name!r}")
+            continue
+        for index, writer in enumerate(WRITERS, start=1):
+            if index >= len(got) or index >= len(exp):
+                mismatches.append(f"feature {got[0]} {writer}: missing result")
+                continue
+            if got[index] != exp[index]:
+                mismatches.extend(_split_feature_change(got[0], writer, exp[index], got[index]))
+    return mismatches
+
+
+def ironcalc_wrong_cached_cells(rows):
+    """Known misses whose calculated value was written back over the Excel cache."""
     return [
-        ("bold / fill", f"{kept('bold A1')} / {kept('fill A1')}"),
-        ("date number format", kept("date numfmt A2")),
-        ("column width", kept("column width A=30")),
-        ("merged cells", kept("merged C1:D1")),
-        ("comment", kept("comment A1")),
-        ("data validation", kept("data validation B2")),
-        ("freeze panes", kept("freeze panes")),
-        ("hyperlink", kept("hyperlink B5")),
-        ("defined name", kept("defined name MyName")),
-        ("conditional formatting", kept("conditional format")),
-        ("chart", kept("chart part (xl/charts/)")),
+        f"{row['id']} {row['cell']}"
+        for row in rows
+        if row["status"] == "expected-fail" and row.get("ironcalc_cache_ok")
     ]
+
+
+def _n_cells(n):
+    return f"{n} cell" if n == 1 else f"{n} cells"
+
+
+def wrong_cache_mismatches(measured, expected):
+    if list(measured) == list(expected):
+        return []
+    measured_text = ", ".join(measured) if measured else "none"
+    expected_text = ", ".join(expected) if expected else "none"
+    lines = [
+        f"IronCalc writes wrong cached values on {_n_cells(len(measured))} ({measured_text}); baseline lists {_n_cells(len(expected))} ({expected_text})"
+    ]
+    newly = [cell for cell in measured if cell not in expected]
+    gone = [cell for cell in expected if cell not in measured]
+    if newly:
+        lines.append("  newly written wrong: " + ", ".join(newly))
+    if gone:
+        lines.append("  no longer written wrong: " + ", ".join(gone))
+    if not newly and not gone:
+        lines.append("  same cells, different order")
+    return lines
 
 
 def counts(rows, baseline):
@@ -414,13 +518,11 @@ def collect_mismatches(rows, baseline, stats, ic_ver, sj_ver, table, sheetjs_rea
             )
     for key in sorted(set(known) - seen):
         mismatches.append(f"baseline failure {key[0]} {key[1]} is not a fixture cell")
-    if table != baseline["features"]:
-        mismatches.append("feature table differs from baseline")
-        for got, exp in zip(table, baseline["features"]):
-            if list(got) != exp:
-                mismatches.append(f"  measured {got} baseline {exp}")
-        if len(table) != len(baseline["features"]):
-            mismatches.append(f"  measured {len(table)} feature rows, baseline {len(baseline['features'])}")
+    mismatches.extend(feature_mismatches(table, baseline["features"]))
+    mismatches.extend(wrong_cache_mismatches(
+        ironcalc_wrong_cached_cells(rows),
+        baseline["ironcalc_wrong_cached_cells"],
+    ))
     return mismatches
 
 
@@ -493,11 +595,13 @@ def print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver)
     formula_ok = sum(bool(row.get("ironcalc_formula_ok")) for row in rows)
     print(f"SheetJS CE {sj_ver} read: {read_ok}/{stats['cells']} formula strings and cached values preserved.")
     print(f"SheetJS CE {sj_ver} write: {write_ok}/{stats['cells']} formula strings and cached values preserved.")
-    overwritten = sum(row["status"] == "expected-fail" and row.get("ironcalc_cache_ok") for row in rows)
+    wrong_cells = ironcalc_wrong_cached_cells(rows)
     print(
         f"IronCalc save: {formula_ok}/{stats['cells']} formula strings kept; "
-        f"writes wrong cached values on {overwritten} cells."
+        f"writes wrong cached values on {len(wrong_cells)} cells."
     )
+    for cell in wrong_cells:
+        print(f"  {cell}")
     print("Feature round-trip (RT-features.xlsx):")
     header = ("feature", "IronCalc save", "SheetJS CE write")
     width = [len(header[i]) for i in range(3)]

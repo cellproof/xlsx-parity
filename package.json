@@ -3,9 +3,17 @@
   "private": true,
   "version": "0.0.0",
   "license": "MIT",
-  "description": "Excel formula parity and XLSX round-trip checks. SheetJS Community Edition only (no SheetJS Pro); IronCalc via @ironcalc/nodejs.",
+  "description": "Excel formula parity and XLSX round-trip checks. SheetJS Community Edition only (no SheetJS Pro); IronCalc via @ironcalc/nodejs; Univer via open-source @univerjs packages.",
   "dependencies": {
     "@ironcalc/nodejs": "0.9.1",
+    "@univerjs/core": "1.6.0",
+    "@univerjs/docs": "1.6.0",
+    "@univerjs/engine-formula": "1.6.0",
+    "@univerjs/engine-render": "1.6.0",
+    "@univerjs/sheets": "1.6.0",
+    "@univerjs/sheets-formula": "1.6.0",
+    "@univerjs/sheets-numfmt": "1.6.0",
+    "rxjs": "7.8.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
 }

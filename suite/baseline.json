@@ -46,6 +46,27 @@
     },
     "divergences": {}
   },
+  "univer": {
+    "packages": {
+      "@univerjs/core": "1.6.0",
+      "@univerjs/docs": "1.6.0",
+      "@univerjs/engine-formula": "1.6.0",
+      "@univerjs/engine-render": "1.6.0",
+      "@univerjs/sheets": "1.6.0",
+      "@univerjs/sheets-formula": "1.6.0",
+      "@univerjs/sheets-numfmt": "1.6.0",
+      "rxjs": "7.8.2"
+    },
+    "cells": 2,
+    "cells_match_excel": 0,
+    "errors": 0,
+    "results": {
+      "F01-let-lambda-call": {
+        "Sheet1!A1": "#NAME?",
+        "Sheet1!A2": "#NAME?"
+      }
+    }
+  },
   "ironcalc_wrong_cached_cells": [
     "F04-text-negative-zero Sheet1!A1",
     "F07-value-accounting-negatives Sheet1!A1",

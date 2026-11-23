@@ -2,11 +2,12 @@
 
 Excel-expected values and their citations live in fixtures/fixtures.json.
 Known IronCalc misses, including the JavaScript build, the six cells whose
-wrong values are written back as cached values, and each feature kept/lost
-result are recorded in suite/baseline.json. Feature results are read from the
-written xlsx, one feature and one library at a time. The process exits 0 when
-every measured result matches that record, and nonzero when a result changes
-— a regression or an unexpected fix.
+wrong values are written back as cached values, each feature kept/lost
+result, and Univer's headless result on fixture F01 are recorded in
+suite/baseline.json. Feature results are read from the written xlsx, one
+feature and one library at a time. The process exits 0 when every measured
+result matches that record, and nonzero when a result changes — a regression
+or an unexpected fix. A Univer miss that matches the record is a finding.
 """
 import json
 import os
@@ -50,7 +51,8 @@ def values_equal(a, b):
 
 def show(value):
     if isinstance(value, str):
-        if value.startswith("#") and value.endswith("!"):
+        # Excel errors end in "!" (#VALUE!) or "?" (#NAME?), plus #N/A.
+        if (value.startswith("#") and value.endswith(("!", "?"))) or value == "#N/A":
             return value
         return json.dumps(value)
     if isinstance(value, float) and value.is_integer():
@@ -144,6 +146,33 @@ def run_ironcalc_js():
         raise SystemExit(proc.returncode or 1)
     report = json.load(open(os.path.join(js_dir, "read.json")))
     return report["package"], report["version"], {(c["file"], c["cell"]): c for c in report["cases"]}
+
+
+def run_univer():
+    uni_dir = os.path.join(OUT, "univer")
+    os.makedirs(uni_dir, exist_ok=True)
+    proc = subprocess.run(
+        ["node", os.path.join(ROOT, "suite", "univer_adapter.js"), uni_dir],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        sys.stderr.write(proc.stderr or proc.stdout)
+        raise SystemExit(proc.returncode or 1)
+    return json.load(open(os.path.join(uni_dir, "read.json")))
+
+
+def univer_got(case):
+    if case.get("error"):
+        return case["error"]
+    return case.get("got")
+
+
+def univer_show(case):
+    if case.get("error"):
+        return case["error"]
+    return show(case.get("got"))
 
 
 def js_result(row):
@@ -570,7 +599,96 @@ def print_js_table(rows, js_pkg, js_ver):
         print(f"  {row['id']} {row['cell']}: python {py}, js {js}")
 
 
-def print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver):
+def collect_univer_mismatches(report, rows, baseline):
+    """F01 results from the headless Univer model. A miss matching the record is a finding."""
+    spec = baseline["univer"]
+    mismatches = []
+    packages = report.get("packages") or {}
+    for name in sorted(set(packages) | set(spec["packages"])):
+        if packages.get(name) != spec["packages"].get(name):
+            mismatches.append(
+                f"Univer package {name}: measured {packages.get(name)!r}, baseline {spec['packages'].get(name)!r}"
+            )
+    by_key = {(row["file"], row["cell"]): row for row in rows}
+    measured = {}
+    match_excel = 0
+    errors = 0
+    for case in report["cases"]:
+        row = by_key.get((case["file"], case["cell"]))
+        if row is None:
+            mismatches.append(f"Univer {case['file']} {case['cell']} is not a fixture cell")
+            continue
+        got = univer_got(case)
+        measured.setdefault(row["id"], {})[case["cell"]] = got
+        if case.get("error"):
+            errors += 1
+        elif same(got, row["excel"]):
+            match_excel += 1
+    if len(report["cases"]) != spec["cells"]:
+        mismatches.append(f"univer cells: measured {len(report['cases'])}, baseline {spec['cells']}")
+    if match_excel != spec["cells_match_excel"]:
+        mismatches.append(
+            f"univer cells_match_excel: measured {match_excel}, baseline {spec['cells_match_excel']}"
+        )
+    if errors != spec["errors"]:
+        mismatches.append(f"univer errors: measured {errors}, baseline {spec['errors']}")
+    known = {(fid, cell): recorded for fid, cells in spec["results"].items() for cell, recorded in cells.items()}
+    seen = {(fid, cell) for fid, cells in measured.items() for cell in cells}
+    for key in sorted(seen):
+        recorded = known.get(key)
+        got = measured[key[0]][key[1]]
+        if key not in known or not values_equal(got, recorded):
+            excel = next(row["excel"] for row in rows if row["id"] == key[0] and row["cell"] == key[1])
+            baseline_text = show(recorded) if key in known else "absent"
+            mismatches.append(
+                f"Univer {key[0]} {key[1]}: baseline {baseline_text}, got {show(got)} (Excel {show(excel)})"
+            )
+    for key in sorted(set(known) - seen):
+        mismatches.append(f"univer result {key[0]} {key[1]} was not measured")
+    return mismatches
+
+
+def print_univer_table(report, rows):
+    by_key = {(row["file"], row["cell"]): row for row in rows}
+    engine = report.get("packages", {}).get("@univerjs/engine-formula", "?")
+    matched = 0
+    errors = 0
+    body = []
+    for case in report["cases"]:
+        row = by_key.get((case["file"], case["cell"]))
+        excel = show(row["excel"]) if row else "?"
+        got = univer_show(case)
+        ok = bool(row) and case.get("error") is None and same(case.get("got"), row["excel"])
+        if case.get("error"):
+            errors += 1
+        elif ok:
+            matched += 1
+        body.append((
+            row["id"] if row else case["file"],
+            case["cell"],
+            excel,
+            got,
+            "yes" if ok else "no",
+        ))
+    print(
+        f"Univer headless @univerjs/engine-formula {engine} (F01): "
+        f"{matched}/{len(report['cases'])} cells match Excel, {errors} errors."
+    )
+    header = ("fixture", "cell", "excel", "univer", "univer=excel")
+    width = [len(col) for col in header]
+    for record in body:
+        for i, col in enumerate(record):
+            width[i] = max(width[i], len(col))
+
+    def fmt(record):
+        return ("  " + "  ".join(col.ljust(width[i]) for i, col in enumerate(record))).rstrip()
+
+    print(fmt(header))
+    for record in body:
+        print(fmt(record))
+
+
+def print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver, univer_report):
     weaker = "F04"
     print(
         f"IronCalc {ic_ver} (Python bindings) calc parity: "
@@ -626,6 +744,8 @@ def print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver)
     print()
     print_js_table(rows, js_pkg, js_ver)
     print()
+    print_univer_table(univer_report, rows)
+    print()
     if mismatches:
         print("baseline: DIFFERS")
         for item in mismatches:
@@ -641,6 +761,7 @@ def main():
     ic_ver, rows = run_ironcalc(fixtures)
     js_pkg, js_ver, js_cases = run_ironcalc_js()
     attach_js(rows, js_cases)
+    univer_report = run_univer()
     sj_ver, sheetjs_read = run_sheetjs()
     for row in rows:
         read = sheetjs_read.get((row["file"], row["cell"]))
@@ -656,10 +777,11 @@ def main():
     table = [[name, ic, sj] for (name, ic), (_, sj) in zip(ic_table, sj_table)]
     mismatches = collect_mismatches(rows, baseline, stats, ic_ver, sj_ver, table, sheetjs_read)
     mismatches.extend(collect_js_mismatches(rows, baseline, js_pkg, js_ver))
+    mismatches.extend(collect_univer_mismatches(univer_report, rows, baseline))
     for name, value in feature_table(orig_flags):
         if value not in ("kept", "kept / kept"):
             mismatches.append(f"original RT-features.xlsx missing {name} ({value})")
-    print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver)
+    print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver, univer_report)
     return 1 if mismatches else 0
 
 

@@ -1,0 +1,309 @@
+[
+ {
+  "id": "F01-let-lambda-call",
+  "issue": 8332,
+  "sources": [
+   "https://github.com/dream-num/univer/issues/8332"
+  ],
+  "note": "Issue table; author says the Excel column was checked in Excel for the web.",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "_xlfn.LET(_xlpm.f,_xlfn.LAMBDA(_xlpm.p,_xlpm.p+1),_xlpm.f(1))",
+    2,
+    "issue #8332 table"
+   ],
+   [
+    "Sheet1",
+    "A2",
+    "_xlfn.LET(_xlpm.f,_xlfn.LAMBDA(_xlpm.p,_xlpm.q,_xlpm.p+_xlpm.q),_xlpm.f(1,2))",
+    3,
+    "issue #8332 table"
+   ]
+  ],
+  "file": "F01-let-lambda-call.xlsx"
+ },
+ {
+  "id": "F02-iso-ceiling",
+  "issue": 8268,
+  "sources": [
+   "https://github.com/dream-num/univer/issues/8268",
+   "https://support.microsoft.com/en-us/excel/functions/iso-ceiling-function"
+  ],
+  "note": "Expected values stated in the issue, citing Microsoft's ISO.CEILING page.",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "_xlfn.ISO.CEILING(4.3)",
+    5,
+    "issue #8268 / MS ISO.CEILING"
+   ],
+   [
+    "Sheet1",
+    "A2",
+    "_xlfn.ISO.CEILING(-4.3)",
+    -4,
+    "issue #8268 / MS ISO.CEILING"
+   ],
+   [
+    "Sheet1",
+    "A3",
+    "_xlfn.ISO.CEILING(4.3,-2)",
+    6,
+    "issue #8268 / MS ISO.CEILING"
+   ]
+  ],
+  "file": "F02-iso-ceiling.xlsx"
+ },
+ {
+  "id": "F03-edate-eomonth-negative-fraction",
+  "issue": 8269,
+  "sources": [
+   "https://github.com/dream-num/univer/issues/8269",
+   "https://support.microsoft.com/en-us/office/edate-function-3c920eb2-6e66-44e7-a1f5-753ae47ee4f5",
+   "https://support.microsoft.com/en-us/office/eomonth-function-7314ffa1-2bc9-4005-9d66-f49db127d628"
+  ],
+  "note": "Serials 40527 / 40543 stated in the issue; MS docs say non-integer months are truncated.",
+  "date_format": true,
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "EDATE(DATE(2011,1,15),-1.5)",
+    40527,
+    "issue #8269 / MS EDATE"
+   ],
+   [
+    "Sheet1",
+    "A2",
+    "EOMONTH(DATE(2011,1,15),-1.5)",
+    40543,
+    "issue #8269 / MS EOMONTH"
+   ]
+  ],
+  "file": "F03-edate-eomonth-negative-fraction.xlsx"
+ },
+ {
+  "id": "F04-text-negative-zero",
+  "issue": 8270,
+  "sources": [
+   "https://github.com/dream-num/univer/issues/8270"
+  ],
+  "note": "Expected '-0' is the issue author's statement of Excel behavior; the author says they could not run it in Excel. Sourced from issue text, but weaker than the others.",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "TEXT(-0.4,\"0\")",
+    "-0",
+    "issue #8270 (author unverified in Excel)"
+   ]
+  ],
+  "file": "F04-text-negative-zero.xlsx"
+ },
+ {
+  "id": "F05-search-wildcards-and-round-digits",
+  "issue": 8198,
+  "sources": [
+   "https://github.com/dream-num/univer/issues/8198",
+   "https://support.microsoft.com/en-us/office/search-searchb-functions-9ab04538-0e55-4719-a72e-b6f54513b495"
+  ],
+  "note": "SEARCH: issue says all calls return 2 per MS SEARCH docs. ROUND*: issue says Excel returns the number unchanged or 0.",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "SEARCH(\"b*\",\"abc\")",
+    2,
+    "issue #8198 / MS SEARCH"
+   ],
+   [
+    "Sheet1",
+    "A2",
+    "SEARCH(\"?c\",\"abc\")",
+    2,
+    "issue #8198 / MS SEARCH"
+   ],
+   [
+    "Sheet1",
+    "A3",
+    "SEARCH(\"a*c\",\"xabc\")",
+    2,
+    "issue #8198 / MS SEARCH"
+   ],
+   [
+    "Sheet1",
+    "A4",
+    "SEARCH(\"~*\",\"a*b\")",
+    2,
+    "issue #8198 / MS SEARCH"
+   ],
+   [
+    "Sheet1",
+    "B1",
+    "ROUNDUP(1.23,16)",
+    1.23,
+    "issue #8198 text"
+   ],
+   [
+    "Sheet1",
+    "B2",
+    "ROUND(1.5,20)",
+    1.5,
+    "issue #8198 text"
+   ],
+   [
+    "Sheet1",
+    "B3",
+    "ROUNDDOWN(1.5,309)",
+    1.5,
+    "issue #8198 text"
+   ],
+   [
+    "Sheet1",
+    "B4",
+    "ROUND(2.5,-400)",
+    0,
+    "issue #8198 text"
+   ]
+  ],
+  "file": "F05-search-wildcards-and-round-digits.xlsx"
+ },
+ {
+  "id": "F06-char-range",
+  "issue": 8211,
+  "sources": [
+   "https://github.com/dream-num/univer/issues/8211",
+   "https://support.microsoft.com/en-us/office/char-function-bbd249c8-b36e-4a91-8017-1c133f9b837a"
+  ],
+  "note": "MS CHAR takes 'a number between 1 and 255'; issue states CHAR(256) and CHAR(65601) return #VALUE!. 128-255 is platform-dependent, so not tested.",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "CHAR(256)",
+    "#VALUE!",
+    "issue #8211 / MS CHAR"
+   ],
+   [
+    "Sheet1",
+    "A2",
+    "CHAR(65601)",
+    "#VALUE!",
+    "issue #8211 / MS CHAR"
+   ],
+   [
+    "Sheet1",
+    "A3",
+    "CHAR(65)",
+    "A",
+    "MS CHAR (65 -> A is in the 1-255 ASCII range)"
+   ]
+  ],
+  "file": "F06-char-range.xlsx"
+ },
+ {
+  "id": "F07-value-accounting-negatives",
+  "issue": 8231,
+  "sources": [
+   "https://github.com/dream-num/univer/issues/8231"
+  ],
+  "note": "Expected values stated in the issue text as Excel behavior.",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "VALUE(\"(5)\")",
+    -5,
+    "issue #8231 text"
+   ],
+   [
+    "Sheet1",
+    "A2",
+    "VALUE(\"($1,000)\")",
+    -1000,
+    "issue #8231 text"
+   ],
+   [
+    "Sheet1",
+    "A3",
+    "\"(5)\"+1",
+    -4,
+    "issue #8231 text"
+   ]
+  ],
+  "file": "F07-value-accounting-negatives.xlsx"
+ },
+ {
+  "id": "F08-amordegrc",
+  "issue": 8267,
+  "sources": [
+   "https://github.com/dream-num/univer/issues/8267",
+   "https://support.microsoft.com/en-us/office/amordegrc-function-a14d0ca1-64a4-42eb-9b3d-b0dededf9e51"
+  ],
+  "note": "#8267 lists AMORDEGRC as evaluating to #NAME? in Univer. Expected 776 is the worked example on Microsoft's AMORDEGRC page.",
+  "cases": [
+   [
+    "Sheet1",
+    "A10",
+    "AMORDEGRC(A2,A3,A4,A5,A6,A7,A8)",
+    776,
+    "MS AMORDEGRC example"
+   ]
+  ],
+  "file": "F08-amordegrc.xlsx"
+ },
+ {
+  "id": "F09-ast-cache-collision-cells",
+  "issue": 7986,
+  "sources": [
+   "https://github.com/dream-num/univer/issues/7986"
+  ],
+  "note": "Exact cells from the issue; issue states Q16084 should be 328105 (Univer showed 26614).",
+  "cases": [
+   [
+    "Sheet1",
+    "P1169",
+    "A1*326+23354",
+    26614,
+    "issue #7986 (=10*326+23354)"
+   ],
+   [
+    "Sheet1",
+    "Q16084",
+    "A1*645+321655",
+    328105,
+    "issue #7986 text"
+   ]
+  ],
+  "file": "F09-ast-cache-collision-cells.xlsx"
+ },
+ {
+  "id": "F10-sumifs-legacy-whole-column",
+  "issue": 8154,
+  "sources": [
+   "https://github.com/dream-num/univer/issues/8154",
+   "https://support.microsoft.com/en-us/office/implicit-intersection-operator-ce3be07b-0101-4450-a24e-c1c999be2b34"
+  ],
+  "note": "Issue's own data: Data!A = k{i%300}, Data!B = i+1 for 2,500 rows; Summary!A = k0..k299; Summary!B = SUMIFS(Data!B:B,Data!A:A,$A:$A) stored WITHOUT @ (legacy, non-array), which is how pre-dynamic-array Excel files store it. Per the issue and MS 'Implicit intersection operator', Excel shows it as @$A:$A and returns the same-row total. Issue states k0 total 10809, k299 total 10800. Cached values for other rows are computed from the same data definition and are not asserted.",
+  "cases": [
+   [
+    "Summary",
+    "B2",
+    "SUMIFS(Data!B:B,Data!A:A,$A:$A)",
+    10809,
+    "issue #8154 text (k0 total)"
+   ],
+   [
+    "Summary",
+    "B301",
+    "SUMIFS(Data!B:B,Data!A:A,$A:$A)",
+    10800,
+    "issue #8154 text (k299 total)"
+   ]
+  ],
+  "file": "F10-sumifs-legacy-whole-column.xlsx"
+ }
+]

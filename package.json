@@ -1,0 +1,10 @@
+{
+  "name": "xlsx-parity",
+  "private": true,
+  "version": "0.0.0",
+  "license": "MIT",
+  "description": "Excel formula parity and XLSX round-trip checks. SheetJS Community Edition only.",
+  "dependencies": {
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  }
+}

@@ -32,9 +32,12 @@ WEAKER_ORDER = (
 
 
 def same(got, expected):
+    # bool is a subclass of int; a logical TRUE is not the number 1.
+    if isinstance(expected, bool) or isinstance(got, bool):
+        return isinstance(got, bool) and isinstance(expected, bool) and got is expected
     if isinstance(expected, str):
         return got == expected
-    if isinstance(got, bool) or not isinstance(got, (int, float)):
+    if not isinstance(got, (int, float)):
         return False
     return got == expected
 
@@ -279,7 +282,9 @@ def run_sheetjs():
 
 
 def cache_matches_got(xml_value, got):
-    if isinstance(got, bool) or not isinstance(got, (int, float, str)):
+    if isinstance(got, bool):
+        return xml_value == ("1" if got else "0")
+    if not isinstance(got, (int, float, str)):
         return False
     if isinstance(got, str):
         return xml_value == got

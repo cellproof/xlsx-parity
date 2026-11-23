@@ -436,6 +436,146 @@
       }
     }
   },
+  "libreoffice": {
+    "product": "LibreOffice 26.2.5.2 620(Build:2)",
+    "package": "libreoffice-calc",
+    "package_version": "4:26.2.5.2-0ubuntu0.26.04.1~bpo24.04.1",
+    "cells": 73,
+    "cells_match_excel": 45,
+    "errors": 0,
+    "recalc_proof": {
+      "file": "F04-text-negative-zero.xlsx",
+      "cell": "Sheet1!A1",
+      "stored_cache": "-0",
+      "without_recalc": "-0",
+      "with_recalc": "0"
+    },
+    "results": {
+      "F01-let-lambda-call": {
+        "Sheet1!A1": "#VALUE!",
+        "Sheet1!A2": "#VALUE!"
+      },
+      "F02-iso-ceiling": {
+        "Sheet1!A1": "#NAME?",
+        "Sheet1!A2": "#NAME?",
+        "Sheet1!A3": "#NAME?"
+      },
+      "F03-edate-eomonth-negative-fraction": {
+        "Sheet1!A1": 40527,
+        "Sheet1!A2": 40543
+      },
+      "F04-text-negative-zero": {
+        "Sheet1!A1": "0"
+      },
+      "F05-search-wildcards-and-round-digits": {
+        "Sheet1!A1": 2,
+        "Sheet1!A2": 2,
+        "Sheet1!A3": 2,
+        "Sheet1!A4": 2,
+        "Sheet1!B1": 1.23,
+        "Sheet1!B2": 1.5,
+        "Sheet1!B3": 1.5,
+        "Sheet1!B4": 0
+      },
+      "F06-char-range": {
+        "Sheet1!A1": "#VALUE!",
+        "Sheet1!A2": "#VALUE!",
+        "Sheet1!A3": "A"
+      },
+      "F07-value-accounting-negatives": {
+        "Sheet1!A1": -5,
+        "Sheet1!A2": -1000,
+        "Sheet1!A3": -4
+      },
+      "F08-amordegrc": {
+        "Sheet1!A10": 776
+      },
+      "F09-ast-cache-collision-cells": {
+        "Sheet1!P1169": 26614,
+        "Sheet1!Q16084": 328105
+      },
+      "F10-sumifs-legacy-whole-column": {
+        "Summary!B2": 10809,
+        "Summary!B301": 10800
+      },
+      "F11-hf-negative-rounding": {
+        "Sheet1!A1": -9,
+        "Sheet1!A2": true,
+        "Sheet1!A3": true,
+        "Sheet1!A4": -6,
+        "Sheet1!A5": -4
+      },
+      "F12-hf-npv-sequence-errors": {
+        "Sheet1!A1": 0.75,
+        "Sheet1!A2": 0.5,
+        "Sheet1!A3": 2,
+        "Sheet1!A4": "#VALUE!",
+        "Sheet1!A5": "#VALUE!",
+        "Sheet1!A6": 1,
+        "Sheet1!A7": "A1",
+        "Sheet1!A8": "#NAME?"
+      },
+      "F13-hf-if-false-cycle": {
+        "Sheet1!A1": 0
+      },
+      "F14-large-k": {
+        "Sheet1!A1": 5,
+        "Sheet1!A2": "#VALUE!",
+        "Sheet1!A3": 8,
+        "Sheet1!A4": 1
+      },
+      "F15-vlookup-index-below-one": {
+        "Sheet1!E1": "#VALUE!",
+        "Sheet1!E2": "#VALUE!"
+      },
+      "F16-text-general": {
+        "Sheet1!A1": "0.0000297619047619048",
+        "Sheet1!A2": "12345678.9012345",
+        "Sheet1!A3": "33333333333.3333"
+      },
+      "F17-explicit-argument-coercion": {
+        "Sheet1!A1": "a stri",
+        "Sheet1!A2": "#VALUE!",
+        "Sheet1!A3": "#VALUE!",
+        "Sheet1!A4": 0.333333333333333
+      },
+      "F18-xlookup-return-and-empty": {
+        "Sheet1!D1": "x",
+        "Sheet1!G1": "#VALUE!"
+      },
+      "F19-sort-empty-argument": {
+        "Sheet1!B1": 8,
+        "Sheet1!B2": "#VALUE!"
+      },
+      "F20-date-serial-zero": {
+        "Sheet1!A1": 1899,
+        "Sheet1!A2": 30,
+        "Sheet1!A3": 7,
+        "Sheet1!A4": 1899
+      },
+      "F21-date-year-offset": {
+        "Sheet1!A1": 36892,
+        "Sheet1!A2": "#VALUE!"
+      },
+      "F22-and-empty-text": {
+        "Sheet1!C1": "#VALUE!"
+      },
+      "F23-sum-if-range": {
+        "Sheet1!E6": 17,
+        "Sheet1!E7": 100
+      },
+      "F24-subtotal-edges": {
+        "Sheet1!A1": 0,
+        "Sheet1!A8": 2,
+        "Sheet1!A9": 1,
+        "Sheet1!E6": 6
+      },
+      "F25-decimal-leading-sign": {
+        "Sheet1!A1": "#VALUE!",
+        "Sheet1!A2": "#VALUE!"
+      }
+    }
+  },
   "ironcalc_wrong_cached_cells": [
     "F04-text-negative-zero Sheet1!A1",
     "F07-value-accounting-negatives Sheet1!A1",

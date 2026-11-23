@@ -1,11 +1,14 @@
-"""Rebuild the 10 formula fixtures and fixtures.json.
+"""Rebuild the formula fixtures and fixtures.json.
 
 make test uses the committed workbooks. Run this only to regenerate them.
-Every expected value is copied from the cited Univer issue or Microsoft Support
-page. Each formula cell stores that Excel value as its cached value, so a
-reader that does not calculate can be checked for cache survival.
+Every expected value is copied from a cited source: a Univer issue, an
+IronCalc issue, HyperFormula's published Excel column, or a Microsoft
+Support page that states the result for that input. Each formula cell
+stores that Excel value as its cached value, so a reader that does not
+calculate can be checked for cache survival.
 
-Formula strings are OOXML storage form (_xlfn. / _xlpm. where Excel uses them).
+Formula strings are OOXML storage form (_xlfn. / _xlpm. / _xlws. where
+Excel uses them).
 """
 import json
 import os
@@ -22,7 +25,11 @@ MS = {
     "CHAR": "https://support.microsoft.com/en-us/office/char-function-bbd249c8-b36e-4a91-8017-1c133f9b837a",
     "AMORDEGRC": "https://support.microsoft.com/en-us/office/amordegrc-function-a14d0ca1-64a4-42eb-9b3d-b0dededf9e51",
     "IMPLICIT": "https://support.microsoft.com/en-us/office/implicit-intersection-operator-ce3be07b-0101-4450-a24e-c1c999be2b34",
+    "INT": "https://support.microsoft.com/en-us/office/int-function-a6c4af9e-356d-4369-ab6a-cb1fd9d343ef",
+    "ISEVEN": "https://support.microsoft.com/en-us/office/iseven-function-aa15929a-d77b-4fbb-92f4-2f479af55356",
 }
+HF = "https://hyperformula.handsontable.com/docs/guide/list-of-differences"
+IC = "https://github.com/ironcalc/IronCalc/issues/"
 
 # case = (sheet, cell, stored_formula, expected, expected_source_note)
 FIXTURES = [
@@ -110,6 +117,154 @@ FIXTURES = [
             ("Summary", "B2", "SUMIFS(Data!B:B,Data!A:A,$A:$A)", 10809, "issue #8154 text (k0 total)"),
             ("Summary", "B301", "SUMIFS(Data!B:B,Data!A:A,$A:$A)", 10800, "issue #8154 text (k299 total)"),
          ]),
+    # Milestone 4. Excel values below are copied from HyperFormula's differences
+    # table or from an IronCalc issue that shows Excel's output. None are inferred.
+    dict(id="F11-hf-negative-rounding",
+         sources=[HF, MS["INT"], MS["ISEVEN"]],
+         note=("HyperFormula differences table, negative-rounding rows. "
+               "INT(-8.9)=-9 and ISEVEN(2.5)=TRUE are also the worked examples on the Microsoft pages."),
+         inputs={}, cases=[
+            ("Sheet1", "A1", "INT(-8.9)", -9, "HF differences / MS INT"),
+            ("Sheet1", "A2", "ISEVEN(2.5)", True, "HF differences / MS ISEVEN"),
+            ("Sheet1", "A3", "ISODD(3.5)", True, "HF differences table (Excel TRUE)"),
+            ("Sheet1", "A4", "_xlfn.CEILING.MATH(-4.3,2,2)", -6, "HF differences table"),
+            ("Sheet1", "A5", "_xlfn.FLOOR.MATH(-4.7,2,2)", -4, "HF differences table"),
+         ]),
+    dict(id="F12-hf-npv-sequence-errors",
+         sources=[HF],
+         note=("Excel column of HyperFormula's differences table. Rounded 4-decimal rows are not included. "
+               "DAYS is stored without _xlfn.: IronCalc 0.9.1 rewrites the prefixed form to DAYS on save."),
+         inputs={("Sheet1", "B1"): True}, cases=[
+            ("Sheet1", "A1", "NPV(1,TRUE(),1)", 0.75, "HF differences table"),
+            ("Sheet1", "A2", "NPV(1,B1)", 0, "HF differences table (B1 = TRUE)"),
+            ("Sheet1", "A3", "COUNTA(1,)", 2, "HF differences table"),
+            ("Sheet1", "A4", "_xlfn.T.INV(0,1)", "#DIV/0!", "HF differences table"),
+            ("Sheet1", "A5", "_xlfn.SEQUENCE(0)", "#CALC!", "HF differences table"),
+            ("Sheet1", "A6", "_xlfn.WEIBULL.DIST(0,1,1,FALSE())", 0, "HF differences table"),
+            ("Sheet1", "A7", 'ADDRESS(1,1,4,TRUE(),"")', "!A1", "HF differences table"),
+            ("Sheet1", "A8", "DAYS(-1,0)", "#NUM!", "HF differences table"),
+         ]),
+    dict(id="F13-hf-if-false-cycle",
+         sources=[HF],
+         note="A1 refers to itself only on the branch IF does not take. HF says Excel returns 0, same as Google Sheets.",
+         inputs={}, cases=[
+            ("Sheet1", "A1", "IF(FALSE(),A1,0)", 0, "HF differences table (dependency collection)"),
+         ]),
+    dict(id="F14-large-k", issue=1750,
+         sources=[IC + "1750"],
+         note="B1:B4 is 1, 3, 5, 8. Author ran these in Excel for Microsoft 365 (16.0.20527.20150).",
+         inputs={("Sheet1", "B1"): 1, ("Sheet1", "B2"): 3, ("Sheet1", "B3"): 5, ("Sheet1", "B4"): 8},
+         cases=[
+            ("Sheet1", "A1", "LARGE(B1:B4,1.9)", 5, "issue #1750 table"),
+            ("Sheet1", "A2", "LARGE(B1:B4,4.5)", "#NUM!", "issue #1750 table"),
+            ("Sheet1", "A3", "LARGE(B1:B4,TRUE)", 8, "issue #1750 table"),
+            ("Sheet1", "A4", "SMALL(B1:B4,TRUE)", 1, "issue #1750 table"),
+         ]),
+    dict(id="F15-vlookup-index-below-one", issue=1751,
+         sources=[IC + "1751"],
+         note="A1:C2 is 1, one, 10 / 2, two, 20. Author ran these in Excel for Microsoft 365 (16.0.20527.20150).",
+         inputs={("Sheet1", "A1"): 1, ("Sheet1", "B1"): "one", ("Sheet1", "C1"): 10,
+                 ("Sheet1", "A2"): 2, ("Sheet1", "B2"): "two", ("Sheet1", "C2"): 20},
+         cases=[
+            ("Sheet1", "E1", "VLOOKUP(2,A1:C2,0,FALSE)", "#VALUE!", "issue #1751 table"),
+            ("Sheet1", "E2", "HLOOKUP(1,A1:C2,0.5,FALSE)", "#VALUE!", "issue #1751 table"),
+         ]),
+    dict(id="F16-text-general", issue=1752,
+         sources=[IC + "1752"],
+         note="Author ran these in Excel for Microsoft 365 (16.0.20527.20150). TEXT(0.000000001,\"General\") is omitted: IronCalc rewrites that literal on save.",
+         inputs={}, cases=[
+            ("Sheet1", "A1", 'TEXT(1/33600,"General")', "2.97619E-05", "issue #1752 table"),
+            ("Sheet1", "A2", 'TEXT(12345678.9012345,"General")', "12345678.9", "issue #1752 table"),
+            ("Sheet1", "A3", 'TEXT(100000000000/3,"General")', "33333333333", "issue #1752 table"),
+         ]),
+    dict(id="F17-explicit-argument-coercion", issue=1605,
+         sources=[IC + "1605"],
+         note="Excel values are the cached results the reporter copied from an Excel-saved POI workbook (EverythingTests).",
+         inputs={}, cases=[
+            ("Sheet1", "A1", 'LEFT("a string","6")', "a stri", "issue #1605 table"),
+            ("Sheet1", "A2", 'SUMSQ("2","3",4)', 29, "issue #1605 table"),
+            ("Sheet1", "A3", 'STDEV("1","2")', 0.7071067811865476, "issue #1605 table"),
+            ("Sheet1", "A4", "VAR(TRUE,FALSE,TRUE)", 0.33333333333333337, "issue #1605 table"),
+         ]),
+    dict(id="F18-xlookup-return-and-empty",
+         sources=[IC + "1789", IC + "1718"],
+         note="A1:C3 and D1 are issue #1789. E1:F4 and G1 are issue #1718. Both tables state Excel's cell value.",
+         inputs={
+             ("Sheet1", "A1"): "b", ("Sheet1", "A2"): "a", ("Sheet1", "A3"): "b",
+             ("Sheet1", "B1"): "x", ("Sheet1", "C1"): "y",
+             ("Sheet1", "B2"): "p", ("Sheet1", "C2"): "q",
+             ("Sheet1", "B3"): "r", ("Sheet1", "C3"): "s",
+             ("Sheet1", "E1"): 5, ("Sheet1", "E2"): 3, ("Sheet1", "E3"): 8, ("Sheet1", "E4"): 1,
+             ("Sheet1", "F1"): "b", ("Sheet1", "F2"): "d", ("Sheet1", "F3"): "a", ("Sheet1", "F4"): "c",
+         }, cases=[
+            ("Sheet1", "D1", '_xlfn.XLOOKUP("b",A1:A3,B1:C3)', "x", "issue #1789 table (first spill cell)"),
+            ("Sheet1", "G1", "_xlfn.XLOOKUP(8,E1:E4,F1:F4,,,)", "a", "issue #1718 table"),
+         ]),
+    dict(id="F19-sort-empty-argument", issue=1597,
+         sources=[IC + "1597"],
+         note="A1:A4 is 5, 3, 8, 1. The issue table states Excel's results for the empty optional arguments.",
+         inputs={("Sheet1", "A1"): 5, ("Sheet1", "A2"): 3, ("Sheet1", "A3"): 8, ("Sheet1", "A4"): 1},
+         cases=[
+            ("Sheet1", "B1", "INDEX(_xlfn._xlws.SORT(A1:A4,,-1),1)", 8, "issue #1597 table"),
+            ("Sheet1", "B2", "_xlfn.XMATCH(8,A1:A4,,)", 3, "issue #1597 table"),
+         ]),
+    dict(id="F20-date-serial-zero", issue=1569,
+         sources=[IC + "1569"],
+         note="Author's table from Excel for Mac 16.114. Serial 0 is accepted; DAY is 0 and WEEKDAY is 7.",
+         inputs={}, cases=[
+            ("Sheet1", "A1", "YEAR(0)", 1900, "issue #1569 table"),
+            ("Sheet1", "A2", "DAY(0)", 0, "issue #1569 table"),
+            ("Sheet1", "A3", "WEEKDAY(0)", 7, "issue #1569 table"),
+            ("Sheet1", "A4", "YEAR(B1)", 1900, "issue #1569 table (B1 blank)"),
+         ]),
+    dict(id="F21-date-year-offset", issue=1364,
+         sources=[IC + "1364"],
+         note="Years 0 through 1899 are added to 1900. The issue table states the serials.",
+         inputs={}, cases=[
+            ("Sheet1", "A1", "DATE(1,1,1)", 367, "issue #1364 table"),
+            ("Sheet1", "A2", "DATE(100,1,1)", 36526, "issue #1364 table"),
+         ]),
+    dict(id="F22-and-empty-text", issue=1609,
+         sources=[IC + "1609"],
+         note="A1 and B1 are empty text. The issue confirms this shape as #VALUE! from an Excel-saved workbook. The 1/0 rows in that issue were not run in Excel and are not here.",
+         inputs={}, helpers=[
+            ("Sheet1", "A1", '""', ""),
+            ("Sheet1", "B1", '""', ""),
+         ], cases=[
+            ("Sheet1", "C1", 'AND(A1<>"",A1+B1<1)', "#VALUE!", "issue #1609 table"),
+         ]),
+    dict(id="F23-sum-if-range", issue=1749,
+         sources=[IC + "1749"],
+         note="B1:B4 is 1, 3, 5, 8 and C1:C4 is 10, 20, 30, 40. Formulas sit outside those rows. Author ran Excel for Microsoft 365 (16.0.20527.20150).",
+         inputs={
+             ("Sheet1", "B1"): 1, ("Sheet1", "B2"): 3, ("Sheet1", "B3"): 5, ("Sheet1", "B4"): 8,
+             ("Sheet1", "C1"): 10, ("Sheet1", "C2"): 20, ("Sheet1", "C3"): 30, ("Sheet1", "C4"): 40,
+         }, cases=[
+            ("Sheet1", "E6", "SUM(IF(TRUE,B1:B4))", 17, "issue #1749 table"),
+            ("Sheet1", "E7", "SUM(IF(B1>5,B1:B4,C1:C4))", 100, "issue #1749 table"),
+         ]),
+    dict(id="F24-subtotal-edges", issue=1739,
+         sources=[IC + "1739"],
+         note=("Author ran both tables in Excel for Microsoft 365 (16.0.20527.20150). "
+               "Row 2 is hidden. H1:H3 is 2, 8, 4. D6 holds a SUBTOTAL that is not the whole formula."),
+         hidden_rows=[("Sheet1", 1)],
+         inputs={("Sheet1", "D3"): 1, ("Sheet1", "D4"): 2, ("Sheet1", "D5"): 3,
+                 ("Sheet1", "H1"): 2, ("Sheet1", "H2"): 8, ("Sheet1", "H3"): 4},
+         helpers=[
+            ("Sheet1", "D6", "SUBTOTAL(9,D3:D5)+1", 7),
+         ], cases=[
+            ("Sheet1", "A1", "SUBTOTAL(6,B1:B2)", 0, "issue #1739 table (product of no numbers)"),
+            ("Sheet1", "A8", "SUBTOTAL(110,H1:H3)", 2, "issue #1739 table (VAR.S, row 2 hidden)"),
+            ("Sheet1", "A9", "SUBTOTAL(111,H1:H3)", 1, "issue #1739 table (VAR.P, row 2 hidden)"),
+            ("Sheet1", "E6", "SUBTOTAL(9,D3:D6)", 6, "issue #1739 table (nested SUBTOTAL)"),
+         ]),
+    dict(id="F25-decimal-leading-sign", issue=1615,
+         sources=[IC + "1615"],
+         note="The issue table states Excel's #NUM! for a leading sign.",
+         inputs={}, cases=[
+            ("Sheet1", "A1", '_xlfn.DECIMAL("-10",2)', "#NUM!", "issue #1615 table"),
+            ("Sheet1", "A2", "_xlfn.DECIMAL(-5,10)", "#NUM!", "issue #1615 table"),
+         ]),
 ]
 
 
@@ -141,9 +296,13 @@ def build(fx, path):
     else:
         for (sn, cell), val in fx["inputs"].items():
             sh(sn).write(cell, val)
+        for sn, cell, formula, expected in fx.get("helpers") or []:
+            sh(sn).write_formula(cell, "=" + formula, None, expected)
         for sn, cell, formula, expected, _src in fx["cases"]:
             fmt = datefmt if fx.get("date_format") else None
             sh(sn).write_formula(cell, "=" + formula, fmt, expected)
+        for sn, row in fx.get("hidden_rows") or []:
+            sh(sn).set_row(row, None, None, {"hidden": True})
     wb.close()
 
 
@@ -152,7 +311,7 @@ if __name__ == "__main__":
     for fx in FIXTURES:
         name = fx["id"] + ".xlsx"
         build(fx, os.path.join(HERE, name))
-        manifest.append({k: v for k, v in fx.items() if k != "inputs"} | {"file": name})
+        manifest.append({k: v for k, v in fx.items() if k not in ("inputs", "helpers", "hidden_rows")} | {"file": name})
     with open(os.path.join(HERE, "fixtures.json"), "w") as fh:
         json.dump(manifest, fh, indent=1)
         fh.write("\n")

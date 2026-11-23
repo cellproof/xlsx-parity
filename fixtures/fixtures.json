@@ -305,5 +305,491 @@
    ]
   ],
   "file": "F10-sumifs-legacy-whole-column.xlsx"
+ },
+ {
+  "id": "F11-hf-negative-rounding",
+  "sources": [
+   "https://hyperformula.handsontable.com/docs/guide/list-of-differences",
+   "https://support.microsoft.com/en-us/office/int-function-a6c4af9e-356d-4369-ab6a-cb1fd9d343ef",
+   "https://support.microsoft.com/en-us/office/iseven-function-aa15929a-d77b-4fbb-92f4-2f479af55356"
+  ],
+  "note": "HyperFormula differences table, negative-rounding rows. INT(-8.9)=-9 and ISEVEN(2.5)=TRUE are also the worked examples on the Microsoft pages.",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "INT(-8.9)",
+    -9,
+    "HF differences / MS INT"
+   ],
+   [
+    "Sheet1",
+    "A2",
+    "ISEVEN(2.5)",
+    true,
+    "HF differences / MS ISEVEN"
+   ],
+   [
+    "Sheet1",
+    "A3",
+    "ISODD(3.5)",
+    true,
+    "HF differences table (Excel TRUE)"
+   ],
+   [
+    "Sheet1",
+    "A4",
+    "_xlfn.CEILING.MATH(-4.3,2,2)",
+    -6,
+    "HF differences table"
+   ],
+   [
+    "Sheet1",
+    "A5",
+    "_xlfn.FLOOR.MATH(-4.7,2,2)",
+    -4,
+    "HF differences table"
+   ]
+  ],
+  "file": "F11-hf-negative-rounding.xlsx"
+ },
+ {
+  "id": "F12-hf-npv-sequence-errors",
+  "sources": [
+   "https://hyperformula.handsontable.com/docs/guide/list-of-differences"
+  ],
+  "note": "Excel column of HyperFormula's differences table. Rounded 4-decimal rows are not included. DAYS is stored without _xlfn.: IronCalc 0.9.1 rewrites the prefixed form to DAYS on save.",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "NPV(1,TRUE(),1)",
+    0.75,
+    "HF differences table"
+   ],
+   [
+    "Sheet1",
+    "A2",
+    "NPV(1,B1)",
+    0,
+    "HF differences table (B1 = TRUE)"
+   ],
+   [
+    "Sheet1",
+    "A3",
+    "COUNTA(1,)",
+    2,
+    "HF differences table"
+   ],
+   [
+    "Sheet1",
+    "A4",
+    "_xlfn.T.INV(0,1)",
+    "#DIV/0!",
+    "HF differences table"
+   ],
+   [
+    "Sheet1",
+    "A5",
+    "_xlfn.SEQUENCE(0)",
+    "#CALC!",
+    "HF differences table"
+   ],
+   [
+    "Sheet1",
+    "A6",
+    "_xlfn.WEIBULL.DIST(0,1,1,FALSE())",
+    0,
+    "HF differences table"
+   ],
+   [
+    "Sheet1",
+    "A7",
+    "ADDRESS(1,1,4,TRUE(),\"\")",
+    "!A1",
+    "HF differences table"
+   ],
+   [
+    "Sheet1",
+    "A8",
+    "DAYS(-1,0)",
+    "#NUM!",
+    "HF differences table"
+   ]
+  ],
+  "file": "F12-hf-npv-sequence-errors.xlsx"
+ },
+ {
+  "id": "F13-hf-if-false-cycle",
+  "sources": [
+   "https://hyperformula.handsontable.com/docs/guide/list-of-differences"
+  ],
+  "note": "A1 refers to itself only on the branch IF does not take. HF says Excel returns 0, same as Google Sheets.",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "IF(FALSE(),A1,0)",
+    0,
+    "HF differences table (dependency collection)"
+   ]
+  ],
+  "file": "F13-hf-if-false-cycle.xlsx"
+ },
+ {
+  "id": "F14-large-k",
+  "issue": 1750,
+  "sources": [
+   "https://github.com/ironcalc/IronCalc/issues/1750"
+  ],
+  "note": "B1:B4 is 1, 3, 5, 8. Author ran these in Excel for Microsoft 365 (16.0.20527.20150).",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "LARGE(B1:B4,1.9)",
+    5,
+    "issue #1750 table"
+   ],
+   [
+    "Sheet1",
+    "A2",
+    "LARGE(B1:B4,4.5)",
+    "#NUM!",
+    "issue #1750 table"
+   ],
+   [
+    "Sheet1",
+    "A3",
+    "LARGE(B1:B4,TRUE)",
+    8,
+    "issue #1750 table"
+   ],
+   [
+    "Sheet1",
+    "A4",
+    "SMALL(B1:B4,TRUE)",
+    1,
+    "issue #1750 table"
+   ]
+  ],
+  "file": "F14-large-k.xlsx"
+ },
+ {
+  "id": "F15-vlookup-index-below-one",
+  "issue": 1751,
+  "sources": [
+   "https://github.com/ironcalc/IronCalc/issues/1751"
+  ],
+  "note": "A1:C2 is 1, one, 10 / 2, two, 20. Author ran these in Excel for Microsoft 365 (16.0.20527.20150).",
+  "cases": [
+   [
+    "Sheet1",
+    "E1",
+    "VLOOKUP(2,A1:C2,0,FALSE)",
+    "#VALUE!",
+    "issue #1751 table"
+   ],
+   [
+    "Sheet1",
+    "E2",
+    "HLOOKUP(1,A1:C2,0.5,FALSE)",
+    "#VALUE!",
+    "issue #1751 table"
+   ]
+  ],
+  "file": "F15-vlookup-index-below-one.xlsx"
+ },
+ {
+  "id": "F16-text-general",
+  "issue": 1752,
+  "sources": [
+   "https://github.com/ironcalc/IronCalc/issues/1752"
+  ],
+  "note": "Author ran these in Excel for Microsoft 365 (16.0.20527.20150). TEXT(0.000000001,\"General\") is omitted: IronCalc rewrites that literal on save.",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "TEXT(1/33600,\"General\")",
+    "2.97619E-05",
+    "issue #1752 table"
+   ],
+   [
+    "Sheet1",
+    "A2",
+    "TEXT(12345678.9012345,\"General\")",
+    "12345678.9",
+    "issue #1752 table"
+   ],
+   [
+    "Sheet1",
+    "A3",
+    "TEXT(100000000000/3,\"General\")",
+    "33333333333",
+    "issue #1752 table"
+   ]
+  ],
+  "file": "F16-text-general.xlsx"
+ },
+ {
+  "id": "F17-explicit-argument-coercion",
+  "issue": 1605,
+  "sources": [
+   "https://github.com/ironcalc/IronCalc/issues/1605"
+  ],
+  "note": "Excel values are the cached results the reporter copied from an Excel-saved POI workbook (EverythingTests).",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "LEFT(\"a string\",\"6\")",
+    "a stri",
+    "issue #1605 table"
+   ],
+   [
+    "Sheet1",
+    "A2",
+    "SUMSQ(\"2\",\"3\",4)",
+    29,
+    "issue #1605 table"
+   ],
+   [
+    "Sheet1",
+    "A3",
+    "STDEV(\"1\",\"2\")",
+    0.7071067811865476,
+    "issue #1605 table"
+   ],
+   [
+    "Sheet1",
+    "A4",
+    "VAR(TRUE,FALSE,TRUE)",
+    0.33333333333333337,
+    "issue #1605 table"
+   ]
+  ],
+  "file": "F17-explicit-argument-coercion.xlsx"
+ },
+ {
+  "id": "F18-xlookup-return-and-empty",
+  "sources": [
+   "https://github.com/ironcalc/IronCalc/issues/1789",
+   "https://github.com/ironcalc/IronCalc/issues/1718"
+  ],
+  "note": "A1:C3 and D1 are issue #1789. E1:F4 and G1 are issue #1718. Both tables state Excel's cell value.",
+  "cases": [
+   [
+    "Sheet1",
+    "D1",
+    "_xlfn.XLOOKUP(\"b\",A1:A3,B1:C3)",
+    "x",
+    "issue #1789 table (first spill cell)"
+   ],
+   [
+    "Sheet1",
+    "G1",
+    "_xlfn.XLOOKUP(8,E1:E4,F1:F4,,,)",
+    "a",
+    "issue #1718 table"
+   ]
+  ],
+  "file": "F18-xlookup-return-and-empty.xlsx"
+ },
+ {
+  "id": "F19-sort-empty-argument",
+  "issue": 1597,
+  "sources": [
+   "https://github.com/ironcalc/IronCalc/issues/1597"
+  ],
+  "note": "A1:A4 is 5, 3, 8, 1. The issue table states Excel's results for the empty optional arguments.",
+  "cases": [
+   [
+    "Sheet1",
+    "B1",
+    "INDEX(_xlfn._xlws.SORT(A1:A4,,-1),1)",
+    8,
+    "issue #1597 table"
+   ],
+   [
+    "Sheet1",
+    "B2",
+    "_xlfn.XMATCH(8,A1:A4,,)",
+    3,
+    "issue #1597 table"
+   ]
+  ],
+  "file": "F19-sort-empty-argument.xlsx"
+ },
+ {
+  "id": "F20-date-serial-zero",
+  "issue": 1569,
+  "sources": [
+   "https://github.com/ironcalc/IronCalc/issues/1569"
+  ],
+  "note": "Author's table from Excel for Mac 16.114. Serial 0 is accepted; DAY is 0 and WEEKDAY is 7.",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "YEAR(0)",
+    1900,
+    "issue #1569 table"
+   ],
+   [
+    "Sheet1",
+    "A2",
+    "DAY(0)",
+    0,
+    "issue #1569 table"
+   ],
+   [
+    "Sheet1",
+    "A3",
+    "WEEKDAY(0)",
+    7,
+    "issue #1569 table"
+   ],
+   [
+    "Sheet1",
+    "A4",
+    "YEAR(B1)",
+    1900,
+    "issue #1569 table (B1 blank)"
+   ]
+  ],
+  "file": "F20-date-serial-zero.xlsx"
+ },
+ {
+  "id": "F21-date-year-offset",
+  "issue": 1364,
+  "sources": [
+   "https://github.com/ironcalc/IronCalc/issues/1364"
+  ],
+  "note": "Years 0 through 1899 are added to 1900. The issue table states the serials.",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "DATE(1,1,1)",
+    367,
+    "issue #1364 table"
+   ],
+   [
+    "Sheet1",
+    "A2",
+    "DATE(100,1,1)",
+    36526,
+    "issue #1364 table"
+   ]
+  ],
+  "file": "F21-date-year-offset.xlsx"
+ },
+ {
+  "id": "F22-and-empty-text",
+  "issue": 1609,
+  "sources": [
+   "https://github.com/ironcalc/IronCalc/issues/1609"
+  ],
+  "note": "A1 and B1 are empty text. The issue confirms this shape as #VALUE! from an Excel-saved workbook. The 1/0 rows in that issue were not run in Excel and are not here.",
+  "cases": [
+   [
+    "Sheet1",
+    "C1",
+    "AND(A1<>\"\",A1+B1<1)",
+    "#VALUE!",
+    "issue #1609 table"
+   ]
+  ],
+  "file": "F22-and-empty-text.xlsx"
+ },
+ {
+  "id": "F23-sum-if-range",
+  "issue": 1749,
+  "sources": [
+   "https://github.com/ironcalc/IronCalc/issues/1749"
+  ],
+  "note": "B1:B4 is 1, 3, 5, 8 and C1:C4 is 10, 20, 30, 40. Formulas sit outside those rows. Author ran Excel for Microsoft 365 (16.0.20527.20150).",
+  "cases": [
+   [
+    "Sheet1",
+    "E6",
+    "SUM(IF(TRUE,B1:B4))",
+    17,
+    "issue #1749 table"
+   ],
+   [
+    "Sheet1",
+    "E7",
+    "SUM(IF(B1>5,B1:B4,C1:C4))",
+    100,
+    "issue #1749 table"
+   ]
+  ],
+  "file": "F23-sum-if-range.xlsx"
+ },
+ {
+  "id": "F24-subtotal-edges",
+  "issue": 1739,
+  "sources": [
+   "https://github.com/ironcalc/IronCalc/issues/1739"
+  ],
+  "note": "Author ran both tables in Excel for Microsoft 365 (16.0.20527.20150). Row 2 is hidden. H1:H3 is 2, 8, 4. D6 holds a SUBTOTAL that is not the whole formula.",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "SUBTOTAL(6,B1:B2)",
+    0,
+    "issue #1739 table (product of no numbers)"
+   ],
+   [
+    "Sheet1",
+    "A8",
+    "SUBTOTAL(110,H1:H3)",
+    2,
+    "issue #1739 table (VAR.S, row 2 hidden)"
+   ],
+   [
+    "Sheet1",
+    "A9",
+    "SUBTOTAL(111,H1:H3)",
+    1,
+    "issue #1739 table (VAR.P, row 2 hidden)"
+   ],
+   [
+    "Sheet1",
+    "E6",
+    "SUBTOTAL(9,D3:D6)",
+    6,
+    "issue #1739 table (nested SUBTOTAL)"
+   ]
+  ],
+  "file": "F24-subtotal-edges.xlsx"
+ },
+ {
+  "id": "F25-decimal-leading-sign",
+  "issue": 1615,
+  "sources": [
+   "https://github.com/ironcalc/IronCalc/issues/1615"
+  ],
+  "note": "The issue table states Excel's #NUM! for a leading sign.",
+  "cases": [
+   [
+    "Sheet1",
+    "A1",
+    "_xlfn.DECIMAL(\"-10\",2)",
+    "#NUM!",
+    "issue #1615 table"
+   ],
+   [
+    "Sheet1",
+    "A2",
+    "_xlfn.DECIMAL(-5,10)",
+    "#NUM!",
+    "issue #1615 table"
+   ]
+  ],
+  "file": "F25-decimal-leading-sign.xlsx"
  }
 ]

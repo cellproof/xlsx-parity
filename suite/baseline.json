@@ -175,13 +175,133 @@
       "rxjs": "7.8.2"
     },
     "hook": {
-      "cells": 2,
-      "cells_match_excel": 2,
+      "cells": 73,
+      "cells_match_excel": 33,
+      "cells_match_ironcalc": 73,
       "errors": 0,
       "results": {
         "F01-let-lambda-call": {
           "Sheet1!A1": 2,
           "Sheet1!A2": 3
+        },
+        "F02-iso-ceiling": {
+          "Sheet1!A1": 5,
+          "Sheet1!A2": -4,
+          "Sheet1!A3": 6
+        },
+        "F03-edate-eomonth-negative-fraction": {
+          "Sheet1!A1": 40527,
+          "Sheet1!A2": 40543
+        },
+        "F04-text-negative-zero": {
+          "Sheet1!A1": "0"
+        },
+        "F05-search-wildcards-and-round-digits": {
+          "Sheet1!A1": 2,
+          "Sheet1!A2": 2,
+          "Sheet1!A3": 2,
+          "Sheet1!A4": 2,
+          "Sheet1!B1": 1.23,
+          "Sheet1!B2": 1.5,
+          "Sheet1!B3": 1.5,
+          "Sheet1!B4": 0
+        },
+        "F06-char-range": {
+          "Sheet1!A1": "#VALUE!",
+          "Sheet1!A2": "#VALUE!",
+          "Sheet1!A3": "A"
+        },
+        "F07-value-accounting-negatives": {
+          "Sheet1!A1": "#VALUE!",
+          "Sheet1!A2": "#VALUE!",
+          "Sheet1!A3": "#VALUE!"
+        },
+        "F08-amordegrc": {
+          "Sheet1!A10": 776
+        },
+        "F09-ast-cache-collision-cells": {
+          "Sheet1!P1169": 26614,
+          "Sheet1!Q16084": 328105
+        },
+        "F10-sumifs-legacy-whole-column": {
+          "Summary!B2": 0,
+          "Summary!B301": 0
+        },
+        "F11-hf-negative-rounding": {
+          "Sheet1!A1": -9,
+          "Sheet1!A2": true,
+          "Sheet1!A3": true,
+          "Sheet1!A4": -6,
+          "Sheet1!A5": -4
+        },
+        "F12-hf-npv-sequence-errors": {
+          "Sheet1!A1": 0.5,
+          "Sheet1!A2": 0,
+          "Sheet1!A3": 1,
+          "Sheet1!A4": "#NUM!",
+          "Sheet1!A5": "#CALC!",
+          "Sheet1!A6": 1,
+          "Sheet1!A7": "!A1",
+          "Sheet1!A8": "#NUM!"
+        },
+        "F13-hf-if-false-cycle": {
+          "Sheet1!A1": 0
+        },
+        "F14-large-k": {
+          "Sheet1!A1": 8,
+          "Sheet1!A2": 1,
+          "Sheet1!A3": "#VALUE!",
+          "Sheet1!A4": "#VALUE!"
+        },
+        "F15-vlookup-index-below-one": {
+          "Sheet1!E1": "#REF!",
+          "Sheet1!E2": "#REF!"
+        },
+        "F16-text-general": {
+          "Sheet1!A1": "0.000029762",
+          "Sheet1!A2": "12345678.9012345",
+          "Sheet1!A3": "33333333333.333332062"
+        },
+        "F17-explicit-argument-coercion": {
+          "Sheet1!A1": "#VALUE!",
+          "Sheet1!A2": 16,
+          "Sheet1!A3": "#DIV/0!",
+          "Sheet1!A4": "#DIV/0!"
+        },
+        "F18-xlookup-return-and-empty": {
+          "Sheet1!D1": "#VALUE!",
+          "Sheet1!G1": "#ERROR!"
+        },
+        "F19-sort-empty-argument": {
+          "Sheet1!B1": "#VALUE!",
+          "Sheet1!B2": "#VALUE!"
+        },
+        "F20-date-serial-zero": {
+          "Sheet1!A1": "#NUM!",
+          "Sheet1!A2": "#NUM!",
+          "Sheet1!A3": "#NUM!",
+          "Sheet1!A4": "#NUM!"
+        },
+        "F21-date-year-offset": {
+          "Sheet1!A1": 367,
+          "Sheet1!A2": 36526
+        },
+        "F22-and-empty-text": {
+          "Sheet1!C1": false
+        },
+        "F23-sum-if-range": {
+          "Sheet1!E6": "#VALUE!",
+          "Sheet1!E7": "#VALUE!"
+        },
+        "F24-subtotal-edges": {
+          "Sheet1!A1": 1,
+          "Sheet1!A8": 9.333333333333334,
+          "Sheet1!A9": 6.222222222222221,
+          "Sheet1!E6": 13
+        },
+        "F25-decimal-leading-sign": {
+          "Sheet1!A1": -2,
+          "Sheet1!A2": -5
         }
       }
     },

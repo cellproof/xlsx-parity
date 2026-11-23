@@ -12,7 +12,7 @@ make test
 
 Needs Python 3.10+ with the `venv` module, Node.js, and `make`. Network is needed the first time. The command creates `.venv`, installs the pinned Python packages, installs SheetJS Community Edition 0.20.3 from its CDN tarball, `@ironcalc/nodejs` 0.9.1, and Univer 1.6.0 (`@univerjs/core`, `@univerjs/docs`, `@univerjs/engine-formula`, `@univerjs/engine-render`, `@univerjs/sheets`, `@univerjs/sheets-formula`, `@univerjs/sheets-numfmt`, and `rxjs` 7.8.2), and runs the suite.
 
-Exit 0 means the measured results match [`suite/baseline.json`](suite/baseline.json), including the known IronCalc failures, Univer's recorded native results, and the F01 engine-hook results. A regression or an unexpected fix exits nonzero. The JavaScript build has its own recorded results in that file. A change in a JavaScript result fails the run the same way. A change in a Univer result fails the run the same way.
+Exit 0 means the measured results match [`suite/baseline.json`](suite/baseline.json), including the known IronCalc failures, Univer's recorded native results, and the engine-hook results on all 73 cells. A regression or an unexpected fix exits nonzero. The JavaScript build has its own recorded results in that file. A change in a JavaScript result fails the run the same way. A change in a Univer result fails the run the same way.
 
 ## Baseline
 
@@ -20,7 +20,7 @@ IronCalc 0.9.1 (Python bindings) and `@ironcalc/nodejs` 0.9.1 calculate. SheetJS
 
 - IronCalc Python calc parity: 33/73 cells pass (33/72 excluding F04), 10 of 25 fixtures fully pass, 0 errors.
 - IronCalc JS (`@ironcalc/nodejs` 0.9.1) calc parity: 33/73 cells match Excel, 73/73 match the Python bindings, 0 errors. This package loads the xlsx fixtures with `Model.fromXlsx`. `@ironcalc/wasm` is the engine without an xlsx reader, so it is not used.
-- Univer 1.6.0 headless, open-source packages only. SheetJS CE reads each formula workbook into an `IWorkbookData` snapshot (`suite/univer_adapter.js`). Univer's own formula engine is scored on all 25 formula fixtures (73 cells): 45/73 match Excel. The misses are findings and are locked in the baseline. A second pass subclasses `CalculateFormulaService` and binds it with `UniverFormulaEnginePlugin._initializeWithOverride`, so F01 is calculated by `@ironcalc/nodejs` and returns 2 and 3. `@univerjs/preset-sheets-core` is a browser preset, so this run uses plugin mode.
+- Univer 1.6.0 headless, open-source packages only. SheetJS CE reads each formula workbook into an `IWorkbookData` snapshot (`suite/univer_adapter.js`). Univer's own formula engine is scored on all 25 formula fixtures (73 cells): 45/73 match Excel. The misses are findings and are locked in the baseline. A second pass subclasses `CalculateFormulaService` and binds it with `UniverFormulaEnginePlugin._initializeWithOverride`, so `@ironcalc/nodejs` calculates all 73 cells through `Model.fromXlsx`. The hook matches that direct IronCalc output on every cell (73/73) and matches Excel on 33/73. At startup the override checks that `_initializeWithOverride` and the `ICalculateFormulaService` binding are still present. If either is missing, the run stops with one error naming the Univer version: the engine-swap hook moved. `@univerjs/preset-sheets-core` is a browser preset, so this run uses plugin mode.
 - Expected IronCalc failures, same on Python and JS, are the 40 cells in `ironcalc_failures`. The original three are F10 `SUMIFS` with whole-column criteria returns 0 (Excel: 10809 and 10800), F07 `VALUE` of accounting negatives like `"(5)"` returns `#VALUE!` (Excel: -5, -1000, -4), and F04 `TEXT(-0.4,"0")` returns `"0"` (Excel: `"-0"`). F04 is the weaker citation: the issue author says they could not check it in Excel. The other 34 are the Milestone 4 misses in [`CHANGELOG.md`](CHANGELOG.md).
 - SheetJS CE read: 73/73 formula strings and cached values preserved. The write check is the same 73/73.
 - IronCalc keeps the 73 formula strings and writes its 40 wrong values back as cached values. That set is an assertion, `ironcalc_wrong_cached_cells`. A cell joining or leaving the set fails the run and names the cell.
@@ -31,8 +31,8 @@ IronCalc 0.9.1 (Python bindings) and `@ironcalc/nodejs` 0.9.1 calculate. SheetJS
 - `fixtures/` — committed workbooks, `fixtures.json`, and the two scripts that built them (`build_fixtures.py`, `build_features.py`). `make test` does not regenerate the workbooks.
 - `suite/run.py` — the check.
 - `suite/ironcalc_js.js` — calculates the same cells with `@ironcalc/nodejs`.
-- `suite/univer_adapter.js` — loads formula workbooks into headless Univer, scores Univer's engine, and runs the F01 IronCalc engine hook.
-- `suite/baseline.json` — recorded IronCalc Python failures, the wrong cached cells, IronCalc JS results, Univer native results, the F01 engine-hook results, and the feature table.
+- `suite/univer_adapter.js` — loads formula workbooks into headless Univer, scores Univer's engine, and runs the IronCalc engine hook on every formula cell.
+- `suite/baseline.json` — recorded IronCalc Python failures, the wrong cached cells, IronCalc JS results, Univer native results, the engine-hook results, and the feature table.
 - `CHANGELOG.md` — each Milestone 4 case, its Excel value, source, and IronCalc's result.
 
 ## Licenses
@@ -65,4 +65,4 @@ Univer open-source packages only, release [v1.6.0](https://github.com/dream-num/
 
 ## Limits
 
-Expected values were taken from issue text, HyperFormula's published Excel column, and Microsoft docs, not from running Excel. Seventy-three cases is a small sample, not a draw of Excel as a whole. Univer's own engine is scored on those 73 cells. The IronCalc engine hook is F01 only. LibreOffice is out of this run.
+Expected values were taken from issue text, HyperFormula's published Excel column, and Microsoft docs, not from running Excel. Seventy-three cases is a small sample, not a draw of Excel as a whole. Univer's own engine and the IronCalc engine hook are both scored on those 73 cells. LibreOffice is out of this run.

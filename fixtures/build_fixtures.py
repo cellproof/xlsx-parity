@@ -2,8 +2,9 @@
 
 make test uses the committed workbooks. Run this only to regenerate them.
 Every expected value is copied from a cited source: a Univer issue, an
-IronCalc issue, HyperFormula's published Excel column, or a Microsoft
-Support page that states the result for that input. Each formula cell
+IronCalc issue, HyperFormula's published Excel column, a Microsoft
+Support page that states the result for that input, or a recorded desktop
+Excel result. Each formula cell
 stores that Excel value as its cached value, so a reader that does not
 calculate can be checked for cache survival.
 
@@ -27,6 +28,18 @@ MS = {
     "IMPLICIT": "https://support.microsoft.com/en-us/office/implicit-intersection-operator-ce3be07b-0101-4450-a24e-c1c999be2b34",
     "INT": "https://support.microsoft.com/en-us/office/int-function-a6c4af9e-356d-4369-ab6a-cb1fd9d343ef",
     "ISEVEN": "https://support.microsoft.com/en-us/office/iseven-function-aa15929a-d77b-4fbb-92f4-2f479af55356",
+    "T.INV": "https://support.microsoft.com/en-us/office/t-inv-function-2908272b-4e61-4942-9df9-a25fec9b0e2e",
+    "STDEV": "https://support.microsoft.com/en-us/office/stdev-function-51fecaaa-231e-4bbb-9230-33650a72c9b0",
+    "VAR": "https://support.microsoft.com/en-us/office/var-function-1f2b7ab2-954d-4e17-ba2c-9e58b15a7da2",
+}
+WEIBULL_Q = "https://learn.microsoft.com/en-us/answers/questions/5065194/weibull-dist-function-error"
+MREXCEL_NEG = "https://www.mrexcel.com/board/threads/negative-number-format.120253/"
+SUM_NEG_ZERO = "https://learn.microsoft.com/en-us/answers/questions/4790299/sum-formula-returns-(0-00)-not-for-zero-sum"
+TINV_PRIMARY = {
+    "who": "Adam Marsh",
+    "when": "2026-11-22",
+    "where": "desktop Windows Excel (Microsoft 365)",
+    "results": {"=T.INV(0,1)": "#DIV/0!", "=T.INV(0,2)": "#NUM!"},
 }
 HF = "https://hyperformula.handsontable.com/docs/guide/list-of-differences"
 IC = "https://github.com/ironcalc/IronCalc/issues/"
@@ -56,10 +69,15 @@ FIXTURES = [
             ("Sheet1", "A2", "EOMONTH(DATE(2011,1,15),-1.5)", 40543, "issue #8269 / MS EOMONTH"),
          ]),
     dict(id="F04-text-negative-zero", issue=8270,
-         sources=[UNIVER + "8270"],
-         note="Expected '-0' is the issue author's statement of Excel behavior; the author says they could not run it in Excel. Sourced from issue text, but weaker than the others.",
+         sources=[UNIVER + "8270", MREXCEL_NEG, SUM_NEG_ZERO],
+         citation="weaker",
+         supporting_evidence="inferred, not a direct test",
+         note=("Expected '-0' is the issue author's statement of Excel behavior; the author says they could not run it in Excel. "
+               "Sourced from issue text, but weaker than the others. The MrExcel thread and the Microsoft Q&A support that "
+               "Excel picks the negative format section from the raw sign before rounding. That support is inferred, not a direct test of TEXT(-0.4,\"0\")."),
          inputs={}, cases=[
-            ("Sheet1", "A1", 'TEXT(-0.4,"0")', "-0", "issue #8270 (author unverified in Excel)"),
+            ("Sheet1", "A1", 'TEXT(-0.4,"0")', "-0",
+             "issue #8270 (author unverified in Excel; weaker). Format-section support is inferred, not a direct test"),
          ]),
     dict(id="F05-search-wildcards-and-round-digits", issue=8198,
          sources=[UNIVER + "8198", MS["SEARCH"]],
@@ -131,18 +149,26 @@ FIXTURES = [
             ("Sheet1", "A5", "_xlfn.FLOOR.MATH(-4.7,2,2)", -4, "HF differences table"),
          ]),
     dict(id="F12-hf-npv-sequence-errors",
-         sources=[HF],
+         sources=[HF, MS["T.INV"], WEIBULL_Q],
+         primary_source=TINV_PRIMARY,
          note=("Excel column of HyperFormula's differences table. Rounded 4-decimal rows are not included. "
-               "DAYS is stored without _xlfn.: IronCalc 0.9.1 rewrites the prefixed form to DAYS on save."),
+               "DAYS is stored without _xlfn.: IronCalc 0.9.1 rewrites the prefixed form to DAYS on save. "
+               "Primary source for T.INV(0,1) and T.INV(0,2) is Adam Marsh's desktop Excel run on 2026-11-22. "
+               "Microsoft's T.INV page says #NUM! for probability <= 0, which is wrong for df=1. "
+               "The WEIBULL.DIST Q&A reports Excel returns 0, and the Microsoft reply does not dispute that."),
          inputs={("Sheet1", "B1"): True}, cases=[
             ("Sheet1", "A1", "NPV(1,TRUE(),1)", 0.75, "HF differences table"),
             ("Sheet1", "A2", "NPV(1,B1)", 0, "HF differences table (B1 = TRUE)"),
             ("Sheet1", "A3", "COUNTA(1,)", 2, "HF differences table"),
-            ("Sheet1", "A4", "_xlfn.T.INV(0,1)", "#DIV/0!", "HF differences table"),
+            ("Sheet1", "A4", "_xlfn.T.INV(0,1)", "#DIV/0!",
+             "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"),
             ("Sheet1", "A5", "_xlfn.SEQUENCE(0)", "#CALC!", "HF differences table"),
-            ("Sheet1", "A6", "_xlfn.WEIBULL.DIST(0,1,1,FALSE())", 0, "HF differences table"),
+            ("Sheet1", "A6", "_xlfn.WEIBULL.DIST(0,1,1,FALSE())", 0,
+             "HF differences table; MS Q&A 5065194 (Excel returns 0, reply does not dispute it)"),
             ("Sheet1", "A7", 'ADDRESS(1,1,4,TRUE(),"")', "!A1", "HF differences table"),
             ("Sheet1", "A8", "DAYS(-1,0)", "#NUM!", "HF differences table"),
+            ("Sheet1", "A9", "_xlfn.T.INV(0,2)", "#NUM!",
+             "primary: Adam Marsh, desktop Excel 2026-11-22"),
          ]),
     dict(id="F13-hf-if-false-cycle",
          sources=[HF],
@@ -178,13 +204,16 @@ FIXTURES = [
             ("Sheet1", "A3", 'TEXT(100000000000/3,"General")', "33333333333", "issue #1752 table"),
          ]),
     dict(id="F17-explicit-argument-coercion", issue=1605,
-         sources=[IC + "1605"],
-         note="Excel values are the cached results the reporter copied from an Excel-saved POI workbook (EverythingTests).",
+         sources=[IC + "1605", MS["STDEV"], MS["VAR"]],
+         note=("Excel values are the cached results the reporter copied from an Excel-saved POI workbook (EverythingTests). "
+               "Microsoft's STDEV and VAR pages say that text numbers and logicals typed directly as arguments are counted."),
          inputs={}, cases=[
             ("Sheet1", "A1", 'LEFT("a string","6")', "a stri", "issue #1605 table"),
             ("Sheet1", "A2", 'SUMSQ("2","3",4)', 29, "issue #1605 table"),
-            ("Sheet1", "A3", 'STDEV("1","2")', 0.7071067811865476, "issue #1605 table"),
-            ("Sheet1", "A4", "VAR(TRUE,FALSE,TRUE)", 0.33333333333333337, "issue #1605 table"),
+            ("Sheet1", "A3", 'STDEV("1","2")', 0.7071067811865476,
+             "issue #1605 table; MS STDEV counts text numbers typed as arguments"),
+            ("Sheet1", "A4", "VAR(TRUE,FALSE,TRUE)", 0.33333333333333337,
+             "issue #1605 table; MS VAR counts logicals typed as arguments"),
          ]),
     dict(id="F18-xlookup-return-and-empty",
          sources=[IC + "1789", IC + "1718"],

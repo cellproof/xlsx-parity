@@ -89,16 +89,20 @@
   "id": "F04-text-negative-zero",
   "issue": 8270,
   "sources": [
-   "https://github.com/dream-num/univer/issues/8270"
+   "https://github.com/dream-num/univer/issues/8270",
+   "https://www.mrexcel.com/board/threads/negative-number-format.120253/",
+   "https://learn.microsoft.com/en-us/answers/questions/4790299/sum-formula-returns-(0-00)-not-for-zero-sum"
   ],
-  "note": "Expected '-0' is the issue author's statement of Excel behavior; the author says they could not run it in Excel. Sourced from issue text, but weaker than the others.",
+  "citation": "weaker",
+  "supporting_evidence": "inferred, not a direct test",
+  "note": "Expected '-0' is the issue author's statement of Excel behavior; the author says they could not run it in Excel. Sourced from issue text, but weaker than the others. The MrExcel thread and the Microsoft Q&A support that Excel picks the negative format section from the raw sign before rounding. That support is inferred, not a direct test of TEXT(-0.4,\"0\").",
   "cases": [
    [
     "Sheet1",
     "A1",
     "TEXT(-0.4,\"0\")",
     "-0",
-    "issue #8270 (author unverified in Excel)"
+    "issue #8270 (author unverified in Excel; weaker). Format-section support is inferred, not a direct test"
    ]
   ],
   "file": "F04-text-negative-zero.xlsx"
@@ -356,9 +360,20 @@
  {
   "id": "F12-hf-npv-sequence-errors",
   "sources": [
-   "https://hyperformula.handsontable.com/docs/guide/list-of-differences"
+   "https://hyperformula.handsontable.com/docs/guide/list-of-differences",
+   "https://support.microsoft.com/en-us/office/t-inv-function-2908272b-4e61-4942-9df9-a25fec9b0e2e",
+   "https://learn.microsoft.com/en-us/answers/questions/5065194/weibull-dist-function-error"
   ],
-  "note": "Excel column of HyperFormula's differences table. Rounded 4-decimal rows are not included. DAYS is stored without _xlfn.: IronCalc 0.9.1 rewrites the prefixed form to DAYS on save.",
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-22",
+   "where": "desktop Windows Excel (Microsoft 365)",
+   "results": {
+    "=T.INV(0,1)": "#DIV/0!",
+    "=T.INV(0,2)": "#NUM!"
+   }
+  },
+  "note": "Excel column of HyperFormula's differences table. Rounded 4-decimal rows are not included. DAYS is stored without _xlfn.: IronCalc 0.9.1 rewrites the prefixed form to DAYS on save. Primary source for T.INV(0,1) and T.INV(0,2) is Adam Marsh's desktop Excel run on 2026-11-22. Microsoft's T.INV page says #NUM! for probability <= 0, which is wrong for df=1. The WEIBULL.DIST Q&A reports Excel returns 0, and the Microsoft reply does not dispute that.",
   "cases": [
    [
     "Sheet1",
@@ -386,7 +401,7 @@
     "A4",
     "_xlfn.T.INV(0,1)",
     "#DIV/0!",
-    "HF differences table"
+    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
    ],
    [
     "Sheet1",
@@ -400,7 +415,7 @@
     "A6",
     "_xlfn.WEIBULL.DIST(0,1,1,FALSE())",
     0,
-    "HF differences table"
+    "HF differences table; MS Q&A 5065194 (Excel returns 0, reply does not dispute it)"
    ],
    [
     "Sheet1",
@@ -415,6 +430,13 @@
     "DAYS(-1,0)",
     "#NUM!",
     "HF differences table"
+   ],
+   [
+    "Sheet1",
+    "A9",
+    "_xlfn.T.INV(0,2)",
+    "#NUM!",
+    "primary: Adam Marsh, desktop Excel 2026-11-22"
    ]
   ],
   "file": "F12-hf-npv-sequence-errors.xlsx"
@@ -536,9 +558,11 @@
   "id": "F17-explicit-argument-coercion",
   "issue": 1605,
   "sources": [
-   "https://github.com/ironcalc/IronCalc/issues/1605"
+   "https://github.com/ironcalc/IronCalc/issues/1605",
+   "https://support.microsoft.com/en-us/office/stdev-function-51fecaaa-231e-4bbb-9230-33650a72c9b0",
+   "https://support.microsoft.com/en-us/office/var-function-1f2b7ab2-954d-4e17-ba2c-9e58b15a7da2"
   ],
-  "note": "Excel values are the cached results the reporter copied from an Excel-saved POI workbook (EverythingTests).",
+  "note": "Excel values are the cached results the reporter copied from an Excel-saved POI workbook (EverythingTests). Microsoft's STDEV and VAR pages say that text numbers and logicals typed directly as arguments are counted.",
   "cases": [
    [
     "Sheet1",
@@ -559,14 +583,14 @@
     "A3",
     "STDEV(\"1\",\"2\")",
     0.7071067811865476,
-    "issue #1605 table"
+    "issue #1605 table; MS STDEV counts text numbers typed as arguments"
    ],
    [
     "Sheet1",
     "A4",
     "VAR(TRUE,FALSE,TRUE)",
     0.33333333333333337,
-    "issue #1605 table"
+    "issue #1605 table; MS VAR counts logicals typed as arguments"
    ]
   ],
   "file": "F17-explicit-argument-coercion.xlsx"

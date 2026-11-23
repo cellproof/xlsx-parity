@@ -1,9 +1,9 @@
 """Test 1 baseline: IronCalc calculation, SheetJS CE read/write, feature round-trip.
 
 Excel-expected values and their citations live in fixtures/fixtures.json.
-Known IronCalc misses are recorded in suite/baseline.json. The process exits 0
-when every measured result matches that record, and nonzero when a result
-changes — a regression or an unexpected fix.
+Known IronCalc misses, including the JavaScript build, are recorded in
+suite/baseline.json. The process exits 0 when every measured result matches
+that record, and nonzero when a result changes — a regression or an unexpected fix.
 """
 import json
 import os
@@ -32,6 +32,17 @@ def same(got, expected):
     if isinstance(got, bool) or not isinstance(got, (int, float)):
         return False
     return got == expected
+
+
+def values_equal(a, b):
+    """Cross-engine equality. Bool is not a number; JSON ints still match Python floats."""
+    if isinstance(a, bool) or isinstance(b, bool):
+        return isinstance(a, bool) and isinstance(b, bool) and a is b
+    if isinstance(a, str) or isinstance(b, str):
+        return a == b
+    if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+        return a == b
+    return a == b
 
 
 def show(value):
@@ -114,6 +125,108 @@ def run_ironcalc(fixtures):
         os.remove(features_dest)
     model.save_to_xlsx(features_dest)
     return ver, rows
+
+
+def run_ironcalc_js():
+    js_dir = os.path.join(OUT, "ironcalc-js")
+    os.makedirs(js_dir, exist_ok=True)
+    proc = subprocess.run(
+        ["node", os.path.join(ROOT, "suite", "ironcalc_js.js"), js_dir],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        sys.stderr.write(proc.stderr or proc.stdout)
+        raise SystemExit(proc.returncode or 1)
+    report = json.load(open(os.path.join(js_dir, "read.json")))
+    return report["package"], report["version"], {(c["file"], c["cell"]): c for c in report["cases"]}
+
+
+def js_result(row):
+    return row["js_error"] if row["js_error"] else row["js_got"]
+
+
+def attach_js(rows, js_cases):
+    for row in rows:
+        js = js_cases.get((row["file"], row["cell"]))
+        if js is None:
+            row["js_got"] = None
+            row["js_error"] = "missing from IronCalc JS report"
+        else:
+            row["js_got"] = js.get("got")
+            row["js_error"] = js.get("error")
+        if row["js_error"] or row["error"]:
+            row["js_matches_python"] = bool(row["js_error"]) and row["js_error"] == row["error"]
+        else:
+            row["js_matches_python"] = values_equal(row["js_got"], row["got"])
+        row["js_matches_excel"] = row["js_error"] is None and same(row["js_got"], row["excel"])
+
+
+def recorded_cell(mapping, fixture_id, cell):
+    cells = mapping.get(fixture_id)
+    if not cells or cell not in cells:
+        return False, None
+    return True, cells[cell]
+
+
+def js_counts(rows):
+    return {
+        "cells_match_excel": sum(bool(row["js_matches_excel"]) for row in rows),
+        "cells_match_python": sum(bool(row["js_matches_python"]) for row in rows),
+        "cells": len(rows),
+        "errors": sum(row["js_error"] is not None for row in rows),
+    }
+
+
+def collect_js_mismatches(rows, baseline, pkg, ver):
+    spec = baseline["ironcalc_js"]
+    mismatches = []
+    if pkg != spec["package"]:
+        mismatches.append(f"IronCalc JS package {pkg} != {spec['package']}")
+    if ver != spec["version"]:
+        mismatches.append(f"IronCalc JS version {ver} != {spec['version']}")
+    stats = js_counts(rows)
+    for key in ("cells_match_excel", "cells_match_python", "cells", "errors"):
+        if stats[key] != spec[key]:
+            mismatches.append(f"ironcalc_js {key}: measured {stats[key]}, baseline {spec[key]}")
+    known_fail = {(fid, cell) for fid, cells in spec["failures"].items() for cell in cells}
+    known_div = {(fid, cell) for fid, cells in spec["divergences"].items() for cell in cells}
+    seen = set()
+    for row in rows:
+        key = (row["id"], row["cell"])
+        seen.add(key)
+        present, recorded = recorded_cell(spec["failures"], row["id"], row["cell"])
+        got = js_result(row)
+        if row["js_matches_excel"]:
+            if present:
+                mismatches.append(
+                    f"IronCalc JS {row['id']} {row['cell']}: baseline recorded {show(recorded)}, now matches Excel {show(row['excel'])}"
+                )
+        elif not present or not values_equal(got, recorded):
+            baseline_text = show(recorded) if present else "Excel match"
+            got_text = row["js_error"] if row["js_error"] else show(row["js_got"])
+            mismatches.append(
+                f"IronCalc JS {row['id']} {row['cell']}: baseline {baseline_text}, got {got_text} (Excel {show(row['excel'])})"
+            )
+        div_present, div_recorded = recorded_cell(spec["divergences"], row["id"], row["cell"])
+        if row["js_matches_python"]:
+            if div_present:
+                py = row["error"] if row["error"] else show(row["got"])
+                mismatches.append(
+                    f"IronCalc JS {row['id']} {row['cell']}: baseline divergence {show(div_recorded)} now matches Python {py}"
+                )
+        elif not div_present or not values_equal(got, div_recorded):
+            py = row["error"] if row["error"] else show(row["got"])
+            js = row["js_error"] if row["js_error"] else show(row["js_got"])
+            mismatches.append(
+                f"IronCalc JS diverges from Python {row['id']} {row['cell']}: python {py}, js {js}"
+            )
+    for key in sorted(known_fail - seen):
+        mismatches.append(f"ironcalc_js failure {key[0]} {key[1]} is not a fixture cell")
+    for key in sorted(known_div - seen):
+        mismatches.append(f"ironcalc_js divergence {key[0]} {key[1]} is not a fixture cell")
+    return mismatches
 
 
 def run_sheetjs():
@@ -311,7 +424,51 @@ def collect_mismatches(rows, baseline, stats, ic_ver, sj_ver, table, sheetjs_rea
     return mismatches
 
 
-def print_report(ic_ver, sj_ver, rows, stats, table, mismatches):
+def print_js_table(rows, js_pkg, js_ver):
+    stats = js_counts(rows)
+    print(
+        f"IronCalc JS {js_pkg} {js_ver}: "
+        f"{stats['cells_match_excel']}/{stats['cells']} cells match Excel, "
+        f"{stats['cells_match_python']}/{stats['cells']} match Python, "
+        f"{stats['errors']} errors."
+    )
+    header = ("fixture", "cell", "excel", "python", "js", "js=python", "js=excel")
+    body = []
+    for row in rows:
+        py = row["error"] if row["error"] else show(row["got"])
+        js = row["js_error"] if row["js_error"] else show(row["js_got"])
+        body.append((
+            row["id"],
+            row["cell"],
+            show(row["excel"]),
+            py,
+            js,
+            "yes" if row["js_matches_python"] else "no",
+            "yes" if row["js_matches_excel"] else "no",
+        ))
+    width = [len(col) for col in header]
+    for record in body:
+        for i, col in enumerate(record):
+            width[i] = max(width[i], len(col))
+
+    def fmt(record):
+        return ("  " + "  ".join(col.ljust(width[i]) for i, col in enumerate(record))).rstrip()
+
+    print(fmt(header))
+    for record in body:
+        print(fmt(record))
+    diverged = [row for row in rows if not row["js_matches_python"]]
+    if not diverged:
+        print("JS vs Python divergences: none")
+        return
+    print("JS vs Python divergences:")
+    for row in diverged:
+        py = row["error"] if row["error"] else show(row["got"])
+        js = row["js_error"] if row["js_error"] else show(row["js_got"])
+        print(f"  {row['id']} {row['cell']}: python {py}, js {js}")
+
+
+def print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver):
     weaker = "F04"
     print(
         f"IronCalc {ic_ver} (Python bindings) calc parity: "
@@ -363,6 +520,8 @@ def print_report(ic_ver, sj_ver, rows, stats, table, mismatches):
             f"{human(row['formula'])}  excel={show(row['excel'])} ironcalc={got} sheetjs-read={sj}"
         )
     print()
+    print_js_table(rows, js_pkg, js_ver)
+    print()
     if mismatches:
         print("baseline: DIFFERS")
         for item in mismatches:
@@ -376,6 +535,8 @@ def main():
     fixtures = load_fixtures()
     baseline = load_baseline()
     ic_ver, rows = run_ironcalc(fixtures)
+    js_pkg, js_ver, js_cases = run_ironcalc_js()
+    attach_js(rows, js_cases)
     sj_ver, sheetjs_read = run_sheetjs()
     for row in rows:
         read = sheetjs_read.get((row["file"], row["cell"]))
@@ -390,10 +551,11 @@ def main():
     sj_table = feature_table(sj_flags)
     table = [[name, ic, sj] for (name, ic), (_, sj) in zip(ic_table, sj_table)]
     mismatches = collect_mismatches(rows, baseline, stats, ic_ver, sj_ver, table, sheetjs_read)
+    mismatches.extend(collect_js_mismatches(rows, baseline, js_pkg, js_ver))
     for name, value in feature_table(orig_flags):
         if value not in ("kept", "kept / kept"):
             mismatches.append(f"original RT-features.xlsx missing {name} ({value})")
-    print_report(ic_ver, sj_ver, rows, stats, table, mismatches)
+    print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver)
     return 1 if mismatches else 0
 
 

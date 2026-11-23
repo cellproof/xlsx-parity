@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "license": "MIT",
-  "description": "Excel formula parity and XLSX round-trip checks. SheetJS Community Edition only (no SheetJS Pro); IronCalc via @ironcalc/nodejs; Univer via open-source @univerjs packages.",
+  "description": "Excel formula parity and XLSX round-trip checks. SheetJS Community Edition only (no SheetJS Pro); IronCalc via @ironcalc/nodejs; Univer via open-source @univerjs packages; LibreOffice Calc via the MPL-2.0 libreoffice-calc package.",
   "dependencies": {
     "@ironcalc/nodejs": "0.9.1",
     "@univerjs/core": "1.6.0",

@@ -1,15 +1,15 @@
 """Test 1 baseline: IronCalc calculation, SheetJS CE read/write, feature round-trip.
 
 Excel-expected values and their citations live in fixtures/fixtures.json.
-Known IronCalc misses, including the JavaScript build, the six cells whose
+Known IronCalc misses, including the JavaScript build, the cells whose
 wrong values are written back as cached values, each feature kept/lost
-result, Univer's own formula results, and the values computed by the
-IronCalc engine hook on every formula cell are recorded in
-suite/baseline.json. Feature results are read from the written xlsx, one
-feature and one library at a time. The
-process exits 0 when every measured result matches that record, and nonzero
-when a result changes — a regression or an unexpected fix. A Univer-native
-miss that matches the record is a finding.
+result, Univer's own formula results, the values computed by the
+IronCalc engine hook on every formula cell, and LibreOffice Calc's results
+are recorded in suite/baseline.json. Feature results are read from the
+written xlsx, one feature and one library at a time. The process exits 0
+when every measured result matches that record, and nonzero when a result
+changes — a regression or an unexpected fix. A Univer-native miss or a
+LibreOffice miss that matches the record is a finding.
 """
 import json
 import os
@@ -825,7 +825,137 @@ def print_univer_table(report, rows, guard):
     _print_value_table(("fixture", "cell", "excel", "univer", "univer=excel"), _univer_body(native, rows))
 
 
-def print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver, univer_report, guard):
+def run_libreoffice():
+    lo_dir = os.path.join(OUT, "libreoffice")
+    os.makedirs(lo_dir, exist_ok=True)
+    import libreoffice_calc
+
+    try:
+        return libreoffice_calc.run(lo_dir)
+    except SystemExit:
+        raise
+    except Exception as exc:
+        sys.stderr.write(f"LibreOffice: {exc}\n")
+        raise SystemExit(1)
+
+
+def collect_libreoffice_mismatches(report, rows, baseline):
+    """Locked LibreOffice values are findings. A change, including the recalc proof, fails."""
+    spec = baseline["libreoffice"]
+    mismatches = []
+    for key in ("product", "package", "package_version"):
+        if report.get(key) != spec.get(key):
+            mismatches.append(
+                f"LibreOffice {key}: measured {report.get(key)!r}, baseline {spec.get(key)!r}"
+            )
+    mismatches.extend(_locked_result_mismatches("LibreOffice", report.get("cases") or [], rows, spec))
+    if not report.get("caches_cleared"):
+        mismatches.append("LibreOffice recalc proof: formula caches were not cleared before calculation")
+    if (report.get("cells_differ_from_cache") or 0) < 1:
+        mismatches.append("LibreOffice recalc proof: every LibreOffice value matched the stored cached value")
+    proof = report.get("recalc_proof") or {}
+    locked = spec.get("recalc_proof") or {}
+    for key in ("file", "cell", "stored_cache", "without_recalc", "with_recalc"):
+        if not values_equal(proof.get(key), locked.get(key)):
+            mismatches.append(
+                f"LibreOffice recalc proof {key}: measured {show(proof.get(key))}, baseline {show(locked.get(key))}"
+            )
+    scored = next(
+        (
+            case
+            for case in report.get("cases") or []
+            if case.get("file") == proof.get("file") and case.get("cell") == proof.get("cell")
+        ),
+        None,
+    )
+    scored_value = None if scored is None else univer_got(scored)
+    if scored is None or not values_equal(scored_value, proof.get("with_recalc")):
+        mismatches.append(
+            f"LibreOffice recalc proof with_recalc {show(proof.get('with_recalc'))} "
+            f"does not match the scored cell {show(scored_value)}"
+        )
+    return mismatches
+
+
+def _fixture_ids(rows):
+    seen = []
+    for row in rows:
+        if row["id"] not in seen:
+            seen.append(row["id"])
+    return seen
+
+
+def _engine_match(mapping, row):
+    cells = mapping.get(row["id"]) or {}
+    if row["cell"] not in cells:
+        return False
+    return same(cells[row["cell"]], row["excel"])
+
+
+def print_libreoffice(report, rows):
+    cases = report.get("cases") or []
+    _measured, match, errors, _unknown, _ordered = _univer_measured(cases, rows)
+    print(
+        f"{report.get('product')} "
+        f"({report.get('package')} {report.get('package_version')}): "
+        f"{match}/{len(cases)} cells match Excel, {errors} errors, {report.get('seconds')}s."
+    )
+    _print_value_table(
+        ("fixture", "cell", "excel", "libreoffice", "lo=excel"),
+        _univer_body(cases, rows),
+    )
+    proof = report.get("recalc_proof") or {}
+    print(
+        "LibreOffice recalc proof: "
+        f"{proof.get('file')} {proof.get('cell')} "
+        f"stored cache {show(proof.get('stored_cache'))}; "
+        f"without OOXMLRecalcMode {show(proof.get('without_recalc'))}; "
+        f"caches cleared and OOXMLRecalcMode=0 {show(proof.get('with_recalc'))}. "
+        f"{report.get('cells_differ_from_cache')} cells differ from the stored cache."
+    )
+
+
+def print_three_engines(rows, univer_report, lo_report):
+    native_measured, _native_match, _native_errors, _native_unknown, _native_ordered = _univer_measured(
+        univer_report.get("native") or [], rows
+    )
+    lo_measured, _lo_match, _lo_errors, _lo_unknown, _lo_ordered = _univer_measured(
+        lo_report.get("cases") or [], rows
+    )
+    body = []
+    ic_total = uni_total = lo_total = cells = 0
+    misses = []
+    for fid in _fixture_ids(rows):
+        group = [row for row in rows if row["id"] == fid]
+        ic = sum(row["status"] == "pass" for row in group)
+        uni = sum(_engine_match(native_measured, row) for row in group)
+        lo = sum(_engine_match(lo_measured, row) for row in group)
+        ic_total += ic
+        uni_total += uni
+        lo_total += lo
+        cells += len(group)
+        body.append((fid, f"{ic}/{len(group)}", f"{uni}/{len(group)}", f"{lo}/{len(group)}"))
+        for row in group:
+            if row["status"] == "pass" or _engine_match(native_measured, row) or _engine_match(lo_measured, row):
+                continue
+            ic_text = row["error"] if row["error"] else show(row["got"])
+            misses.append(
+                f"{row['id']} {row['cell']}: excel {show(row['excel'])}, "
+                f"ironcalc {ic_text}, "
+                f"univer {show((native_measured.get(row['id']) or {}).get(row['cell']))}, "
+                f"libreoffice {show((lo_measured.get(row['id']) or {}).get(row['cell']))}"
+            )
+    body.append(("all", f"{ic_total}/{cells}", f"{uni_total}/{cells}", f"{lo_total}/{cells}"))
+    print("Three engines vs Excel:")
+    _print_value_table(("fixture", "ironcalc", "univer-native", "libreoffice"), body)
+    print("Cells all three engines miss:")
+    if not misses:
+        print("  (none)")
+    for line in misses:
+        print(f"  {line}")
+
+
+def print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver, univer_report, guard, lo_report):
     weaker = "F04"
     print(
         f"IronCalc {ic_ver} (Python bindings) calc parity: "
@@ -883,6 +1013,10 @@ def print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver,
     print()
     print_univer_table(univer_report, rows, guard)
     print()
+    print_libreoffice(lo_report, rows)
+    print()
+    print_three_engines(rows, univer_report, lo_report)
+    print()
     if mismatches:
         print("baseline: DIFFERS")
         for item in mismatches:
@@ -900,6 +1034,7 @@ def main():
     attach_js(rows, js_cases)
     guard = run_univer_guard()
     univer_report = run_univer()
+    lo_report = run_libreoffice()
     sj_ver, sheetjs_read = run_sheetjs()
     for row in rows:
         read = sheetjs_read.get((row["file"], row["cell"]))
@@ -917,10 +1052,11 @@ def main():
     mismatches.extend(collect_js_mismatches(rows, baseline, js_pkg, js_ver))
     mismatches.extend(collect_guard_mismatch(*guard, baseline))
     mismatches.extend(collect_univer_mismatches(univer_report, rows, baseline))
+    mismatches.extend(collect_libreoffice_mismatches(lo_report, rows, baseline))
     for name, value in feature_table(orig_flags):
         if value not in ("kept", "kept / kept"):
             mismatches.append(f"original RT-features.xlsx missing {name} ({value})")
-    print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver, univer_report, guard)
+    print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver, univer_report, guard, lo_report)
     return 1 if mismatches else 0
 
 

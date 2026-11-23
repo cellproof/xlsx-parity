@@ -7,7 +7,9 @@ on:
 
 jobs:
   baseline:
-    runs-on: ubuntu-latest
+    # ubuntu-24.04, not ubuntu-latest. ubuntu-latest is Ubuntu 26.04, and its
+    # libreoffice-calc revision is not the 26.2.5.2 backport this baseline records.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -16,5 +18,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Install pinned LibreOffice Calc
+        run: |
+          if ! grep -Rqs "noble-backports" /etc/apt/sources.list /etc/apt/sources.list.d; then
+            echo "deb http://archive.ubuntu.com/ubuntu noble-backports main universe" | sudo tee /etc/apt/sources.list.d/noble-backports.list
+          fi
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -t noble-backports --no-install-recommends \
+            libreoffice-calc=4:26.2.5.2-0ubuntu0.26.04.1~bpo24.04.1
+          soffice --version
+          dpkg-query -W libreoffice-calc
       - name: Test 1 baseline
         run: make test

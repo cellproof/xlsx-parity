@@ -3,9 +3,10 @@
 Excel-expected values and their citations live in fixtures/fixtures.json.
 Known IronCalc misses, including the JavaScript build, the six cells whose
 wrong values are written back as cached values, each feature kept/lost
-result, Univer's own formula results, and the F01 values computed by the
-IronCalc engine hook are recorded in suite/baseline.json. Feature results
-are read from the written xlsx, one feature and one library at a time. The
+result, Univer's own formula results, and the values computed by the
+IronCalc engine hook on every formula cell are recorded in
+suite/baseline.json. Feature results are read from the written xlsx, one
+feature and one library at a time. The
 process exits 0 when every measured result matches that record, and nonzero
 when a result changes — a regression or an unexpected fix. A Univer-native
 miss that matches the record is a finding.
@@ -177,6 +178,81 @@ def univer_show(case):
     if case.get("error"):
         return case["error"]
     return show(case.get("got"))
+
+
+def direct_show(row):
+    """@ironcalc/nodejs via Model.fromXlsx, the engine the hook delegates to."""
+    if row.get("js_error"):
+        return row["js_error"]
+    return show(row.get("js_got"))
+
+
+def hook_matches_direct(case, row):
+    if case.get("error") or row.get("js_error"):
+        return bool(case.get("error")) and case.get("error") == row.get("js_error")
+    return values_equal(case.get("got"), row.get("js_got"))
+
+
+def hook_alignment(cases, rows):
+    """Hook value against the direct IronCalc value for every fixture cell."""
+    by_key = {(row["file"], row["cell"]): row for row in rows}
+    matched = 0
+    mismatches = []
+    body = []
+    for case in cases:
+        row = by_key.get((case["file"], case["cell"]))
+        if row is None:
+            continue
+        ok = hook_matches_direct(case, row)
+        if ok:
+            matched += 1
+        else:
+            mismatches.append(
+                f"Univer hook {row['id']} {row['cell']}: hook {univer_show(case)} != IronCalc {direct_show(row)}"
+            )
+        excel_ok = case.get("error") is None and same(case.get("got"), row["excel"])
+        body.append((
+            row["id"],
+            row["cell"],
+            show(row["excel"]),
+            direct_show(row),
+            univer_show(case),
+            "yes" if ok else "no",
+            "yes" if excel_ok else "no",
+        ))
+    if matched != len(rows):
+        mismatches.insert(0, f"Univer hook matches IronCalc on {matched}/{len(rows)} cells")
+    return matched, mismatches, body
+
+
+def run_univer_guard():
+    """Stop path: the override method is removed, and the process must exit."""
+    proc = subprocess.run(
+        ["node", os.path.join(ROOT, "suite", "univer_adapter.js"), "--guard-test"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    return proc.returncode, (proc.stderr or "").strip(), (proc.stdout or "").strip()
+
+
+def guard_message(baseline):
+    version = baseline["univer"]["packages"]["@univerjs/engine-formula"]
+    return f"Univer {version}: the engine-swap hook moved."
+
+
+def collect_guard_mismatch(code, stderr, stdout, baseline):
+    expected = guard_message(baseline)
+    if code == 1 and stderr == expected and stdout == "":
+        return []
+    got = stderr
+    if stdout:
+        got = f"{stderr}\n{stdout}".strip()
+    if not got:
+        got = "(no output)"
+    return [
+        f"Univer engine-hook guard: exit {code}, output {got!r}, expected exit 1 and {expected!r}"
+    ]
 
 
 def js_result(row):
@@ -657,7 +733,10 @@ def _locked_result_mismatches(label, cases, rows, spec):
 
 
 def collect_univer_mismatches(report, rows, baseline):
-    """Hook results must match the lock. Native misses that match the lock are findings."""
+    """Hook results must match the lock and the direct IronCalc value on every cell.
+
+    Native misses that match the lock are findings.
+    """
     spec = baseline["univer"]
     mismatches = []
     packages = report.get("packages") or {}
@@ -666,7 +745,15 @@ def collect_univer_mismatches(report, rows, baseline):
             mismatches.append(
                 f"Univer package {name}: measured {packages.get(name)!r}, baseline {spec['packages'].get(name)!r}"
             )
-    mismatches.extend(_locked_result_mismatches("Univer hook", report.get("hook") or [], rows, spec["hook"]))
+    hook = report.get("hook") or []
+    mismatches.extend(_locked_result_mismatches("Univer hook", hook, rows, spec["hook"]))
+    matched, iron_mismatches, _body = hook_alignment(hook, rows)
+    mismatches.extend(iron_mismatches)
+    recorded_match = spec["hook"].get("cells_match_ironcalc")
+    if matched != recorded_match:
+        mismatches.append(
+            f"Univer hook cells_match_ironcalc: measured {matched}, baseline {recorded_match}"
+        )
     mismatches.extend(_locked_result_mismatches("Univer native", report.get("native") or [], rows, spec["native"]))
     return mismatches
 
@@ -694,19 +781,31 @@ def _univer_body(cases, rows):
     return body
 
 
-def print_univer_table(report, rows):
+def print_univer_table(report, rows, guard):
     packages = report.get("packages") or {}
     engine = packages.get("@univerjs/engine-formula", "?")
     iron = packages.get("@ironcalc/nodejs", "?")
     hook = report.get("hook") or []
     native = report.get("native") or []
+    code, stderr, _stdout = guard
     _hook_measured, hook_match, hook_errors, _hook_unknown, _hook_ordered = _univer_measured(hook, rows)
+    hook_iron, _iron_mismatches, hook_body = hook_alignment(hook, rows)
     native_measured, native_match, native_errors, _native_unknown, _native_ordered = _univer_measured(native, rows)
     print(
-        f"Univer engine hook (CalculateFormulaService -> @ironcalc/nodejs {iron}) F01: "
-        f"{hook_match}/{len(hook)} cells match Excel, {hook_errors} errors."
+        "Univer engine-hook guard: simulated missing _initializeWithOverride "
+        f"(exit {code}) -> {stderr}"
     )
-    _print_value_table(("fixture", "cell", "excel", "univer", "univer=excel"), _univer_body(hook, rows))
+    print()
+    print(
+        f"Univer engine hook (CalculateFormulaService -> @ironcalc/nodejs {iron}): "
+        f"{hook_match}/{len(hook)} cells match Excel, "
+        f"{hook_iron}/{len(hook)} match IronCalc, "
+        f"{hook_errors} errors."
+    )
+    _print_value_table(
+        ("fixture", "cell", "excel", "ironcalc", "hook", "hook=ironcalc", "hook=excel"),
+        hook_body,
+    )
     print()
     print(
         f"Univer native @univerjs/engine-formula {engine}: "
@@ -726,7 +825,7 @@ def print_univer_table(report, rows):
     _print_value_table(("fixture", "cell", "excel", "univer", "univer=excel"), _univer_body(native, rows))
 
 
-def print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver, univer_report):
+def print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver, univer_report, guard):
     weaker = "F04"
     print(
         f"IronCalc {ic_ver} (Python bindings) calc parity: "
@@ -782,7 +881,7 @@ def print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver,
     print()
     print_js_table(rows, js_pkg, js_ver)
     print()
-    print_univer_table(univer_report, rows)
+    print_univer_table(univer_report, rows, guard)
     print()
     if mismatches:
         print("baseline: DIFFERS")
@@ -799,6 +898,7 @@ def main():
     ic_ver, rows = run_ironcalc(fixtures)
     js_pkg, js_ver, js_cases = run_ironcalc_js()
     attach_js(rows, js_cases)
+    guard = run_univer_guard()
     univer_report = run_univer()
     sj_ver, sheetjs_read = run_sheetjs()
     for row in rows:
@@ -815,11 +915,12 @@ def main():
     table = [[name, ic, sj] for (name, ic), (_, sj) in zip(ic_table, sj_table)]
     mismatches = collect_mismatches(rows, baseline, stats, ic_ver, sj_ver, table, sheetjs_read)
     mismatches.extend(collect_js_mismatches(rows, baseline, js_pkg, js_ver))
+    mismatches.extend(collect_guard_mismatch(*guard, baseline))
     mismatches.extend(collect_univer_mismatches(univer_report, rows, baseline))
     for name, value in feature_table(orig_flags):
         if value not in ("kept", "kept / kept"):
             mismatches.append(f"original RT-features.xlsx missing {name} ({value})")
-    print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver, univer_report)
+    print_report(ic_ver, sj_ver, rows, stats, table, mismatches, js_pkg, js_ver, univer_report, guard)
     return 1 if mismatches else 0
 
 

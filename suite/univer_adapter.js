@@ -1,10 +1,12 @@
-// Headless Univer 1.6.0. Two passes:
+// Headless Univer 1.6.0. Two passes over every formula fixture:
 //
 // 1. Engine hook. UniverFormulaEnginePlugin._initializeWithOverride is the
 //    protected binding point (published in plugin.d.ts). It replaces
 //    ICalculateFormulaService with a CalculateFormulaService subclass. The
 //    subclass awaits FormulaResultService.applyResult, which is the contract
-//    in the engine-formula README. Cell values are computed by @ironcalc/nodejs.
+//    in the engine-formula README. Cell values come from Model.fromXlsx, the
+//    same @ironcalc/nodejs entry point as the direct run. The override stops
+//    at startup when that method or that binding is gone.
 //
 // 2. Workbook ingest. SheetJS CE reads the xlsx into Univer IWorkbookData.
 //    ICellData.f is the formula text ("=LET(...)"). OOXML storage prefixes
@@ -50,7 +52,6 @@ require("@univerjs/sheets/facade");
 require("@univerjs/sheets-formula/facade");
 require("@univerjs/sheets-numfmt/facade");
 
-const HOOK_FIXTURE = "F01-let-lambda-call";
 const PACKAGES = [
   "@ironcalc/nodejs",
   "@univerjs/core",
@@ -63,13 +64,9 @@ const PACKAGES = [
   "rxjs",
 ];
 
-const outDir = process.argv[2];
-if (!outDir) {
-  console.error("usage: univer_adapter.js <out-dir>");
-  process.exit(2);
-}
-
 const root = path.resolve(__dirname, "..");
+let outDir = null;
+let activeFixtureFile = null;
 
 function packageVersion(name) {
   const pkgPath = path.join(root, "node_modules", ...name.split("/"), "package.json");
@@ -167,38 +164,26 @@ class IronCalcCalculateFormulaService extends CalculateFormulaService {
 
   async execute(config) {
     if (this._disposed) return;
-    const model = new Model("hook", "en", "UTC", "en");
-    const sheetIndex = new Map();
-    let nextIndex = 0;
-    for (const unitId of Object.keys(config.formulaData || {})) {
-      const workbook = this._univerInstances.getUnit(unitId, UniverInstanceType.UNIVER_SHEET);
-      const sheets = workbook ? workbook.getSheets() : [];
-      for (const sheet of sheets) {
-        if (nextIndex === 0) model.renameSheet(0, sheet.getName());
-        else model.addSheet(sheet.getName());
-        const index = nextIndex;
-        nextIndex += 1;
-        sheetIndex.set(`${unitId}\0${sheet.getSheetId()}`, index);
-        sheet.getCellMatrix().forValue((row, col, cell) => {
-          if (!cell) return;
-          if (cell.f) model.updateCellWithFormula(index, row + 1, col + 1, formulaText(cell.f));
-          else if (typeof cell.v === "number") model.updateCellWithNumber(index, row + 1, col + 1, cell.v);
-          else if (typeof cell.v === "boolean") model.updateCellWithBool(index, row + 1, col + 1, cell.v);
-          else if (cell.v != null) model.updateCellWithText(index, row + 1, col + 1, String(cell.v));
-        });
-      }
-    }
+    // Model.fromXlsx is the direct Node entry point. Building a second workbook
+    // from Univer cells changes results such as SUM(IF(range)).
+    if (!activeFixtureFile) throw new Error("IronCalc hook has no fixture workbook");
+    const model = Model.fromXlsx(activeFixtureFile, "en", "UTC", "en");
     model.evaluate();
     const unitData = Object.create(null);
     for (const unitId of Object.keys(config.formulaData || {})) {
+      const workbook = this._univerInstances.getUnit(unitId, UniverInstanceType.UNIVER_SHEET);
+      const sheets = workbook ? workbook.getSheets() : [];
+      const sheetById = new Map(sheets.map((sheet) => [sheet.getSheetId(), sheet]));
       unitData[unitId] = Object.create(null);
       const formulaSheets = config.formulaData[unitId] || {};
       for (const sheetId of Object.keys(formulaSheets)) {
-        const index = sheetIndex.get(`${unitId}\0${sheetId}`);
+        const sheet = sheetById.get(sheetId);
         const matrix = new ObjectMatrix();
         walkMatrix(formulaSheets[sheetId], (row, col) => {
-          if (index == null) return;
-          const value = model.getCellValue(index, row + 1, col + 1);
+          if (!sheet) return;
+          const addr = XLSX.utils.encode_cell({ r: row, c: col });
+          let value = model.getCellValueByRef(`${sheet.getName()}!${addr}`);
+          if (value === undefined) value = null;
           matrix.setValue(row, col, { v: value, t: cellType(value) });
         });
         unitData[unitId][sheetId] = matrix;
@@ -222,9 +207,31 @@ class IronCalcCalculateFormulaService extends CalculateFormulaService {
   }
 }
 
+function engineHookMovedMessage() {
+  return `Univer ${packageVersion("@univerjs/engine-formula")}: the engine-swap hook moved.`;
+}
+
+// injector is set after the parent override has registered its services.
+// Without it, only the protected method is checked.
+function engineHookMoved(pluginClass, injector) {
+  const methodMissing = typeof pluginClass.prototype._initializeWithOverride !== "function";
+  const bindingMissing = injector != null && !injector.has(ICalculateFormulaService);
+  if (!methodMissing && !bindingMissing) return null;
+  return engineHookMovedMessage();
+}
+
+function stopIfEngineHookMoved(pluginClass, injector) {
+  const message = engineHookMoved(pluginClass, injector);
+  if (!message) return;
+  console.error(message);
+  process.exit(1);
+}
+
 class IronCalcFormulaPlugin extends UniverFormulaEnginePlugin {
   _initializeWithOverride() {
+    stopIfEngineHookMoved(UniverFormulaEnginePlugin, null);
     super._initializeWithOverride();
+    stopIfEngineHookMoved(UniverFormulaEnginePlugin, this._injector);
     this._injector.replace([
       ICalculateFormulaService,
       {
@@ -274,7 +281,22 @@ async function calculate(snapshot, formulaPlugin) {
   }
 }
 
-function readCases(fx, workbook, modelError) {
+// Univer stores a boolean as 1/0 with type BOOLEAN, and its cell-content
+// interceptor shortens general numbers to 12 significant digits. The raw cell
+// still has IronCalc's number. The hook report uses that raw value.
+function faithfulValue(range) {
+  const data = range.getCellData() || {};
+  if (data.t === CellValueType.BOOLEAN) {
+    return data.v === true || data.v === 1 || data.v === "1" || String(data.v).toUpperCase() === "TRUE";
+  }
+  if (data.t === CellValueType.NUMBER) {
+    const raw = range.getRawValue();
+    if (typeof raw === "number") return raw;
+  }
+  return jsonValue(range.getValue());
+}
+
+function readCases(fx, workbook, modelError, rawValues) {
   const cases = [];
   for (const [sheetName, addr] of fx.cases) {
     const ref = `${sheetName}!${addr}`;
@@ -285,7 +307,9 @@ function readCases(fx, workbook, modelError) {
     try {
       const sheet = workbook.getSheetByName(sheetName);
       if (!sheet) throw new Error(`missing sheet ${sheetName}`);
-      cases.push({ file: fx.file, cell: ref, got: jsonValue(sheet.getRange(addr).getValue()), error: null });
+      const range = sheet.getRange(addr);
+      const got = rawValues ? faithfulValue(range) : jsonValue(range.getValue());
+      cases.push({ file: fx.file, cell: ref, got, error: null });
     } catch (exc) {
       cases.push({ file: fx.file, cell: ref, got: null, error: errorText(exc) });
     }
@@ -295,6 +319,8 @@ function readCases(fx, workbook, modelError) {
 
 async function runFixture(fx, formulaPlugin) {
   const snapshot = readFixtureWorkbook(fx);
+  const previousFile = activeFixtureFile;
+  activeFixtureFile = formulaPlugin === IronCalcFormulaPlugin ? path.join(root, "fixtures", fx.file) : null;
   let univer = null;
   let workbook = null;
   let modelError = null;
@@ -304,33 +330,65 @@ async function runFixture(fx, formulaPlugin) {
     workbook = ran.workbook;
   } catch (exc) {
     modelError = errorText(exc);
+  } finally {
+    activeFixtureFile = previousFile;
   }
-  const cases = readCases(fx, workbook, modelError);
+  const cases = readCases(fx, workbook, modelError, formulaPlugin === IronCalcFormulaPlugin);
   if (univer) univer.dispose();
   return cases;
 }
 
+function bootEngineHook() {
+  const univer = new Univer({
+    locale: LocaleType.EN_US,
+    locales: { [LocaleType.EN_US]: mergeLocales(SheetsEnUS) },
+  });
+  try {
+    registerHeadless(univer, IronCalcFormulaPlugin);
+  } finally {
+    univer.dispose();
+  }
+}
+
+function runGuardTest() {
+  delete UniverFormulaEnginePlugin.prototype._initializeWithOverride;
+  try {
+    bootEngineHook();
+  } catch (exc) {
+    console.error(exc.message || errorText(exc));
+    process.exit(1);
+  }
+  console.error("guard did not stop");
+  process.exit(2);
+}
+
 async function main() {
   fs.mkdirSync(outDir, { recursive: true });
+  bootEngineHook();
   const fixtures = JSON.parse(fs.readFileSync(path.join(root, "fixtures", "fixtures.json"), "utf8"));
   const packages = {};
   for (const name of PACKAGES) packages[name] = packageVersion(name);
 
+  const hook = [];
+  for (const fx of fixtures) hook.push(...await runFixture(fx, IronCalcFormulaPlugin));
+
   const native = [];
   for (const fx of fixtures) native.push(...await runFixture(fx, UniverFormulaEnginePlugin));
-
-  const hookFx = fixtures.find((item) => item.id === HOOK_FIXTURE);
-  if (!hookFx) {
-    console.error(`missing fixture ${HOOK_FIXTURE}`);
-    process.exit(1);
-  }
-  const hook = await runFixture(hookFx, IronCalcFormulaPlugin);
 
   const report = { packages, hook, native };
   fs.writeFileSync(path.join(outDir, "read.json"), JSON.stringify(report));
 }
 
-main().catch((exc) => {
-  console.error(errorText(exc));
-  process.exit(1);
-});
+const command = process.argv[2];
+if (command === "--guard-test") {
+  runGuardTest();
+} else if (!command) {
+  console.error("usage: univer_adapter.js <out-dir>");
+  process.exit(2);
+} else {
+  outDir = command;
+  main().catch((exc) => {
+    console.error(errorText(exc));
+    process.exit(1);
+  });
+}

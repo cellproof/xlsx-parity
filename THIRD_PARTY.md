@@ -130,7 +130,7 @@ No paid package is installed.
 
 Every `.xlsx` file was written by this repository. `fixtures/build_fixtures.py` writes F01–F25 with XlsxWriter. `fixtures/build_features.py` writes `RT-features.xlsx` with XlsxWriter. `make test` does not regenerate them. Workbook creator and last-modified-by fields are empty. `Application` is `Microsoft Excel` because that is XlsxWriter's default, not because the file was saved by Excel. No upstream workbook is committed.
 
-Expected values are copied from the cited source. The citation for each cell is in `fixtures/fixtures.json`.
+Expected values come from recorded desktop Excel runs. The citation for each cell is in `fixtures/fixtures.json`. Adam Marsh's desktop Excel (16.0300) run on 2026-11-23 is the primary source for every formula cell except F11–F13, which are his desktop Excel for Microsoft 365 run on 2026-11-22. The URLs below are the previous citations kept on those cells.
 
 | File | Source of the expected values |
 |---|---|
@@ -169,7 +169,7 @@ F17's note says the Excel values in IronCalc issue 1605 were cached results from
 
 Microsoft Support and Microsoft Learn pages are cited by URL for stated function results. F08 uses the inputs and result 776 from the published AMORDEGRC example. The documentation text is not copied.
 
-F04 also cites a MrExcel thread and a Microsoft Q&A page as inferred support for format-section behavior. Neither post nor any attachment is in this repository. The formula and the expected `"-0"` come from Univer issue 8270.
+F04's expected value is `"0"` from Adam Marsh, desktop Excel (16.0300), 2026-11-23. Univer issue 8270, a MrExcel thread, and a Microsoft Q&A page are the previous citations. The issue author said they could not run the formula in Excel. Neither post nor any attachment is in this repository.
 
-F11, F12, and F13 expected values come from our own Excel run. Adam Marsh typed each formula into desktop Excel for Microsoft 365 on 2026-11-22, and each result matched the value already stored for that cell. That measurement is original. [HyperFormula's list of differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences) is cited only as a reference. Nothing is copied from that page beyond the short formulas. HyperFormula is not installed and not vendored.
+F11, F12, and F13 expected values come from our own Excel run. Adam Marsh typed each formula into desktop Excel for Microsoft 365 on 2026-11-22, and each result matched the value already stored for that cell. That measurement is original. The other formula cells were remeasured by Adam Marsh in desktop Excel (16.0300) on 2026-11-23. F18 `D1` was entered as a dynamic-array formula, with E1 cleared, and the first spill cell was `x`. [HyperFormula's list of differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences) is cited only as a reference for F11–F13. Nothing is copied from that page beyond the short formulas. HyperFormula is not installed and not vendored.
 

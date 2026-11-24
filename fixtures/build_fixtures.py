@@ -1,13 +1,15 @@
 """Rebuild the formula fixtures and fixtures.json.
 
 make test uses the committed workbooks. Run this only to regenerate them.
-Every expected value is copied from a cited source: a Univer issue, an
-IronCalc issue, a Microsoft Support page that states the result for that
-input, or a recorded desktop Excel result. F11-F13 values are from Adam
-Marsh's desktop Excel run on 2026-11-22. HyperFormula's differences page
-is only a secondary reference for those formulas. Each formula cell
-stores that Excel value as its cached value, so a reader that does not
-calculate can be checked for cache survival.
+Expected values come from recorded desktop Excel runs, plus the remaining
+cited sources. F11-F13 are from Adam Marsh's desktop Excel run on
+2026-11-22. The other formula cells are from his desktop Excel (16.0300)
+run on 2026-11-23. F18 D1 was entered there as a dynamic-array formula.
+HyperFormula's differences page is only a secondary reference for the
+F11-F13 formulas.
+Each formula cell stores that expected value as its cached value, so a
+reader that does not calculate can be checked for cache survival. The
+files are written with xlsxwriter, not saved by Excel.
 
 Formula strings are OOXML storage form (_xlfn. / _xlpm. / _xlws. where
 Excel uses them).
@@ -38,14 +40,22 @@ MREXCEL_NEG = "https://www.mrexcel.com/board/threads/negative-number-format.1202
 SUM_NEG_ZERO = "https://learn.microsoft.com/en-us/answers/questions/4790299/sum-formula-returns-(0-00)-not-for-zero-sum"
 
 
-def excel_run(results):
-    """Adam Marsh, desktop Excel for Microsoft 365, 2026-11-22."""
+def excel_run(results, when="2026-11-22", where="desktop Excel for Microsoft 365"):
+    """A recorded desktop Excel run by Adam Marsh."""
     return {
         "who": "Adam Marsh",
-        "when": "2026-11-22",
-        "where": "desktop Excel for Microsoft 365",
+        "when": when,
+        "where": where,
         "results": results,
     }
+
+
+ADAM_2026_11_23 = "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23"
+
+
+def previously(note):
+    """Keep the old citation after the 2026-11-23 desktop Excel run."""
+    return f"{ADAM_2026_11_23}; previously: {note}"
 
 
 HF = "https://hyperformula.handsontable.com/docs/guide/list-of-differences"
@@ -57,63 +67,62 @@ FIXTURES = [
          sources=[UNIVER + "8332"],
          note="Issue table; author says the Excel column was checked in Excel for the web.",
          inputs={}, cases=[
-            ("Sheet1", "A1", "_xlfn.LET(_xlpm.f,_xlfn.LAMBDA(_xlpm.p,_xlpm.p+1),_xlpm.f(1))", 2, "issue #8332 table"),
-            ("Sheet1", "A2", "_xlfn.LET(_xlpm.f,_xlfn.LAMBDA(_xlpm.p,_xlpm.q,_xlpm.p+_xlpm.q),_xlpm.f(1,2))", 3, "issue #8332 table"),
+            ("Sheet1", "A1", "_xlfn.LET(_xlpm.f,_xlfn.LAMBDA(_xlpm.p,_xlpm.p+1),_xlpm.f(1))", 2, previously("issue #8332 table")),
+            ("Sheet1", "A2", "_xlfn.LET(_xlpm.f,_xlfn.LAMBDA(_xlpm.p,_xlpm.q,_xlpm.p+_xlpm.q),_xlpm.f(1,2))", 3, previously("issue #8332 table")),
          ]),
     dict(id="F02-iso-ceiling", issue=8268,
          sources=[UNIVER + "8268", MS["ISO.CEILING"]],
          note="Expected values stated in the issue, citing Microsoft's ISO.CEILING page.",
          inputs={}, cases=[
-            ("Sheet1", "A1", "_xlfn.ISO.CEILING(4.3)", 5, "issue #8268 / MS ISO.CEILING"),
-            ("Sheet1", "A2", "_xlfn.ISO.CEILING(-4.3)", -4, "issue #8268 / MS ISO.CEILING"),
-            ("Sheet1", "A3", "_xlfn.ISO.CEILING(4.3,-2)", 6, "issue #8268 / MS ISO.CEILING"),
+            ("Sheet1", "A1", "_xlfn.ISO.CEILING(4.3)", 5, previously("issue #8268 / MS ISO.CEILING")),
+            ("Sheet1", "A2", "_xlfn.ISO.CEILING(-4.3)", -4, previously("issue #8268 / MS ISO.CEILING")),
+            ("Sheet1", "A3", "_xlfn.ISO.CEILING(4.3,-2)", 6, previously("issue #8268 / MS ISO.CEILING")),
          ]),
     dict(id="F03-edate-eomonth-negative-fraction", issue=8269,
          sources=[UNIVER + "8269", MS["EDATE"], MS["EOMONTH"]],
          note="Serials 40527 / 40543 stated in the issue; MS docs say non-integer months are truncated.",
          inputs={}, date_format=True, cases=[
-            ("Sheet1", "A1", "EDATE(DATE(2011,1,15),-1.5)", 40527, "issue #8269 / MS EDATE"),
-            ("Sheet1", "A2", "EOMONTH(DATE(2011,1,15),-1.5)", 40543, "issue #8269 / MS EOMONTH"),
+            ("Sheet1", "A1", "EDATE(DATE(2011,1,15),-1.5)", 40527, previously("issue #8269 / MS EDATE")),
+            ("Sheet1", "A2", "EOMONTH(DATE(2011,1,15),-1.5)", 40543, previously("issue #8269 / MS EOMONTH")),
          ]),
     dict(id="F04-text-negative-zero", issue=8270,
          sources=[UNIVER + "8270", MREXCEL_NEG, SUM_NEG_ZERO],
-         citation="weaker",
-         supporting_evidence="inferred, not a direct test",
-         note=("Expected '-0' is the issue author's statement of Excel behavior; the author says they could not run it in Excel. "
-               "Sourced from issue text, but weaker than the others. The MrExcel thread and the Microsoft Q&A support that "
-               "Excel picks the negative format section from the raw sign before rounding. That support is inferred, not a direct test of TEXT(-0.4,\"0\")."),
+         note=("Primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23, returned \"0\". "
+               "The previous expected \"-0\" was Univer issue #8270; the author says they could not run it in Excel. "
+               "The MrExcel thread and the Microsoft Q&A were inferred support for picking the negative format section "
+               "from the raw sign before rounding, not a direct test of TEXT(-0.4,\"0\")."),
          inputs={}, cases=[
-            ("Sheet1", "A1", 'TEXT(-0.4,"0")', "-0",
-             "issue #8270 (author unverified in Excel; weaker). Format-section support is inferred, not a direct test"),
+            ("Sheet1", "A1", 'TEXT(-0.4,"0")', "0",
+             previously("issue #8270 (author unverified in Excel; weaker). Format-section support is inferred, not a direct test")),
          ]),
     dict(id="F05-search-wildcards-and-round-digits", issue=8198,
          sources=[UNIVER + "8198", MS["SEARCH"]],
          note="SEARCH: issue says all calls return 2 per MS SEARCH docs. ROUND*: issue says Excel returns the number unchanged or 0.",
          inputs={}, cases=[
-            ("Sheet1", "A1", 'SEARCH("b*","abc")', 2, "issue #8198 / MS SEARCH"),
-            ("Sheet1", "A2", 'SEARCH("?c","abc")', 2, "issue #8198 / MS SEARCH"),
-            ("Sheet1", "A3", 'SEARCH("a*c","xabc")', 2, "issue #8198 / MS SEARCH"),
-            ("Sheet1", "A4", 'SEARCH("~*","a*b")', 2, "issue #8198 / MS SEARCH"),
-            ("Sheet1", "B1", "ROUNDUP(1.23,16)", 1.23, "issue #8198 text"),
-            ("Sheet1", "B2", "ROUND(1.5,20)", 1.5, "issue #8198 text"),
-            ("Sheet1", "B3", "ROUNDDOWN(1.5,309)", 1.5, "issue #8198 text"),
-            ("Sheet1", "B4", "ROUND(2.5,-400)", 0, "issue #8198 text"),
+            ("Sheet1", "A1", 'SEARCH("b*","abc")', 2, previously("issue #8198 / MS SEARCH")),
+            ("Sheet1", "A2", 'SEARCH("?c","abc")', 2, previously("issue #8198 / MS SEARCH")),
+            ("Sheet1", "A3", 'SEARCH("a*c","xabc")', 2, previously("issue #8198 / MS SEARCH")),
+            ("Sheet1", "A4", 'SEARCH("~*","a*b")', 2, previously("issue #8198 / MS SEARCH")),
+            ("Sheet1", "B1", "ROUNDUP(1.23,16)", 1.23, previously("issue #8198 text")),
+            ("Sheet1", "B2", "ROUND(1.5,20)", 1.5, previously("issue #8198 text")),
+            ("Sheet1", "B3", "ROUNDDOWN(1.5,309)", 1.5, previously("issue #8198 text")),
+            ("Sheet1", "B4", "ROUND(2.5,-400)", 0, previously("issue #8198 text")),
          ]),
     dict(id="F06-char-range", issue=8211,
          sources=[UNIVER + "8211", MS["CHAR"]],
          note="MS CHAR takes 'a number between 1 and 255'; issue states CHAR(256) and CHAR(65601) return #VALUE!. 128-255 is platform-dependent, so not tested.",
          inputs={}, cases=[
-            ("Sheet1", "A1", "CHAR(256)", "#VALUE!", "issue #8211 / MS CHAR"),
-            ("Sheet1", "A2", "CHAR(65601)", "#VALUE!", "issue #8211 / MS CHAR"),
-            ("Sheet1", "A3", "CHAR(65)", "A", "MS CHAR (65 -> A is in the 1-255 ASCII range)"),
+            ("Sheet1", "A1", "CHAR(256)", "#VALUE!", previously("issue #8211 / MS CHAR")),
+            ("Sheet1", "A2", "CHAR(65601)", "#VALUE!", previously("issue #8211 / MS CHAR")),
+            ("Sheet1", "A3", "CHAR(65)", "A", previously("MS CHAR (65 -> A is in the 1-255 ASCII range)")),
          ]),
     dict(id="F07-value-accounting-negatives", issue=8231,
          sources=[UNIVER + "8231"],
          note="Expected values stated in the issue text as Excel behavior.",
          inputs={}, cases=[
-            ("Sheet1", "A1", 'VALUE("(5)")', -5, "issue #8231 text"),
-            ("Sheet1", "A2", 'VALUE("($1,000)")', -1000, "issue #8231 text"),
-            ("Sheet1", "A3", '"(5)"+1', -4, "issue #8231 text"),
+            ("Sheet1", "A1", 'VALUE("(5)")', -5, previously("issue #8231 text")),
+            ("Sheet1", "A2", 'VALUE("($1,000)")', -1000, previously("issue #8231 text")),
+            ("Sheet1", "A3", '"(5)"+1', -4, previously("issue #8231 text")),
          ]),
     dict(id="F08-amordegrc", issue=8267,
          sources=[UNIVER + "8267", MS["AMORDEGRC"]],
@@ -121,15 +130,15 @@ FIXTURES = [
          inputs={("Sheet1", "A2"): 2400, ("Sheet1", "A3"): 39679, ("Sheet1", "A4"): 39813,
                  ("Sheet1", "A5"): 300, ("Sheet1", "A6"): 1, ("Sheet1", "A7"): 0.15, ("Sheet1", "A8"): 1},
          cases=[
-            ("Sheet1", "A10", "AMORDEGRC(A2,A3,A4,A5,A6,A7,A8)", 776, "MS AMORDEGRC example"),
+            ("Sheet1", "A10", "AMORDEGRC(A2,A3,A4,A5,A6,A7,A8)", 776, previously("MS AMORDEGRC example")),
          ]),
     dict(id="F09-ast-cache-collision-cells", issue=7986,
          sources=[UNIVER + "7986"],
          note="Exact cells from the issue; issue states Q16084 should be 328105 (Univer showed 26614).",
          inputs={("Sheet1", "A1"): 10},
          cases=[
-            ("Sheet1", "P1169", "A1*326+23354", 26614, "issue #7986 (=10*326+23354)"),
-            ("Sheet1", "Q16084", "A1*645+321655", 328105, "issue #7986 text"),
+            ("Sheet1", "P1169", "A1*326+23354", 26614, previously("issue #7986 (=10*326+23354)")),
+            ("Sheet1", "Q16084", "A1*645+321655", 328105, previously("issue #7986 text")),
          ]),
     dict(id="F10-sumifs-legacy-whole-column", issue=8154,
          sources=[UNIVER + "8154", MS["IMPLICIT"]],
@@ -139,13 +148,14 @@ FIXTURES = [
                "shows it as @$A:$A and returns the same-row total. Issue states k0 total 10809, k299 total 10800. "
                "Cached values for other rows are computed from the same data definition and are not asserted."),
          inputs="sumifs", cases=[
-            ("Summary", "B2", "SUMIFS(Data!B:B,Data!A:A,$A:$A)", 10809, "issue #8154 text (k0 total)"),
-            ("Summary", "B301", "SUMIFS(Data!B:B,Data!A:A,$A:$A)", 10800, "issue #8154 text (k299 total)"),
+            ("Summary", "B2", "SUMIFS(Data!B:B,Data!A:A,$A:$A)", 10809, previously("issue #8154 text (k0 total)")),
+            ("Summary", "B301", "SUMIFS(Data!B:B,Data!A:A,$A:$A)", 10800, previously("issue #8154 text (k299 total)")),
          ]),
     # Milestone 4. F11-F13 expected values are Adam Marsh's desktop Excel run
     # on 2026-11-22. HyperFormula's differences table is a secondary
-    # cross-reference. F14-F25 values are copied from an IronCalc issue that
-    # shows Excel's output. None are inferred.
+    # cross-reference. F14-F25 were remeasured on 2026-11-23. F18 D1 was
+    # entered as a dynamic-array formula. The issue text stays as the
+    # previous citation.
     dict(id="F11-hf-negative-rounding",
          sources=[HF, MS["INT"], MS["ISEVEN"]],
          primary_source=excel_run({
@@ -224,10 +234,10 @@ FIXTURES = [
          note="B1:B4 is 1, 3, 5, 8. Author ran these in Excel for Microsoft 365 (16.0.20527.20150).",
          inputs={("Sheet1", "B1"): 1, ("Sheet1", "B2"): 3, ("Sheet1", "B3"): 5, ("Sheet1", "B4"): 8},
          cases=[
-            ("Sheet1", "A1", "LARGE(B1:B4,1.9)", 5, "issue #1750 table"),
-            ("Sheet1", "A2", "LARGE(B1:B4,4.5)", "#NUM!", "issue #1750 table"),
-            ("Sheet1", "A3", "LARGE(B1:B4,TRUE)", 8, "issue #1750 table"),
-            ("Sheet1", "A4", "SMALL(B1:B4,TRUE)", 1, "issue #1750 table"),
+            ("Sheet1", "A1", "LARGE(B1:B4,1.9)", 5, previously("issue #1750 table")),
+            ("Sheet1", "A2", "LARGE(B1:B4,4.5)", "#NUM!", previously("issue #1750 table")),
+            ("Sheet1", "A3", "LARGE(B1:B4,TRUE)", 8, previously("issue #1750 table")),
+            ("Sheet1", "A4", "SMALL(B1:B4,TRUE)", 1, previously("issue #1750 table")),
          ]),
     dict(id="F15-vlookup-index-below-one", issue=1751,
          sources=[IC + "1751"],
@@ -235,32 +245,36 @@ FIXTURES = [
          inputs={("Sheet1", "A1"): 1, ("Sheet1", "B1"): "one", ("Sheet1", "C1"): 10,
                  ("Sheet1", "A2"): 2, ("Sheet1", "B2"): "two", ("Sheet1", "C2"): 20},
          cases=[
-            ("Sheet1", "E1", "VLOOKUP(2,A1:C2,0,FALSE)", "#VALUE!", "issue #1751 table"),
-            ("Sheet1", "E2", "HLOOKUP(1,A1:C2,0.5,FALSE)", "#VALUE!", "issue #1751 table"),
+            ("Sheet1", "E1", "VLOOKUP(2,A1:C2,0,FALSE)", "#VALUE!", previously("issue #1751 table")),
+            ("Sheet1", "E2", "HLOOKUP(1,A1:C2,0.5,FALSE)", "#VALUE!", previously("issue #1751 table")),
          ]),
     dict(id="F16-text-general", issue=1752,
          sources=[IC + "1752"],
          note="Author ran these in Excel for Microsoft 365 (16.0.20527.20150). TEXT(0.000000001,\"General\") is omitted: IronCalc rewrites that literal on save.",
          inputs={}, cases=[
-            ("Sheet1", "A1", 'TEXT(1/33600,"General")', "2.97619E-05", "issue #1752 table"),
-            ("Sheet1", "A2", 'TEXT(12345678.9012345,"General")', "12345678.9", "issue #1752 table"),
-            ("Sheet1", "A3", 'TEXT(100000000000/3,"General")', "33333333333", "issue #1752 table"),
+            ("Sheet1", "A1", 'TEXT(1/33600,"General")', "2.97619E-05", previously("issue #1752 table")),
+            ("Sheet1", "A2", 'TEXT(12345678.9012345,"General")', "12345678.9", previously("issue #1752 table")),
+            ("Sheet1", "A3", 'TEXT(100000000000/3,"General")', "33333333333", previously("issue #1752 table")),
          ]),
     dict(id="F17-explicit-argument-coercion", issue=1605,
          sources=[IC + "1605", MS["STDEV"], MS["VAR"]],
          note=("Excel values are the cached results the reporter copied from an Excel-saved POI workbook (EverythingTests). "
                "Microsoft's STDEV and VAR pages say that text numbers and logicals typed directly as arguments are counted."),
          inputs={}, cases=[
-            ("Sheet1", "A1", 'LEFT("a string","6")', "a stri", "issue #1605 table"),
-            ("Sheet1", "A2", 'SUMSQ("2","3",4)', 29, "issue #1605 table"),
+            ("Sheet1", "A1", 'LEFT("a string","6")', "a stri", previously("issue #1605 table")),
+            ("Sheet1", "A2", 'SUMSQ("2","3",4)', 29, previously("issue #1605 table")),
             ("Sheet1", "A3", 'STDEV("1","2")', 0.7071067811865476,
-             "issue #1605 table; MS STDEV counts text numbers typed as arguments"),
+             previously("issue #1605 table; MS STDEV counts text numbers typed as arguments")),
             ("Sheet1", "A4", "VAR(TRUE,FALSE,TRUE)", 0.33333333333333337,
-             "issue #1605 table; MS VAR counts logicals typed as arguments"),
+             previously("issue #1605 table; MS VAR counts logicals typed as arguments")),
          ]),
     dict(id="F18-xlookup-return-and-empty",
          sources=[IC + "1789", IC + "1718"],
-         note="A1:C3 and D1 are issue #1789. E1:F4 and G1 are issue #1718. Both tables state Excel's cell value.",
+         note=("Primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23. "
+               "D1 was entered as a dynamic-array formula with E1 cleared, and it spilled x. "
+               "The legacy non-array form of this formula returns #VALUE! in Excel (implicit intersection), "
+               "and the dynamic-array form returns x. "
+               "Previous citations: issue #1789 for D1 and issue #1718 for G1."),
          inputs={
              ("Sheet1", "A1"): "b", ("Sheet1", "A2"): "a", ("Sheet1", "A3"): "b",
              ("Sheet1", "B1"): "x", ("Sheet1", "C1"): "y",
@@ -269,32 +283,33 @@ FIXTURES = [
              ("Sheet1", "E1"): 5, ("Sheet1", "E2"): 3, ("Sheet1", "E3"): 8, ("Sheet1", "E4"): 1,
              ("Sheet1", "F1"): "b", ("Sheet1", "F2"): "d", ("Sheet1", "F3"): "a", ("Sheet1", "F4"): "c",
          }, cases=[
-            ("Sheet1", "D1", '_xlfn.XLOOKUP("b",A1:A3,B1:C3)', "x", "issue #1789 table (first spill cell)"),
-            ("Sheet1", "G1", "_xlfn.XLOOKUP(8,E1:E4,F1:F4,,,)", "a", "issue #1718 table"),
+            ("Sheet1", "D1", '_xlfn.XLOOKUP("b",A1:A3,B1:C3)', "x",
+             "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23, entered as a dynamic-array formula; previously: issue #1789 table (first spill cell)"),
+            ("Sheet1", "G1", "_xlfn.XLOOKUP(8,E1:E4,F1:F4,,,)", "a", previously("issue #1718 table")),
          ]),
     dict(id="F19-sort-empty-argument", issue=1597,
          sources=[IC + "1597"],
          note="A1:A4 is 5, 3, 8, 1. The issue table states Excel's results for the empty optional arguments.",
          inputs={("Sheet1", "A1"): 5, ("Sheet1", "A2"): 3, ("Sheet1", "A3"): 8, ("Sheet1", "A4"): 1},
          cases=[
-            ("Sheet1", "B1", "INDEX(_xlfn._xlws.SORT(A1:A4,,-1),1)", 8, "issue #1597 table"),
-            ("Sheet1", "B2", "_xlfn.XMATCH(8,A1:A4,,)", 3, "issue #1597 table"),
+            ("Sheet1", "B1", "INDEX(_xlfn._xlws.SORT(A1:A4,,-1),1)", 8, previously("issue #1597 table")),
+            ("Sheet1", "B2", "_xlfn.XMATCH(8,A1:A4,,)", 3, previously("issue #1597 table")),
          ]),
     dict(id="F20-date-serial-zero", issue=1569,
          sources=[IC + "1569"],
          note="Author's table from Excel for Mac 16.114. Serial 0 is accepted; DAY is 0 and WEEKDAY is 7.",
          inputs={}, cases=[
-            ("Sheet1", "A1", "YEAR(0)", 1900, "issue #1569 table"),
-            ("Sheet1", "A2", "DAY(0)", 0, "issue #1569 table"),
-            ("Sheet1", "A3", "WEEKDAY(0)", 7, "issue #1569 table"),
-            ("Sheet1", "A4", "YEAR(B1)", 1900, "issue #1569 table (B1 blank)"),
+            ("Sheet1", "A1", "YEAR(0)", 1900, previously("issue #1569 table")),
+            ("Sheet1", "A2", "DAY(0)", 0, previously("issue #1569 table")),
+            ("Sheet1", "A3", "WEEKDAY(0)", 7, previously("issue #1569 table")),
+            ("Sheet1", "A4", "YEAR(B1)", 1900, previously("issue #1569 table (B1 blank)")),
          ]),
     dict(id="F21-date-year-offset", issue=1364,
          sources=[IC + "1364"],
          note="Years 0 through 1899 are added to 1900. The issue table states the serials.",
          inputs={}, cases=[
-            ("Sheet1", "A1", "DATE(1,1,1)", 367, "issue #1364 table"),
-            ("Sheet1", "A2", "DATE(100,1,1)", 36526, "issue #1364 table"),
+            ("Sheet1", "A1", "DATE(1,1,1)", 367, previously("issue #1364 table")),
+            ("Sheet1", "A2", "DATE(100,1,1)", 36526, previously("issue #1364 table")),
          ]),
     dict(id="F22-and-empty-text", issue=1609,
          sources=[IC + "1609"],
@@ -303,7 +318,7 @@ FIXTURES = [
             ("Sheet1", "A1", '""', ""),
             ("Sheet1", "B1", '""', ""),
          ], cases=[
-            ("Sheet1", "C1", 'AND(A1<>"",A1+B1<1)', "#VALUE!", "issue #1609 table"),
+            ("Sheet1", "C1", 'AND(A1<>"",A1+B1<1)', "#VALUE!", previously("issue #1609 table")),
          ]),
     dict(id="F23-sum-if-range", issue=1749,
          sources=[IC + "1749"],
@@ -311,9 +326,9 @@ FIXTURES = [
          inputs={
              ("Sheet1", "B1"): 1, ("Sheet1", "B2"): 3, ("Sheet1", "B3"): 5, ("Sheet1", "B4"): 8,
              ("Sheet1", "C1"): 10, ("Sheet1", "C2"): 20, ("Sheet1", "C3"): 30, ("Sheet1", "C4"): 40,
-         }, cases=[
-            ("Sheet1", "E6", "SUM(IF(TRUE,B1:B4))", 17, "issue #1749 table"),
-            ("Sheet1", "E7", "SUM(IF(B1>5,B1:B4,C1:C4))", 100, "issue #1749 table"),
+         },          cases=[
+            ("Sheet1", "E6", "SUM(IF(TRUE,B1:B4))", 17, previously("issue #1749 table")),
+            ("Sheet1", "E7", "SUM(IF(B1>5,B1:B4,C1:C4))", 100, previously("issue #1749 table")),
          ]),
     dict(id="F24-subtotal-edges", issue=1739,
          sources=[IC + "1739"],
@@ -324,18 +339,18 @@ FIXTURES = [
                  ("Sheet1", "H1"): 2, ("Sheet1", "H2"): 8, ("Sheet1", "H3"): 4},
          helpers=[
             ("Sheet1", "D6", "SUBTOTAL(9,D3:D5)+1", 7),
-         ], cases=[
-            ("Sheet1", "A1", "SUBTOTAL(6,B1:B2)", 0, "issue #1739 table (product of no numbers)"),
-            ("Sheet1", "A8", "SUBTOTAL(110,H1:H3)", 2, "issue #1739 table (VAR.S, row 2 hidden)"),
-            ("Sheet1", "A9", "SUBTOTAL(111,H1:H3)", 1, "issue #1739 table (VAR.P, row 2 hidden)"),
-            ("Sheet1", "E6", "SUBTOTAL(9,D3:D6)", 6, "issue #1739 table (nested SUBTOTAL)"),
+         ],          cases=[
+            ("Sheet1", "A1", "SUBTOTAL(6,B1:B2)", 0, previously("issue #1739 table (product of no numbers)")),
+            ("Sheet1", "A8", "SUBTOTAL(110,H1:H3)", 2, previously("issue #1739 table (VAR.S, row 2 hidden)")),
+            ("Sheet1", "A9", "SUBTOTAL(111,H1:H3)", 1, previously("issue #1739 table (VAR.P, row 2 hidden)")),
+            ("Sheet1", "E6", "SUBTOTAL(9,D3:D6)", 6, previously("issue #1739 table (nested SUBTOTAL)")),
          ]),
     dict(id="F25-decimal-leading-sign", issue=1615,
          sources=[IC + "1615"],
          note="The issue table states Excel's #NUM! for a leading sign.",
          inputs={}, cases=[
-            ("Sheet1", "A1", '_xlfn.DECIMAL("-10",2)', "#NUM!", "issue #1615 table"),
-            ("Sheet1", "A2", "_xlfn.DECIMAL(-5,10)", "#NUM!", "issue #1615 table"),
+            ("Sheet1", "A1", '_xlfn.DECIMAL("-10",2)', "#NUM!", previously("issue #1615 table")),
+            ("Sheet1", "A2", "_xlfn.DECIMAL(-5,10)", "#NUM!", previously("issue #1615 table")),
          ]),
 ]
 
@@ -378,10 +393,29 @@ def build(fx, path):
     wb.close()
 
 
+def record_desktop_run(fx):
+    """Fixture-level primary_source for a fixture whose every cell is the 2026-11-23 run.
+
+    F11-F13 already store their 2026-11-22 run.
+    """
+    if fx.get("primary_source"):
+        return
+    notes = [case[4] for case in fx["cases"]]
+    if not notes or not all(note.startswith(ADAM_2026_11_23) for note in notes):
+        return
+    # Key by cell. F10 stores one formula on two rows, so a formula key would drop one result.
+    fx["primary_source"] = excel_run(
+        {f"{sn}!{cell}": expected for sn, cell, _formula, expected, _note in fx["cases"]},
+        when="2026-11-23",
+        where="desktop Excel (16.0300)",
+    )
+
+
 if __name__ == "__main__":
     manifest = []
     for fx in FIXTURES:
         name = fx["id"] + ".xlsx"
+        record_desktop_run(fx)
         build(fx, os.path.join(HERE, name))
         manifest.append({k: v for k, v in fx.items() if k not in ("inputs", "helpers", "hidden_rows")} | {"file": name})
     with open(os.path.join(HERE, "fixtures.json"), "w") as fh:

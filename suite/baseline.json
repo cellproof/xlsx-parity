@@ -1,18 +1,15 @@
 {
   "ironcalc_version": "0.9.1",
   "sheetjs_version": "0.20.3",
-  "cells_pass": 34,
+  "cells_pass": 35,
   "cells_pass_excluding_f04": 34,
   "cells": 74,
   "cells_excluding_f04": 73,
-  "fixtures_pass": 10,
+  "fixtures_pass": 11,
   "fixtures": 25,
   "errors": 0,
   "weaker_fixture": "F04-text-negative-zero",
   "ironcalc_failures": {
-    "F04-text-negative-zero": {
-      "Sheet1!A1": "0"
-    },
     "F07-value-accounting-negatives": {
       "Sheet1!A1": "#VALUE!",
       "Sheet1!A2": "#VALUE!",
@@ -84,14 +81,11 @@
   "ironcalc_js": {
     "package": "@ironcalc/nodejs",
     "version": "0.9.1",
-    "cells_match_excel": 34,
+    "cells_match_excel": 35,
     "cells_match_python": 74,
     "cells": 74,
     "errors": 0,
     "failures": {
-      "F04-text-negative-zero": {
-        "Sheet1!A1": "0"
-      },
       "F07-value-accounting-negatives": {
         "Sheet1!A1": "#VALUE!",
         "Sheet1!A2": "#VALUE!",
@@ -176,7 +170,7 @@
     },
     "hook": {
       "cells": 74,
-      "cells_match_excel": 34,
+      "cells_match_excel": 35,
       "cells_match_ironcalc": 74,
       "errors": 0,
       "results": {
@@ -308,7 +302,7 @@
     },
     "native": {
       "cells": 74,
-      "cells_match_excel": 47,
+      "cells_match_excel": 48,
       "errors": 0,
       "results": {
         "F01-let-lambda-call": {
@@ -443,13 +437,13 @@
     "package": "libreoffice-calc",
     "package_version": "4:26.2.5.2-0ubuntu0.26.04.1~bpo24.04.1",
     "cells": 74,
-    "cells_match_excel": 46,
+    "cells_match_excel": 47,
     "errors": 0,
     "recalc_proof": {
       "file": "F04-text-negative-zero.xlsx",
       "cell": "Sheet1!A1",
-      "stored_cache": "-0",
-      "without_recalc": "-0",
+      "stored_cache": "0",
+      "without_recalc": "0",
       "with_recalc": "0"
     },
     "results": {
@@ -580,7 +574,6 @@
     }
   },
   "ironcalc_wrong_cached_cells": [
-    "F04-text-negative-zero Sheet1!A1",
     "F07-value-accounting-negatives Sheet1!A1",
     "F07-value-accounting-negatives Sheet1!A2",
     "F07-value-accounting-negatives Sheet1!A3",

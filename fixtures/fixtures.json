@@ -12,16 +12,25 @@
     "A1",
     "_xlfn.LET(_xlpm.f,_xlfn.LAMBDA(_xlpm.p,_xlpm.p+1),_xlpm.f(1))",
     2,
-    "issue #8332 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8332 table"
    ],
    [
     "Sheet1",
     "A2",
     "_xlfn.LET(_xlpm.f,_xlfn.LAMBDA(_xlpm.p,_xlpm.q,_xlpm.p+_xlpm.q),_xlpm.f(1,2))",
     3,
-    "issue #8332 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8332 table"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!A1": 2,
+    "Sheet1!A2": 3
+   }
+  },
   "file": "F01-let-lambda-call.xlsx"
  },
  {
@@ -38,23 +47,33 @@
     "A1",
     "_xlfn.ISO.CEILING(4.3)",
     5,
-    "issue #8268 / MS ISO.CEILING"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8268 / MS ISO.CEILING"
    ],
    [
     "Sheet1",
     "A2",
     "_xlfn.ISO.CEILING(-4.3)",
     -4,
-    "issue #8268 / MS ISO.CEILING"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8268 / MS ISO.CEILING"
    ],
    [
     "Sheet1",
     "A3",
     "_xlfn.ISO.CEILING(4.3,-2)",
     6,
-    "issue #8268 / MS ISO.CEILING"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8268 / MS ISO.CEILING"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!A1": 5,
+    "Sheet1!A2": -4,
+    "Sheet1!A3": 6
+   }
+  },
   "file": "F02-iso-ceiling.xlsx"
  },
  {
@@ -73,16 +92,25 @@
     "A1",
     "EDATE(DATE(2011,1,15),-1.5)",
     40527,
-    "issue #8269 / MS EDATE"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8269 / MS EDATE"
    ],
    [
     "Sheet1",
     "A2",
     "EOMONTH(DATE(2011,1,15),-1.5)",
     40543,
-    "issue #8269 / MS EOMONTH"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8269 / MS EOMONTH"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!A1": 40527,
+    "Sheet1!A2": 40543
+   }
+  },
   "file": "F03-edate-eomonth-negative-fraction.xlsx"
  },
  {
@@ -93,18 +121,24 @@
    "https://www.mrexcel.com/board/threads/negative-number-format.120253/",
    "https://learn.microsoft.com/en-us/answers/questions/4790299/sum-formula-returns-(0-00)-not-for-zero-sum"
   ],
-  "citation": "weaker",
-  "supporting_evidence": "inferred, not a direct test",
-  "note": "Expected '-0' is the issue author's statement of Excel behavior; the author says they could not run it in Excel. Sourced from issue text, but weaker than the others. The MrExcel thread and the Microsoft Q&A support that Excel picks the negative format section from the raw sign before rounding. That support is inferred, not a direct test of TEXT(-0.4,\"0\").",
+  "note": "Primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23, returned \"0\". The previous expected \"-0\" was Univer issue #8270; the author says they could not run it in Excel. The MrExcel thread and the Microsoft Q&A were inferred support for picking the negative format section from the raw sign before rounding, not a direct test of TEXT(-0.4,\"0\").",
   "cases": [
    [
     "Sheet1",
     "A1",
     "TEXT(-0.4,\"0\")",
-    "-0",
-    "issue #8270 (author unverified in Excel; weaker). Format-section support is inferred, not a direct test"
+    "0",
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8270 (author unverified in Excel; weaker). Format-section support is inferred, not a direct test"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!A1": "0"
+   }
+  },
   "file": "F04-text-negative-zero.xlsx"
  },
  {
@@ -121,58 +155,73 @@
     "A1",
     "SEARCH(\"b*\",\"abc\")",
     2,
-    "issue #8198 / MS SEARCH"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 / MS SEARCH"
    ],
    [
     "Sheet1",
     "A2",
     "SEARCH(\"?c\",\"abc\")",
     2,
-    "issue #8198 / MS SEARCH"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 / MS SEARCH"
    ],
    [
     "Sheet1",
     "A3",
     "SEARCH(\"a*c\",\"xabc\")",
     2,
-    "issue #8198 / MS SEARCH"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 / MS SEARCH"
    ],
    [
     "Sheet1",
     "A4",
     "SEARCH(\"~*\",\"a*b\")",
     2,
-    "issue #8198 / MS SEARCH"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 / MS SEARCH"
    ],
    [
     "Sheet1",
     "B1",
     "ROUNDUP(1.23,16)",
     1.23,
-    "issue #8198 text"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 text"
    ],
    [
     "Sheet1",
     "B2",
     "ROUND(1.5,20)",
     1.5,
-    "issue #8198 text"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 text"
    ],
    [
     "Sheet1",
     "B3",
     "ROUNDDOWN(1.5,309)",
     1.5,
-    "issue #8198 text"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 text"
    ],
    [
     "Sheet1",
     "B4",
     "ROUND(2.5,-400)",
     0,
-    "issue #8198 text"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 text"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!A1": 2,
+    "Sheet1!A2": 2,
+    "Sheet1!A3": 2,
+    "Sheet1!A4": 2,
+    "Sheet1!B1": 1.23,
+    "Sheet1!B2": 1.5,
+    "Sheet1!B3": 1.5,
+    "Sheet1!B4": 0
+   }
+  },
   "file": "F05-search-wildcards-and-round-digits.xlsx"
  },
  {
@@ -189,23 +238,33 @@
     "A1",
     "CHAR(256)",
     "#VALUE!",
-    "issue #8211 / MS CHAR"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8211 / MS CHAR"
    ],
    [
     "Sheet1",
     "A2",
     "CHAR(65601)",
     "#VALUE!",
-    "issue #8211 / MS CHAR"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8211 / MS CHAR"
    ],
    [
     "Sheet1",
     "A3",
     "CHAR(65)",
     "A",
-    "MS CHAR (65 -> A is in the 1-255 ASCII range)"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: MS CHAR (65 -> A is in the 1-255 ASCII range)"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!A1": "#VALUE!",
+    "Sheet1!A2": "#VALUE!",
+    "Sheet1!A3": "A"
+   }
+  },
   "file": "F06-char-range.xlsx"
  },
  {
@@ -221,23 +280,33 @@
     "A1",
     "VALUE(\"(5)\")",
     -5,
-    "issue #8231 text"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8231 text"
    ],
    [
     "Sheet1",
     "A2",
     "VALUE(\"($1,000)\")",
     -1000,
-    "issue #8231 text"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8231 text"
    ],
    [
     "Sheet1",
     "A3",
     "\"(5)\"+1",
     -4,
-    "issue #8231 text"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8231 text"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!A1": -5,
+    "Sheet1!A2": -1000,
+    "Sheet1!A3": -4
+   }
+  },
   "file": "F07-value-accounting-negatives.xlsx"
  },
  {
@@ -254,9 +323,17 @@
     "A10",
     "AMORDEGRC(A2,A3,A4,A5,A6,A7,A8)",
     776,
-    "MS AMORDEGRC example"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: MS AMORDEGRC example"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!A10": 776
+   }
+  },
   "file": "F08-amordegrc.xlsx"
  },
  {
@@ -272,16 +349,25 @@
     "P1169",
     "A1*326+23354",
     26614,
-    "issue #7986 (=10*326+23354)"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #7986 (=10*326+23354)"
    ],
    [
     "Sheet1",
     "Q16084",
     "A1*645+321655",
     328105,
-    "issue #7986 text"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #7986 text"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!P1169": 26614,
+    "Sheet1!Q16084": 328105
+   }
+  },
   "file": "F09-ast-cache-collision-cells.xlsx"
  },
  {
@@ -298,16 +384,25 @@
     "B2",
     "SUMIFS(Data!B:B,Data!A:A,$A:$A)",
     10809,
-    "issue #8154 text (k0 total)"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8154 text (k0 total)"
    ],
    [
     "Summary",
     "B301",
     "SUMIFS(Data!B:B,Data!A:A,$A:$A)",
     10800,
-    "issue #8154 text (k299 total)"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8154 text (k299 total)"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Summary!B2": 10809,
+    "Summary!B301": 10800
+   }
+  },
   "file": "F10-sumifs-legacy-whole-column.xlsx"
  },
  {
@@ -498,30 +593,41 @@
     "A1",
     "LARGE(B1:B4,1.9)",
     5,
-    "issue #1750 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1750 table"
    ],
    [
     "Sheet1",
     "A2",
     "LARGE(B1:B4,4.5)",
     "#NUM!",
-    "issue #1750 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1750 table"
    ],
    [
     "Sheet1",
     "A3",
     "LARGE(B1:B4,TRUE)",
     8,
-    "issue #1750 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1750 table"
    ],
    [
     "Sheet1",
     "A4",
     "SMALL(B1:B4,TRUE)",
     1,
-    "issue #1750 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1750 table"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!A1": 5,
+    "Sheet1!A2": "#NUM!",
+    "Sheet1!A3": 8,
+    "Sheet1!A4": 1
+   }
+  },
   "file": "F14-large-k.xlsx"
  },
  {
@@ -537,16 +643,25 @@
     "E1",
     "VLOOKUP(2,A1:C2,0,FALSE)",
     "#VALUE!",
-    "issue #1751 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1751 table"
    ],
    [
     "Sheet1",
     "E2",
     "HLOOKUP(1,A1:C2,0.5,FALSE)",
     "#VALUE!",
-    "issue #1751 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1751 table"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!E1": "#VALUE!",
+    "Sheet1!E2": "#VALUE!"
+   }
+  },
   "file": "F15-vlookup-index-below-one.xlsx"
  },
  {
@@ -562,23 +677,33 @@
     "A1",
     "TEXT(1/33600,\"General\")",
     "2.97619E-05",
-    "issue #1752 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1752 table"
    ],
    [
     "Sheet1",
     "A2",
     "TEXT(12345678.9012345,\"General\")",
     "12345678.9",
-    "issue #1752 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1752 table"
    ],
    [
     "Sheet1",
     "A3",
     "TEXT(100000000000/3,\"General\")",
     "33333333333",
-    "issue #1752 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1752 table"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!A1": "2.97619E-05",
+    "Sheet1!A2": "12345678.9",
+    "Sheet1!A3": "33333333333"
+   }
+  },
   "file": "F16-text-general.xlsx"
  },
  {
@@ -596,30 +721,41 @@
     "A1",
     "LEFT(\"a string\",\"6\")",
     "a stri",
-    "issue #1605 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1605 table"
    ],
    [
     "Sheet1",
     "A2",
     "SUMSQ(\"2\",\"3\",4)",
     29,
-    "issue #1605 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1605 table"
    ],
    [
     "Sheet1",
     "A3",
     "STDEV(\"1\",\"2\")",
     0.7071067811865476,
-    "issue #1605 table; MS STDEV counts text numbers typed as arguments"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1605 table; MS STDEV counts text numbers typed as arguments"
    ],
    [
     "Sheet1",
     "A4",
     "VAR(TRUE,FALSE,TRUE)",
     0.33333333333333337,
-    "issue #1605 table; MS VAR counts logicals typed as arguments"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1605 table; MS VAR counts logicals typed as arguments"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!A1": "a stri",
+    "Sheet1!A2": 29,
+    "Sheet1!A3": 0.7071067811865476,
+    "Sheet1!A4": 0.33333333333333337
+   }
+  },
   "file": "F17-explicit-argument-coercion.xlsx"
  },
  {
@@ -628,23 +764,32 @@
    "https://github.com/ironcalc/IronCalc/issues/1789",
    "https://github.com/ironcalc/IronCalc/issues/1718"
   ],
-  "note": "A1:C3 and D1 are issue #1789. E1:F4 and G1 are issue #1718. Both tables state Excel's cell value.",
+  "note": "Primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23. D1 was entered as a dynamic-array formula with E1 cleared, and it spilled x. The legacy non-array form of this formula returns #VALUE! in Excel (implicit intersection), and the dynamic-array form returns x. Previous citations: issue #1789 for D1 and issue #1718 for G1.",
   "cases": [
    [
     "Sheet1",
     "D1",
     "_xlfn.XLOOKUP(\"b\",A1:A3,B1:C3)",
     "x",
-    "issue #1789 table (first spill cell)"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23, entered as a dynamic-array formula; previously: issue #1789 table (first spill cell)"
    ],
    [
     "Sheet1",
     "G1",
     "_xlfn.XLOOKUP(8,E1:E4,F1:F4,,,)",
     "a",
-    "issue #1718 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1718 table"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!D1": "x",
+    "Sheet1!G1": "a"
+   }
+  },
   "file": "F18-xlookup-return-and-empty.xlsx"
  },
  {
@@ -660,16 +805,25 @@
     "B1",
     "INDEX(_xlfn._xlws.SORT(A1:A4,,-1),1)",
     8,
-    "issue #1597 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1597 table"
    ],
    [
     "Sheet1",
     "B2",
     "_xlfn.XMATCH(8,A1:A4,,)",
     3,
-    "issue #1597 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1597 table"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!B1": 8,
+    "Sheet1!B2": 3
+   }
+  },
   "file": "F19-sort-empty-argument.xlsx"
  },
  {
@@ -685,30 +839,41 @@
     "A1",
     "YEAR(0)",
     1900,
-    "issue #1569 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1569 table"
    ],
    [
     "Sheet1",
     "A2",
     "DAY(0)",
     0,
-    "issue #1569 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1569 table"
    ],
    [
     "Sheet1",
     "A3",
     "WEEKDAY(0)",
     7,
-    "issue #1569 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1569 table"
    ],
    [
     "Sheet1",
     "A4",
     "YEAR(B1)",
     1900,
-    "issue #1569 table (B1 blank)"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1569 table (B1 blank)"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!A1": 1900,
+    "Sheet1!A2": 0,
+    "Sheet1!A3": 7,
+    "Sheet1!A4": 1900
+   }
+  },
   "file": "F20-date-serial-zero.xlsx"
  },
  {
@@ -724,16 +889,25 @@
     "A1",
     "DATE(1,1,1)",
     367,
-    "issue #1364 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1364 table"
    ],
    [
     "Sheet1",
     "A2",
     "DATE(100,1,1)",
     36526,
-    "issue #1364 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1364 table"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!A1": 367,
+    "Sheet1!A2": 36526
+   }
+  },
   "file": "F21-date-year-offset.xlsx"
  },
  {
@@ -749,9 +923,17 @@
     "C1",
     "AND(A1<>\"\",A1+B1<1)",
     "#VALUE!",
-    "issue #1609 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1609 table"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!C1": "#VALUE!"
+   }
+  },
   "file": "F22-and-empty-text.xlsx"
  },
  {
@@ -767,16 +949,25 @@
     "E6",
     "SUM(IF(TRUE,B1:B4))",
     17,
-    "issue #1749 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1749 table"
    ],
    [
     "Sheet1",
     "E7",
     "SUM(IF(B1>5,B1:B4,C1:C4))",
     100,
-    "issue #1749 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1749 table"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!E6": 17,
+    "Sheet1!E7": 100
+   }
+  },
   "file": "F23-sum-if-range.xlsx"
  },
  {
@@ -792,30 +983,41 @@
     "A1",
     "SUBTOTAL(6,B1:B2)",
     0,
-    "issue #1739 table (product of no numbers)"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1739 table (product of no numbers)"
    ],
    [
     "Sheet1",
     "A8",
     "SUBTOTAL(110,H1:H3)",
     2,
-    "issue #1739 table (VAR.S, row 2 hidden)"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1739 table (VAR.S, row 2 hidden)"
    ],
    [
     "Sheet1",
     "A9",
     "SUBTOTAL(111,H1:H3)",
     1,
-    "issue #1739 table (VAR.P, row 2 hidden)"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1739 table (VAR.P, row 2 hidden)"
    ],
    [
     "Sheet1",
     "E6",
     "SUBTOTAL(9,D3:D6)",
     6,
-    "issue #1739 table (nested SUBTOTAL)"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1739 table (nested SUBTOTAL)"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!A1": 0,
+    "Sheet1!A8": 2,
+    "Sheet1!A9": 1,
+    "Sheet1!E6": 6
+   }
+  },
   "file": "F24-subtotal-edges.xlsx"
  },
  {
@@ -831,16 +1033,25 @@
     "A1",
     "_xlfn.DECIMAL(\"-10\",2)",
     "#NUM!",
-    "issue #1615 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1615 table"
    ],
    [
     "Sheet1",
     "A2",
     "_xlfn.DECIMAL(-5,10)",
     "#NUM!",
-    "issue #1615 table"
+    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1615 table"
    ]
   ],
+  "primary_source": {
+   "who": "Adam Marsh",
+   "when": "2026-11-23",
+   "where": "desktop Excel (16.0300)",
+   "results": {
+    "Sheet1!A1": "#NUM!",
+    "Sheet1!A2": "#NUM!"
+   }
+  },
   "file": "F25-decimal-leading-sign.xlsx"
  }
 ]

@@ -306,7 +306,7 @@ def provenance(fixtures):
 # Order is the order printed. Classification reads only the text before
 # "; previously:", so a kept citation does not change the cell's type.
 SOURCE_TYPES = (
-    "Adam's desktop Excel run",
+    "adamlocalis's desktop Excel run",
     "third-party report of an Excel run",
     "issue-stated value",
     "Microsoft docs",
@@ -316,7 +316,7 @@ SOURCE_TYPES = (
 def classify_source(source):
     """Map one case source string to a SOURCE_TYPES label."""
     primary = source.split("; previously:", 1)[0].strip()
-    if primary.startswith("primary: Adam Marsh"):
+    if primary.startswith("primary: adamlocalis"):
         return SOURCE_TYPES[0]
     if primary.startswith("MS "):
         return SOURCE_TYPES[3]
@@ -341,7 +341,7 @@ def render_provenance(cells):
         "",
         "Cell counts by source type. "
         "Classification uses the text before `; previously:`: "
-        "a `primary: Adam Marsh` prefix is Adam's desktop Excel run; "
+        "a `primary: adamlocalis` prefix is adamlocalis's desktop Excel run; "
         "a source starting with `MS ` is Microsoft docs; "
         "a source that names an Excel run or an Excel-saved workbook is a third-party report of an Excel run; "
         "anything else is an issue-stated value.",

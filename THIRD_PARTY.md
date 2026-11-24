@@ -130,7 +130,7 @@ No paid package is installed.
 
 Every `.xlsx` file was written by this repository. `fixtures/build_fixtures.py` writes F01–F25 with XlsxWriter. `fixtures/build_features.py` writes `RT-features.xlsx` with XlsxWriter. `make test` does not regenerate them. Workbook creator and last-modified-by fields are empty. `Application` is `Microsoft Excel` because that is XlsxWriter's default, not because the file was saved by Excel. No upstream workbook is committed.
 
-Expected values come from recorded desktop Excel runs. The citation for each cell is in `fixtures/fixtures.json`. Adam Marsh's desktop Excel (16.0300) run on 2026-11-23 is the primary source for every formula cell except F11–F13, which are his desktop Excel for Microsoft 365 run on 2026-11-22. The URLs below are the previous citations kept on those cells.
+Expected values come from recorded desktop Excel runs. The citation for each cell is in `fixtures/fixtures.json`. adamlocalis's desktop Excel (16.0300) run on 2026-11-23 is the primary source for every formula cell except F11–F13, which are his desktop Excel for Microsoft 365 run on 2026-11-22. The URLs below are the previous citations kept on those cells.
 
 | File | Source of the expected values |
 |---|---|
@@ -144,9 +144,9 @@ Expected values come from recorded desktop Excel runs. The citation for each cel
 | `F08-amordegrc.xlsx` | https://github.com/dream-num/univer/issues/8267; https://support.microsoft.com/en-us/office/amordegrc-function-a14d0ca1-64a4-42eb-9b3d-b0dededf9e51 |
 | `F09-ast-cache-collision-cells.xlsx` | https://github.com/dream-num/univer/issues/7986 |
 | `F10-sumifs-legacy-whole-column.xlsx` | https://github.com/dream-num/univer/issues/8154; https://support.microsoft.com/en-us/office/implicit-intersection-operator-ce3be07b-0101-4450-a24e-c1c999be2b34 |
-| `F11-hf-negative-rounding.xlsx` | Adam Marsh, desktop Excel for Microsoft 365, 2026-11-22. Reference: https://hyperformula.handsontable.com/docs/guide/list-of-differences; https://support.microsoft.com/en-us/office/int-function-a6c4af9e-356d-4369-ab6a-cb1fd9d343ef; https://support.microsoft.com/en-us/office/iseven-function-aa15929a-d77b-4fbb-92f4-2f479af55356 |
-| `F12-hf-npv-sequence-errors.xlsx` | Adam Marsh, desktop Excel for Microsoft 365, 2026-11-22. Reference: https://hyperformula.handsontable.com/docs/guide/list-of-differences; https://support.microsoft.com/en-us/office/t-inv-function-2908272b-4e61-4942-9df9-a25fec9b0e2e; https://learn.microsoft.com/en-us/answers/questions/5065194/weibull-dist-function-error |
-| `F13-hf-if-false-cycle.xlsx` | Adam Marsh, desktop Excel for Microsoft 365, 2026-11-22. Reference: https://hyperformula.handsontable.com/docs/guide/list-of-differences |
+| `F11-hf-negative-rounding.xlsx` | adamlocalis, desktop Excel for Microsoft 365, 2026-11-22. Reference: https://hyperformula.handsontable.com/docs/guide/list-of-differences; https://support.microsoft.com/en-us/office/int-function-a6c4af9e-356d-4369-ab6a-cb1fd9d343ef; https://support.microsoft.com/en-us/office/iseven-function-aa15929a-d77b-4fbb-92f4-2f479af55356 |
+| `F12-hf-npv-sequence-errors.xlsx` | adamlocalis, desktop Excel for Microsoft 365, 2026-11-22. Reference: https://hyperformula.handsontable.com/docs/guide/list-of-differences; https://support.microsoft.com/en-us/office/t-inv-function-2908272b-4e61-4942-9df9-a25fec9b0e2e; https://learn.microsoft.com/en-us/answers/questions/5065194/weibull-dist-function-error |
+| `F13-hf-if-false-cycle.xlsx` | adamlocalis, desktop Excel for Microsoft 365, 2026-11-22. Reference: https://hyperformula.handsontable.com/docs/guide/list-of-differences |
 | `F14-large-k.xlsx` | https://github.com/ironcalc/IronCalc/issues/1750 |
 | `F15-vlookup-index-below-one.xlsx` | https://github.com/ironcalc/IronCalc/issues/1751 |
 | `F16-text-general.xlsx` | https://github.com/ironcalc/IronCalc/issues/1752 |
@@ -169,7 +169,7 @@ F17's note says the Excel values in IronCalc issue 1605 were cached results from
 
 Microsoft Support and Microsoft Learn pages are cited by URL for stated function results. F08 uses the inputs and result 776 from the published AMORDEGRC example. The documentation text is not copied.
 
-F04's expected value is `"0"` from Adam Marsh, desktop Excel (16.0300), 2026-11-23. Univer issue 8270, a MrExcel thread, and a Microsoft Q&A page are the previous citations. The issue author said they could not run the formula in Excel. Neither post nor any attachment is in this repository.
+F04's expected value is `"0"` from adamlocalis, desktop Excel (16.0300), 2026-11-23. Univer issue 8270, a MrExcel thread, and a Microsoft Q&A page are the previous citations. The issue author said they could not run the formula in Excel. Neither post nor any attachment is in this repository.
 
-F11, F12, and F13 expected values come from our own Excel run. Adam Marsh typed each formula into desktop Excel for Microsoft 365 on 2026-11-22, and each result matched the value already stored for that cell. That measurement is original. The other formula cells were remeasured by Adam Marsh in desktop Excel (16.0300) on 2026-11-23. F18 `D1` was entered as a dynamic-array formula, with E1 cleared, and the first spill cell was `x`. [HyperFormula's list of differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences) is cited only as a reference for F11–F13. Nothing is copied from that page beyond the short formulas. HyperFormula is not installed and not vendored.
+F11, F12, and F13 expected values come from our own Excel run. adamlocalis typed each formula into desktop Excel for Microsoft 365 on 2026-11-22, and each result matched the value already stored for that cell. That measurement is original. The other formula cells were remeasured by adamlocalis in desktop Excel (16.0300) on 2026-11-23. F18 `D1` was entered as a dynamic-array formula, with E1 cleared, and the first spill cell was `x`. [HyperFormula's list of differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences) is cited only as a reference for F11–F13. Nothing is copied from that page beyond the short formulas. HyperFormula is not installed and not vendored.
 

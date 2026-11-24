@@ -12,18 +12,18 @@
     "A1",
     "_xlfn.LET(_xlpm.f,_xlfn.LAMBDA(_xlpm.p,_xlpm.p+1),_xlpm.f(1))",
     2,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8332 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8332 table"
    ],
    [
     "Sheet1",
     "A2",
     "_xlfn.LET(_xlpm.f,_xlfn.LAMBDA(_xlpm.p,_xlpm.q,_xlpm.p+_xlpm.q),_xlpm.f(1,2))",
     3,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8332 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8332 table"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -47,25 +47,25 @@
     "A1",
     "_xlfn.ISO.CEILING(4.3)",
     5,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8268 / MS ISO.CEILING"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8268 / MS ISO.CEILING"
    ],
    [
     "Sheet1",
     "A2",
     "_xlfn.ISO.CEILING(-4.3)",
     -4,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8268 / MS ISO.CEILING"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8268 / MS ISO.CEILING"
    ],
    [
     "Sheet1",
     "A3",
     "_xlfn.ISO.CEILING(4.3,-2)",
     6,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8268 / MS ISO.CEILING"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8268 / MS ISO.CEILING"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -92,18 +92,18 @@
     "A1",
     "EDATE(DATE(2011,1,15),-1.5)",
     40527,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8269 / MS EDATE"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8269 / MS EDATE"
    ],
    [
     "Sheet1",
     "A2",
     "EOMONTH(DATE(2011,1,15),-1.5)",
     40543,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8269 / MS EOMONTH"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8269 / MS EOMONTH"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -121,18 +121,18 @@
    "https://www.mrexcel.com/board/threads/negative-number-format.120253/",
    "https://learn.microsoft.com/en-us/answers/questions/4790299/sum-formula-returns-(0-00)-not-for-zero-sum"
   ],
-  "note": "Primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23, returned \"0\". The previous expected \"-0\" was Univer issue #8270; the author says they could not run it in Excel. The MrExcel thread and the Microsoft Q&A were inferred support for picking the negative format section from the raw sign before rounding, not a direct test of TEXT(-0.4,\"0\").",
+  "note": "Primary: adamlocalis, desktop Excel (16.0300), 2026-11-23, returned \"0\". The previous expected \"-0\" was Univer issue #8270; the author says they could not run it in Excel. The MrExcel thread and the Microsoft Q&A were inferred support for picking the negative format section from the raw sign before rounding, not a direct test of TEXT(-0.4,\"0\").",
   "cases": [
    [
     "Sheet1",
     "A1",
     "TEXT(-0.4,\"0\")",
     "0",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8270 (author unverified in Excel; weaker). Format-section support is inferred, not a direct test"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8270 (author unverified in Excel; weaker). Format-section support is inferred, not a direct test"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -155,60 +155,60 @@
     "A1",
     "SEARCH(\"b*\",\"abc\")",
     2,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 / MS SEARCH"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 / MS SEARCH"
    ],
    [
     "Sheet1",
     "A2",
     "SEARCH(\"?c\",\"abc\")",
     2,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 / MS SEARCH"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 / MS SEARCH"
    ],
    [
     "Sheet1",
     "A3",
     "SEARCH(\"a*c\",\"xabc\")",
     2,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 / MS SEARCH"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 / MS SEARCH"
    ],
    [
     "Sheet1",
     "A4",
     "SEARCH(\"~*\",\"a*b\")",
     2,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 / MS SEARCH"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 / MS SEARCH"
    ],
    [
     "Sheet1",
     "B1",
     "ROUNDUP(1.23,16)",
     1.23,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 text"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 text"
    ],
    [
     "Sheet1",
     "B2",
     "ROUND(1.5,20)",
     1.5,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 text"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 text"
    ],
    [
     "Sheet1",
     "B3",
     "ROUNDDOWN(1.5,309)",
     1.5,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 text"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 text"
    ],
    [
     "Sheet1",
     "B4",
     "ROUND(2.5,-400)",
     0,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 text"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8198 text"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -238,25 +238,25 @@
     "A1",
     "CHAR(256)",
     "#VALUE!",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8211 / MS CHAR"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8211 / MS CHAR"
    ],
    [
     "Sheet1",
     "A2",
     "CHAR(65601)",
     "#VALUE!",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8211 / MS CHAR"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8211 / MS CHAR"
    ],
    [
     "Sheet1",
     "A3",
     "CHAR(65)",
     "A",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: MS CHAR (65 -> A is in the 1-255 ASCII range)"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: MS CHAR (65 -> A is in the 1-255 ASCII range)"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -280,25 +280,25 @@
     "A1",
     "VALUE(\"(5)\")",
     -5,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8231 text"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8231 text"
    ],
    [
     "Sheet1",
     "A2",
     "VALUE(\"($1,000)\")",
     -1000,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8231 text"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8231 text"
    ],
    [
     "Sheet1",
     "A3",
     "\"(5)\"+1",
     -4,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8231 text"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8231 text"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -323,11 +323,11 @@
     "A10",
     "AMORDEGRC(A2,A3,A4,A5,A6,A7,A8)",
     776,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: MS AMORDEGRC example"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: MS AMORDEGRC example"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -349,18 +349,18 @@
     "P1169",
     "A1*326+23354",
     26614,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #7986 (=10*326+23354)"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #7986 (=10*326+23354)"
    ],
    [
     "Sheet1",
     "Q16084",
     "A1*645+321655",
     328105,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #7986 text"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #7986 text"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -384,18 +384,18 @@
     "B2",
     "SUMIFS(Data!B:B,Data!A:A,$A:$A)",
     10809,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8154 text (k0 total)"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8154 text (k0 total)"
    ],
    [
     "Summary",
     "B301",
     "SUMIFS(Data!B:B,Data!A:A,$A:$A)",
     10800,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #8154 text (k299 total)"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #8154 text (k299 total)"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -413,7 +413,7 @@
    "https://support.microsoft.com/en-us/office/iseven-function-aa15929a-d77b-4fbb-92f4-2f479af55356"
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-22",
    "where": "desktop Excel for Microsoft 365",
    "results": {
@@ -424,42 +424,42 @@
     "=FLOOR.MATH(-4.7,2,2)": -4
    }
   },
-  "note": "Primary: Adam Marsh, desktop Excel 2026-11-22. HyperFormula's differences table is a secondary cross-reference for the negative-rounding rows. INT(-8.9)=-9 and ISEVEN(2.5)=TRUE are also the worked examples on the Microsoft pages.",
+  "note": "Primary: adamlocalis, desktop Excel 2026-11-22. HyperFormula's differences table is a secondary cross-reference for the negative-rounding rows. INT(-8.9)=-9 and ISEVEN(2.5)=TRUE are also the worked examples on the Microsoft pages.",
   "cases": [
    [
     "Sheet1",
     "A1",
     "INT(-8.9)",
     -9,
-    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences / MS INT"
+    "primary: adamlocalis, desktop Excel 2026-11-22; HF differences / MS INT"
    ],
    [
     "Sheet1",
     "A2",
     "ISEVEN(2.5)",
     true,
-    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences / MS ISEVEN"
+    "primary: adamlocalis, desktop Excel 2026-11-22; HF differences / MS ISEVEN"
    ],
    [
     "Sheet1",
     "A3",
     "ISODD(3.5)",
     true,
-    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table (Excel TRUE)"
+    "primary: adamlocalis, desktop Excel 2026-11-22; HF differences table (Excel TRUE)"
    ],
    [
     "Sheet1",
     "A4",
     "_xlfn.CEILING.MATH(-4.3,2,2)",
     -6,
-    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
+    "primary: adamlocalis, desktop Excel 2026-11-22; HF differences table"
    ],
    [
     "Sheet1",
     "A5",
     "_xlfn.FLOOR.MATH(-4.7,2,2)",
     -4,
-    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
+    "primary: adamlocalis, desktop Excel 2026-11-22; HF differences table"
    ]
   ],
   "file": "F11-hf-negative-rounding.xlsx"
@@ -472,7 +472,7 @@
    "https://learn.microsoft.com/en-us/answers/questions/5065194/weibull-dist-function-error"
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-22",
    "where": "desktop Excel for Microsoft 365",
    "results": {
@@ -487,70 +487,70 @@
     "=T.INV(0,2)": "#NUM!"
    }
   },
-  "note": "Primary: Adam Marsh, desktop Excel 2026-11-22. HyperFormula's differences table is a secondary cross-reference. Rounded 4-decimal rows are not included. DAYS is stored without _xlfn.: IronCalc 0.9.1 rewrites the prefixed form to DAYS on save. Microsoft's T.INV page says #NUM! for probability <= 0, which is wrong for df=1. The WEIBULL.DIST Q&A reports Excel returns 0, and the Microsoft reply does not dispute that.",
+  "note": "Primary: adamlocalis, desktop Excel 2026-11-22. HyperFormula's differences table is a secondary cross-reference. Rounded 4-decimal rows are not included. DAYS is stored without _xlfn.: IronCalc 0.9.1 rewrites the prefixed form to DAYS on save. Microsoft's T.INV page says #NUM! for probability <= 0, which is wrong for df=1. The WEIBULL.DIST Q&A reports Excel returns 0, and the Microsoft reply does not dispute that.",
   "cases": [
    [
     "Sheet1",
     "A1",
     "NPV(1,TRUE(),1)",
     0.75,
-    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
+    "primary: adamlocalis, desktop Excel 2026-11-22; HF differences table"
    ],
    [
     "Sheet1",
     "A2",
     "NPV(1,B1)",
     0,
-    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table (B1 = TRUE)"
+    "primary: adamlocalis, desktop Excel 2026-11-22; HF differences table (B1 = TRUE)"
    ],
    [
     "Sheet1",
     "A3",
     "COUNTA(1,)",
     2,
-    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
+    "primary: adamlocalis, desktop Excel 2026-11-22; HF differences table"
    ],
    [
     "Sheet1",
     "A4",
     "_xlfn.T.INV(0,1)",
     "#DIV/0!",
-    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
+    "primary: adamlocalis, desktop Excel 2026-11-22; HF differences table"
    ],
    [
     "Sheet1",
     "A5",
     "_xlfn.SEQUENCE(0)",
     "#CALC!",
-    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
+    "primary: adamlocalis, desktop Excel 2026-11-22; HF differences table"
    ],
    [
     "Sheet1",
     "A6",
     "_xlfn.WEIBULL.DIST(0,1,1,FALSE())",
     0,
-    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table; MS Q&A 5065194 (Excel returns 0, reply does not dispute it)"
+    "primary: adamlocalis, desktop Excel 2026-11-22; HF differences table; MS Q&A 5065194 (Excel returns 0, reply does not dispute it)"
    ],
    [
     "Sheet1",
     "A7",
     "ADDRESS(1,1,4,TRUE(),\"\")",
     "!A1",
-    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
+    "primary: adamlocalis, desktop Excel 2026-11-22; HF differences table"
    ],
    [
     "Sheet1",
     "A8",
     "DAYS(-1,0)",
     "#NUM!",
-    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table"
+    "primary: adamlocalis, desktop Excel 2026-11-22; HF differences table"
    ],
    [
     "Sheet1",
     "A9",
     "_xlfn.T.INV(0,2)",
     "#NUM!",
-    "primary: Adam Marsh, desktop Excel 2026-11-22"
+    "primary: adamlocalis, desktop Excel 2026-11-22"
    ]
   ],
   "file": "F12-hf-npv-sequence-errors.xlsx"
@@ -561,21 +561,21 @@
    "https://hyperformula.handsontable.com/docs/guide/list-of-differences"
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-22",
    "where": "desktop Excel for Microsoft 365",
    "results": {
     "=IF(FALSE(),A1,0)": 0
    }
   },
-  "note": "Primary: Adam Marsh, desktop Excel 2026-11-22. IF(FALSE,A1,0) typed into A1 returns 0 with no circular-reference warning. HyperFormula's differences table is a secondary cross-reference. A1 refers to itself only on the branch IF does not take.",
+  "note": "Primary: adamlocalis, desktop Excel 2026-11-22. IF(FALSE,A1,0) typed into A1 returns 0 with no circular-reference warning. HyperFormula's differences table is a secondary cross-reference. A1 refers to itself only on the branch IF does not take.",
   "cases": [
    [
     "Sheet1",
     "A1",
     "IF(FALSE(),A1,0)",
     0,
-    "primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table (dependency collection)"
+    "primary: adamlocalis, desktop Excel 2026-11-22; HF differences table (dependency collection)"
    ]
   ],
   "file": "F13-hf-if-false-cycle.xlsx"
@@ -593,32 +593,32 @@
     "A1",
     "LARGE(B1:B4,1.9)",
     5,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1750 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1750 table"
    ],
    [
     "Sheet1",
     "A2",
     "LARGE(B1:B4,4.5)",
     "#NUM!",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1750 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1750 table"
    ],
    [
     "Sheet1",
     "A3",
     "LARGE(B1:B4,TRUE)",
     8,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1750 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1750 table"
    ],
    [
     "Sheet1",
     "A4",
     "SMALL(B1:B4,TRUE)",
     1,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1750 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1750 table"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -643,18 +643,18 @@
     "E1",
     "VLOOKUP(2,A1:C2,0,FALSE)",
     "#VALUE!",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1751 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1751 table"
    ],
    [
     "Sheet1",
     "E2",
     "HLOOKUP(1,A1:C2,0.5,FALSE)",
     "#VALUE!",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1751 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1751 table"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -677,25 +677,25 @@
     "A1",
     "TEXT(1/33600,\"General\")",
     "2.97619E-05",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1752 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1752 table"
    ],
    [
     "Sheet1",
     "A2",
     "TEXT(12345678.9012345,\"General\")",
     "12345678.9",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1752 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1752 table"
    ],
    [
     "Sheet1",
     "A3",
     "TEXT(100000000000/3,\"General\")",
     "33333333333",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1752 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1752 table"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -721,32 +721,32 @@
     "A1",
     "LEFT(\"a string\",\"6\")",
     "a stri",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1605 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1605 table"
    ],
    [
     "Sheet1",
     "A2",
     "SUMSQ(\"2\",\"3\",4)",
     29,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1605 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1605 table"
    ],
    [
     "Sheet1",
     "A3",
     "STDEV(\"1\",\"2\")",
     0.7071067811865476,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1605 table; MS STDEV counts text numbers typed as arguments"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1605 table; MS STDEV counts text numbers typed as arguments"
    ],
    [
     "Sheet1",
     "A4",
     "VAR(TRUE,FALSE,TRUE)",
     0.33333333333333337,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1605 table; MS VAR counts logicals typed as arguments"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1605 table; MS VAR counts logicals typed as arguments"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -764,25 +764,25 @@
    "https://github.com/ironcalc/IronCalc/issues/1789",
    "https://github.com/ironcalc/IronCalc/issues/1718"
   ],
-  "note": "A1:C3 and D1 are issue #1789. H1:I4 and G1 are issue #1718. The file was rebuilt so the spill fits after Adam's Excel opened the old file and showed #SPILL! in D1 because E1 was occupied (2026-11-23). primary: Adam Marsh, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt.",
+  "note": "A1:C3 and D1 are issue #1789. H1:I4 and G1 are issue #1718. The file was rebuilt so the spill fits after adamlocalis's Excel opened the old file and showed #SPILL! in D1 because E1 was occupied (2026-11-23). primary: adamlocalis, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt.",
   "cases": [
    [
     "Sheet1",
     "D1",
     "_xlfn.XLOOKUP(\"b\",A1:A3,B1:C3)",
     "x",
-    "primary: Adam Marsh, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt; previously: issue #1789 table (first spill cell)"
+    "primary: adamlocalis, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt; previously: issue #1789 table (first spill cell)"
    ],
    [
     "Sheet1",
     "G1",
     "_xlfn.XLOOKUP(8,H1:H4,I1:I4,,,)",
     "a",
-    "primary: Adam Marsh, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt; previously: issue #1718 table"
+    "primary: adamlocalis, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt; previously: issue #1718 table"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -805,18 +805,18 @@
     "B1",
     "INDEX(_xlfn._xlws.SORT(A1:A4,,-1),1)",
     8,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1597 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1597 table"
    ],
    [
     "Sheet1",
     "B2",
     "_xlfn.XMATCH(8,A1:A4,,)",
     3,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1597 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1597 table"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -839,32 +839,32 @@
     "A1",
     "YEAR(0)",
     1900,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1569 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1569 table"
    ],
    [
     "Sheet1",
     "A2",
     "DAY(0)",
     0,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1569 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1569 table"
    ],
    [
     "Sheet1",
     "A3",
     "WEEKDAY(0)",
     7,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1569 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1569 table"
    ],
    [
     "Sheet1",
     "A4",
     "YEAR(B1)",
     1900,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1569 table (B1 blank)"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1569 table (B1 blank)"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -889,18 +889,18 @@
     "A1",
     "DATE(1,1,1)",
     367,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1364 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1364 table"
    ],
    [
     "Sheet1",
     "A2",
     "DATE(100,1,1)",
     36526,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1364 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1364 table"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -923,11 +923,11 @@
     "C1",
     "AND(A1<>\"\",A1+B1<1)",
     "#VALUE!",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1609 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1609 table"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -949,18 +949,18 @@
     "E6",
     "SUM(IF(TRUE,B1:B4))",
     17,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1749 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1749 table"
    ],
    [
     "Sheet1",
     "E7",
     "SUM(IF(B1>5,B1:B4,C1:C4))",
     100,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1749 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1749 table"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -983,32 +983,32 @@
     "A1",
     "SUBTOTAL(6,B1:B2)",
     0,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1739 table (product of no numbers)"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1739 table (product of no numbers)"
    ],
    [
     "Sheet1",
     "A8",
     "SUBTOTAL(110,H1:H3)",
     2,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1739 table (VAR.S, row 2 hidden)"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1739 table (VAR.S, row 2 hidden)"
    ],
    [
     "Sheet1",
     "A9",
     "SUBTOTAL(111,H1:H3)",
     1,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1739 table (VAR.P, row 2 hidden)"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1739 table (VAR.P, row 2 hidden)"
    ],
    [
     "Sheet1",
     "E6",
     "SUBTOTAL(9,D3:D6)",
     6,
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1739 table (nested SUBTOTAL)"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1739 table (nested SUBTOTAL)"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {
@@ -1033,18 +1033,18 @@
     "A1",
     "_xlfn.DECIMAL(\"-10\",2)",
     "#NUM!",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1615 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1615 table"
    ],
    [
     "Sheet1",
     "A2",
     "_xlfn.DECIMAL(-5,10)",
     "#NUM!",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1615 table"
+    "primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously: issue #1615 table"
    ]
   ],
   "primary_source": {
-   "who": "Adam Marsh",
+   "who": "adamlocalis",
    "when": "2026-11-23",
    "where": "desktop Excel (16.0300)",
    "results": {

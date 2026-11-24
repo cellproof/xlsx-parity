@@ -9,7 +9,7 @@ Source read:
 
 How `main` was checked: the repo was cloned, built with rustc 1.100.0, and each fixture was loaded with `ironcalc::import::load_from_xlsx`, recalculated with `Model::evaluate`, and read with `get_cell_value_by_index`. Every fixture imported as `DateSystem::Excel1900`, because xlsxwriter writes `Application` as `Microsoft Excel` and `date_system_for` in `xlsx/src/import/mod.rs` treats that as Excel 1900. The "main" column below is that run. Nothing was pushed to IronCalc.
 
-Expected values and citations are copied from [`fixtures/fixtures.json`](../fixtures/fixtures.json). The citation column below is the previous citation. Cells remeasured on 2026-11-23 are prefixed there with `primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously:` (F18 D1 and G1 cite the rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt). F11–F13 already name the 2026-11-22 run. Formulas are the Excel display form. Stored `_xlfn.` / `_xlws.` prefixes are in that file.
+Expected values and citations are copied from [`fixtures/fixtures.json`](../fixtures/fixtures.json). The citation column below is the previous citation. Cells remeasured on 2026-11-23 are prefixed there with `primary: adamlocalis, desktop Excel (16.0300), 2026-11-23; previously:` (F18 D1 and G1 cite the rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt). F11–F13 already name the 2026-11-22 run. Formulas are the Excel display form. Stored `_xlfn.` / `_xlws.` prefixes are in that file.
 
 ## Five fixes to try first
 
@@ -26,7 +26,7 @@ These five are still wrong on `main`, have no open pull request that makes the c
 | 4 | F23 `E6`, `E7` | `IF`'s result arguments are vectors, so xlsx import does not wrap them in `@` | Proven. 17 and 100. The loaded formulas no longer contain `@`. |
 | 5 | F10 `Summary!B2`, `B301` | `SUMIFS` criteria arguments are scalars, so import intersects `$A:$A` | Proven. 10809 and 10800. The loaded formula is `SUMIFS(Data!B:B,Data!A:A,@$A:$A)`. |
 
-One other one-function candidate was left untried. Its size below is a guess: `fn_weibull_dist` returning 0 for a pdf at `x = 0` (F12 `A6`). F04 `A1` is not a candidate. The old expected `"-0"` was wrong: Adam Marsh's desktop Excel (16.0300) run on 2026-11-23 returned `"0"`, which is what IronCalc already returns. Open pull requests [#1754](https://github.com/ironcalc/IronCalc/pull/1754) and [#1697](https://github.com/ironcalc/IronCalc/pull/1697) edit the same `is_negative` expression in the digit formatter and still leave a rounded zero unsigned, so on this cell they match Excel.
+One other one-function candidate was left untried. Its size below is a guess: `fn_weibull_dist` returning 0 for a pdf at `x = 0` (F12 `A6`). F04 `A1` is not a candidate. The old expected `"-0"` was wrong: adamlocalis's desktop Excel (16.0300) run on 2026-11-23 returned `"0"`, which is what IronCalc already returns. Open pull requests [#1754](https://github.com/ironcalc/IronCalc/pull/1754) and [#1697](https://github.com/ironcalc/IronCalc/pull/1697) edit the same `is_negative` expression in the digit formatter and still leave a rounded zero unsigned, so on this cell they match Excel.
 
 ### Diff that was tried
 
@@ -108,8 +108,8 @@ fn args_signature_sumifs(arg_count: usize) -> Vec<Signature> {
 | 1 | F14-large-k | Sheet1!A2 | `LARGE(B1:B4,4.5)` | #NUM! | issue #1750 table | 1 | 1 |
 | 1 | F14-large-k | Sheet1!A3 | `LARGE(B1:B4,TRUE)` | 8 | issue #1750 table | #VALUE! | #VALUE! |
 | 1 | F14-large-k | Sheet1!A4 | `SMALL(B1:B4,TRUE)` | 1 | issue #1750 table | #VALUE! | #VALUE! |
-| 2 | F12-hf-npv-sequence-errors | Sheet1!A3 | `COUNTA(1,)` | 2 | primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table | 1 | 1 |
-| 3 | F12-hf-npv-sequence-errors | Sheet1!A4 | `T.INV(0,1)` | #DIV/0! | primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table | #NUM! | #NUM! |
+| 2 | F12-hf-npv-sequence-errors | Sheet1!A3 | `COUNTA(1,)` | 2 | primary: adamlocalis, desktop Excel 2026-11-22; HF differences table | 1 | 1 |
+| 3 | F12-hf-npv-sequence-errors | Sheet1!A4 | `T.INV(0,1)` | #DIV/0! | primary: adamlocalis, desktop Excel 2026-11-22; HF differences table | #NUM! | #NUM! |
 | 4 | F23-sum-if-range | Sheet1!E6 | `SUM(IF(TRUE,B1:B4))` | 17 | issue #1749 table | #VALUE! | #VALUE! |
 | 4 | F23-sum-if-range | Sheet1!E7 | `SUM(IF(B1>5,B1:B4,C1:C4))` | 100 | issue #1749 table | #VALUE! | #VALUE! |
 | 5 | F10-sumifs-legacy-whole-column | Summary!B2 | `SUMIFS(Data!B:B,Data!A:A,$A:$A)` | 10809 | issue #8154 text (k0 total) | 0 | 0 |
@@ -138,8 +138,8 @@ fn args_signature_sumifs(arg_count: usize) -> Vec<Signature> {
 | 14 | F17-explicit-argument-coercion | Sheet1!A4 | `VAR(TRUE,FALSE,TRUE)` | 0.33333333333333337 | issue #1605 table; MS VAR counts logicals typed as arguments | #DIV/0! | #DIV/0! |
 | 15 | F18-xlookup-return-and-empty | Sheet1!D1 | `XLOOKUP("b",A1:A3,B1:C3)` | x | issue #1789 table (first spill cell) | #VALUE! | #VALUE! |
 | 16 | F18-xlookup-return-and-empty | Sheet1!G1 | `XLOOKUP(8,H1:H4,I1:I4,,,)` | a | issue #1718 table | #ERROR! | #ERROR! |
-| 17 | F12-hf-npv-sequence-errors | Sheet1!A1 | `NPV(1,TRUE(),1)` | 0.75 | primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table | 0.5 | 0.5 |
-| 18 | F12-hf-npv-sequence-errors | Sheet1!A6 | `WEIBULL.DIST(0,1,1,FALSE)` | 0 | primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table; MS Q&A 5065194 | 1 | 1 |
+| 17 | F12-hf-npv-sequence-errors | Sheet1!A1 | `NPV(1,TRUE(),1)` | 0.75 | primary: adamlocalis, desktop Excel 2026-11-22; HF differences table | 0.5 | 0.5 |
+| 18 | F12-hf-npv-sequence-errors | Sheet1!A6 | `WEIBULL.DIST(0,1,1,FALSE)` | 0 | primary: adamlocalis, desktop Excel 2026-11-22; HF differences table; MS Q&A 5065194 | 1 | 1 |
 | 20 | F07-value-accounting-negatives | Sheet1!A1 | `VALUE("(5)")` | -5 | issue #8231 text | #VALUE! | #VALUE! |
 | 20 | F07-value-accounting-negatives | Sheet1!A2 | `VALUE("($1,000)")` | -1000 | issue #8231 text | #VALUE! | #VALUE! |
 | 20 | F07-value-accounting-negatives | Sheet1!A3 | `"(5)"+1` | -4 | issue #8231 text | #VALUE! | #VALUE! |
@@ -166,7 +166,7 @@ The scratch diff counts `EmptyArg` and still skips `EmptyCell`. Proven on the fi
 
 ### 3. `T.INV(0,1)` is `#DIV/0!`
 
-`fn_t_inv` in `base/src/functions/statistical/t_dist.rs`. Any probability `<= 0` or `>= 1` returns `#NUM!` before the inverse cdf runs. Excel's page says `#NUM!` for probability `<= 0`, and that page is wrong for one degree of freedom: Adam Marsh's desktop Excel run on 2026-11-22 got `#DIV/0!` for `T.INV(0,1)` and `#NUM!` for `T.INV(0,2)`. Sources: [fixtures.json](../fixtures/fixtures.json), [HyperFormula's differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences), [Microsoft T.INV](https://support.microsoft.com/en-us/office/t-inv-function-2908272b-4e61-4942-9df9-a25fec9b0e2e).
+`fn_t_inv` in `base/src/functions/statistical/t_dist.rs`. Any probability `<= 0` or `>= 1` returns `#NUM!` before the inverse cdf runs. Excel's page says `#NUM!` for probability `<= 0`, and that page is wrong for one degree of freedom: adamlocalis's desktop Excel run on 2026-11-22 got `#DIV/0!` for `T.INV(0,1)` and `#NUM!` for `T.INV(0,2)`. Sources: [fixtures.json](../fixtures/fixtures.json), [HyperFormula's differences](https://hyperformula.handsontable.com/docs/guide/list-of-differences), [Microsoft T.INV](https://support.microsoft.com/en-us/office/t-inv-function-2908272b-4e61-4942-9df9-a25fec9b0e2e).
 
 `main` does not fix it. [#1321](https://github.com/ironcalc/IronCalc/issues/1321) is large arguments. [#1323](https://github.com/ironcalc/IronCalc/issues/1323) is `T.INV.2T` with probability above 1. Neither is this cell, and there is no pull request for it.
 
@@ -249,7 +249,7 @@ Four call sites, one coercion rule, open pull requests, so this was not in the f
 
 ### 15. `XLOOKUP` return array must be the same shape as the lookup vector
 
-`fn_xlookup` in `base/src/functions/xlookup.rs`. After both arguments are ranges, it requires the same row count and the same column count. `A1:A3` is one column and `B1:C3` is two, so it returns `#VALUE!` with "Arrays must be of the same size". Excel returns the matching row and spills. The fixture scores the first spill cell, `x`. Adam Marsh entered this as a dynamic-array formula on 2026-11-23, with E1 cleared, and it spilled `x` and `y`. The legacy non-array form of this formula returns `#VALUE!` in Excel (implicit intersection), and the dynamic-array form returns `x`.
+`fn_xlookup` in `base/src/functions/xlookup.rs`. After both arguments are ranges, it requires the same row count and the same column count. `A1:A3` is one column and `B1:C3` is two, so it returns `#VALUE!` with "Arrays must be of the same size". Excel returns the matching row and spills. The fixture scores the first spill cell, `x`. adamlocalis entered this as a dynamic-array formula on 2026-11-23, with E1 cleared, and it spilled `x` and `y`. The legacy non-array form of this formula returns `#VALUE!` in Excel (implicit intersection), and the dynamic-array form returns `x`.
 
 `main` does not fix it. [#1789](https://github.com/ironcalc/IronCalc/issues/1789) is open. [#1703](https://github.com/ironcalc/IronCalc/pull/1703) and [#1440](https://github.com/ironcalc/IronCalc/pull/1440) are open and describe multi-column returns. They were not applied. Size guess: medium. The match has to return a row, and the cell has to spill.
 
@@ -267,13 +267,13 @@ Same function. `get_number` maps `EmptyArg` to 0 (`cast_to_number` in `base/src/
 
 ### 18. Weibull pdf at 0
 
-`fn_weibull_dist` in `base/src/functions/statistical/weibull.rs`. For `x = 0`, `alpha = 1`, `beta = 1`, cumulative false, it uses `statrs`' pdf. That pdf is `(1/beta) * exp(0) = 1`. Excel returns 0. Citation: Adam Marsh, 2026-11-22, plus [HyperFormula](https://hyperformula.handsontable.com/docs/guide/list-of-differences) and [Microsoft Q&A 5065194](https://learn.microsoft.com/en-us/answers/questions/5065194/weibull-dist-function-error).
+`fn_weibull_dist` in `base/src/functions/statistical/weibull.rs`. For `x = 0`, `alpha = 1`, `beta = 1`, cumulative false, it uses `statrs`' pdf. That pdf is `(1/beta) * exp(0) = 1`. Excel returns 0. Citation: adamlocalis, 2026-11-22, plus [HyperFormula](https://hyperformula.handsontable.com/docs/guide/list-of-differences) and [Microsoft Q&A 5065194](https://learn.microsoft.com/en-us/answers/questions/5065194/weibull-dist-function-error).
 
 `main` does not fix it. The run is 1. No IronCalc issue or pull request names `WEIBULL.DIST`. [#55](https://github.com/ironcalc/IronCalc/issues/55) and [#774](https://github.com/ironcalc/IronCalc/issues/774) are the general statistical-function lists. Size guess: small for this one input. Returning 0 for every non-cumulative `x = 0` may be wrong when `alpha < 1`, and that input is not in the suite.
 
 ### 19. `TEXT` of a negative number that rounds to zero
 
-Not a miss. `fn_text` calls `format_number`. Format `"0"` is one section. In the digit loop, `is_negative` is `value < -(10^(-precision))`. Precision 0 makes the threshold -1, so -0.4 is formatted as `"0"`. That matches Excel. The old expected `"-0"` came from Univer [#8270](https://github.com/dream-num/univer/issues/8270), whose author says they did not run it in Excel. Adam Marsh's desktop Excel (16.0300) run on 2026-11-23 returned `"0"`. The MrExcel thread and the Microsoft Q&A linked from the fixture were inferred support that Excel chooses the negative section from the sign before rounding; that guess was wrong for this formula.
+Not a miss. `fn_text` calls `format_number`. Format `"0"` is one section. In the digit loop, `is_negative` is `value < -(10^(-precision))`. Precision 0 makes the threshold -1, so -0.4 is formatted as `"0"`. That matches Excel. The old expected `"-0"` came from Univer [#8270](https://github.com/dream-num/univer/issues/8270), whose author says they did not run it in Excel. adamlocalis's desktop Excel (16.0300) run on 2026-11-23 returned `"0"`. The MrExcel thread and the Microsoft Q&A linked from the fixture were inferred support that Excel chooses the negative section from the sign before rounding; that guess was wrong for this formula.
 
 `main` also returns `"0"`. [#1754](https://github.com/ironcalc/IronCalc/pull/1754) and [#1697](https://github.com/ironcalc/IronCalc/pull/1697) both replace `is_negative` and still require the rounded digits to be non-zero before they print a minus, so a rounded zero stays unsigned, which is what Excel returns here.
 

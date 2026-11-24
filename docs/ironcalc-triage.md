@@ -137,7 +137,7 @@ fn args_signature_sumifs(arg_count: usize) -> Vec<Signature> {
 | 14 | F17-explicit-argument-coercion | Sheet1!A3 | `STDEV("1","2")` | 0.7071067811865476 | issue #1605 table; MS STDEV counts text numbers typed as arguments | #DIV/0! | #DIV/0! |
 | 14 | F17-explicit-argument-coercion | Sheet1!A4 | `VAR(TRUE,FALSE,TRUE)` | 0.33333333333333337 | issue #1605 table; MS VAR counts logicals typed as arguments | #DIV/0! | #DIV/0! |
 | 15 | F18-xlookup-return-and-empty | Sheet1!D1 | `XLOOKUP("b",A1:A3,B1:C3)` | x | issue #1789 table (first spill cell) | #VALUE! | #VALUE! |
-| 16 | F18-xlookup-return-and-empty | Sheet1!G1 | `XLOOKUP(8,E1:E4,F1:F4,,,)` | a | issue #1718 table | #ERROR! | #ERROR! |
+| 16 | F18-xlookup-return-and-empty | Sheet1!G1 | `XLOOKUP(8,H1:H4,I1:I4,,,)` | a | issue #1718 table | #ERROR! | #ERROR! |
 | 17 | F12-hf-npv-sequence-errors | Sheet1!A1 | `NPV(1,TRUE(),1)` | 0.75 | primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table | 0.5 | 0.5 |
 | 18 | F12-hf-npv-sequence-errors | Sheet1!A6 | `WEIBULL.DIST(0,1,1,FALSE)` | 0 | primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table; MS Q&A 5065194 | 1 | 1 |
 | 20 | F07-value-accounting-negatives | Sheet1!A1 | `VALUE("(5)")` | -5 | issue #8231 text | #VALUE! | #VALUE! |
@@ -257,7 +257,7 @@ Four call sites, one coercion rule, open pull requests, so this was not in the f
 
 Same function. `get_number` maps `EmptyArg` to 0 (`cast_to_number` in `base/src/cast.rs`). Match mode 0 is exact, so the fifth argument being empty is harmless. Search mode 0 is not 1, -1, 2, or -2, and `fn_xlookup` returns `#ERROR!`. Excel defaults an empty search mode to 1 (first to last). `fn_xmatch` on `main` already special-cases `EmptyArgKind` for this.
 
-`main` does not fix it. The loaded formula is still `XLOOKUP(8,E1:E4,F1:F4,,,)` and the value is `#ERROR!`. [#1718](https://github.com/ironcalc/IronCalc/issues/1718) is open. [#1721](https://github.com/ironcalc/IronCalc/pull/1721) is the open pull request and was not applied. Size guess: small, the same `EmptyArgKind` check `fn_xmatch` already has.
+`main` does not fix it. The loaded formula is still `XLOOKUP(8,H1:H4,I1:I4,,,)` and the value is `#ERROR!`. [#1718](https://github.com/ironcalc/IronCalc/issues/1718) is open. [#1721](https://github.com/ironcalc/IronCalc/pull/1721) is the open pull request and was not applied. Size guess: small, the same `EmptyArgKind` check `fn_xmatch` already has.
 
 ### 17. `NPV` ignores a boolean written in the formula
 

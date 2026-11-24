@@ -39,7 +39,7 @@ Formulas below are shown as Excel displays them. The stored strings, including `
 | F17 `Sheet1!A3` | `STDEV("1","2")` | 0.7071067811865476 | [IronCalc #1605](https://github.com/ironcalc/IronCalc/issues/1605), [MS STDEV](https://support.microsoft.com/en-us/office/stdev-function-51fecaaa-231e-4bbb-9230-33650a72c9b0) (text numbers typed as arguments are counted) | strong | #DIV/0! |
 | F17 `Sheet1!A4` | `VAR(TRUE,FALSE,TRUE)` | 0.33333333333333337 | [IronCalc #1605](https://github.com/ironcalc/IronCalc/issues/1605), [MS VAR](https://support.microsoft.com/en-us/office/var-function-1f2b7ab2-954d-4e17-ba2c-9e58b15a7da2) (logicals typed as arguments are counted) | strong | #DIV/0! |
 | F18 `Sheet1!D1` | `XLOOKUP("b",A1:A3,B1:C3)` | x | [IronCalc #1789](https://github.com/ironcalc/IronCalc/issues/1789) | strong | #VALUE! |
-| F18 `Sheet1!G1` | `XLOOKUP(8,E1:E4,F1:F4,,,)` | a | [IronCalc #1718](https://github.com/ironcalc/IronCalc/issues/1718) | strong | #ERROR! |
+| F18 `Sheet1!G1` | `XLOOKUP(8,H1:H4,I1:I4,,,)` | a | [IronCalc #1718](https://github.com/ironcalc/IronCalc/issues/1718) | strong | #ERROR! |
 | F19 `Sheet1!B1` | `INDEX(SORT(A1:A4,,-1),1)` | 8 | [IronCalc #1597](https://github.com/ironcalc/IronCalc/issues/1597) | strong | #VALUE! |
 | F19 `Sheet1!B2` | `XMATCH(8,A1:A4,,)` | 3 | [IronCalc #1597](https://github.com/ironcalc/IronCalc/issues/1597) | strong | #VALUE! |
 | F20 `Sheet1!A1` | `YEAR(0)` | 1900 | [IronCalc #1569](https://github.com/ironcalc/IronCalc/issues/1569) | strong | #NUM! |

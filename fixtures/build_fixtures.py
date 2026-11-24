@@ -5,6 +5,9 @@ Expected values come from recorded desktop Excel runs, plus the remaining
 cited sources. F11-F13 are from Adam Marsh's desktop Excel run on
 2026-11-22. The other formula cells are from his desktop Excel (16.0300)
 run on 2026-11-23. F18 D1 was entered there as a dynamic-array formula.
+The F18 file was rebuilt so the spill fits after that Excel opened the old
+file and showed #SPILL! in D1; the rebuilt file is pending Adam's Excel
+confirmation.
 HyperFormula's differences page is only a secondary reference for the
 F11-F13 formulas.
 Each formula cell stores that expected value as its cached value, so a
@@ -18,6 +21,7 @@ import json
 import os
 
 import xlsxwriter
+from xlsxwriter.utility import xl_cell_to_rowcol
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 UNIVER = "https://github.com/dream-num/univer/issues/"
@@ -154,8 +158,10 @@ FIXTURES = [
     # Milestone 4. F11-F13 expected values are Adam Marsh's desktop Excel run
     # on 2026-11-22. HyperFormula's differences table is a secondary
     # cross-reference. F14-F25 were remeasured on 2026-11-23. F18 D1 was
-    # entered as a dynamic-array formula. The issue text stays as the
-    # previous citation.
+    # entered as a dynamic-array formula. The F18 file was rebuilt so the
+    # spill fits after that Excel opened the old file and showed #SPILL! in
+    # D1; the rebuilt file is pending Adam's Excel confirmation. The issue
+    # text stays as the previous citation.
     dict(id="F11-hf-negative-rounding",
          sources=[HF, MS["INT"], MS["ISEVEN"]],
          primary_source=excel_run({
@@ -270,22 +276,20 @@ FIXTURES = [
          ]),
     dict(id="F18-xlookup-return-and-empty",
          sources=[IC + "1789", IC + "1718"],
-         note=("Primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23. "
-               "D1 was entered as a dynamic-array formula with E1 cleared, and it spilled x. "
-               "The legacy non-array form of this formula returns #VALUE! in Excel (implicit intersection), "
-               "and the dynamic-array form returns x. "
-               "Previous citations: issue #1789 for D1 and issue #1718 for G1."),
+         note=("A1:C3 and D1 are issue #1789. H1:I4 and G1 are issue #1718. "
+               "The file was rebuilt so the spill fits after Adam's Excel opened the old file and showed #SPILL! in D1 "
+               "(2026-11-23). The rebuilt file is pending Adam's Excel confirmation."),
          inputs={
              ("Sheet1", "A1"): "b", ("Sheet1", "A2"): "a", ("Sheet1", "A3"): "b",
              ("Sheet1", "B1"): "x", ("Sheet1", "C1"): "y",
              ("Sheet1", "B2"): "p", ("Sheet1", "C2"): "q",
              ("Sheet1", "B3"): "r", ("Sheet1", "C3"): "s",
-             ("Sheet1", "E1"): 5, ("Sheet1", "E2"): 3, ("Sheet1", "E3"): 8, ("Sheet1", "E4"): 1,
-             ("Sheet1", "F1"): "b", ("Sheet1", "F2"): "d", ("Sheet1", "F3"): "a", ("Sheet1", "F4"): "c",
+             ("Sheet1", "H1"): 5, ("Sheet1", "H2"): 3, ("Sheet1", "H3"): 8, ("Sheet1", "H4"): 1,
+             ("Sheet1", "I1"): "b", ("Sheet1", "I2"): "d", ("Sheet1", "I3"): "a", ("Sheet1", "I4"): "c",
          }, cases=[
             ("Sheet1", "D1", '_xlfn.XLOOKUP("b",A1:A3,B1:C3)', "x",
              "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23, entered as a dynamic-array formula; previously: issue #1789 table (first spill cell)"),
-            ("Sheet1", "G1", "_xlfn.XLOOKUP(8,E1:E4,F1:F4,,,)", "a", previously("issue #1718 table")),
+            ("Sheet1", "G1", "_xlfn.XLOOKUP(8,H1:H4,I1:I4,,,)", "a", previously("issue #1718 table")),
          ]),
     dict(id="F19-sort-empty-argument", issue=1597,
          sources=[IC + "1597"],
@@ -387,7 +391,17 @@ def build(fx, path):
             sh(sn).write_formula(cell, "=" + formula, None, expected)
         for sn, cell, formula, expected, _src in fx["cases"]:
             fmt = datefmt if fx.get("date_format") else None
-            sh(sn).write_formula(cell, "=" + formula, fmt, expected)
+            ws = sh(sn)
+            if fx["id"] == "F18-xlookup-return-and-empty" and cell == "D1":
+                # The result is the row D1:E1. xlsxwriter caches only the
+                # anchor and writes 0 into the rest of the ref. That 0 is an
+                # input and would block the spill. Spill cells have no cached
+                # value and no test case.
+                ws.write_dynamic_array_formula("D1:E1", "=" + formula, fmt, expected)
+                row, col = xl_cell_to_rowcol("E1")
+                del ws.table[row][col]
+            else:
+                ws.write_formula(cell, "=" + formula, fmt, expected)
         for sn, row in fx.get("hidden_rows") or []:
             sh(sn).set_row(row, None, None, {"hidden": True})
     wb.close()

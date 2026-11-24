@@ -10,7 +10,7 @@ Generated from [`suite/baseline.json`](suite/baseline.json) and [`fixtures/fixtu
 |---|---|---|---|---|
 | SheetJS CE | 0.20.3 | read | 74/74 | 100% |
 | SheetJS CE | 0.20.3 | write | 74/74 | 100% |
-| Univer | 1.6.0 | native | 48/74 | 64.9% |
+| Univer | 1.6.0 | native | 49/74 | 66.2% |
 | LibreOffice Calc | 26.2.5.2 | recalc | 47/74 | 63.5% |
 | IronCalc | 0.9.1 | JavaScript | 35/74 | 47.3% |
 | IronCalc | 0.9.1 | Python | 35/74 | 47.3% |
@@ -43,7 +43,7 @@ No misses. The baseline records no SheetJS write failures, so this mode passes e
 
 ### Univer 1.6.0 native
 
-26 cells miss.
+25 cells miss.
 
 #### F01-let-lambda-call
 
@@ -102,12 +102,6 @@ No misses. The baseline records no SheetJS write failures, so this mode passes e
 | Cell | Expected | Actual | Source |
 |---|---|---|---|
 | Sheet1!A4 | `0.33333333333333337` | `0.333333333333` | primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1605 table; MS VAR counts logicals typed as arguments |
-
-#### F18-xlookup-return-and-empty
-
-| Cell | Expected | Actual | Source |
-|---|---|---|---|
-| Sheet1!D1 | `"x"` | `#SPILL!` | primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23, entered as a dynamic-array formula; previously: issue #1789 table (first spill cell) |
 
 #### F21-date-year-offset
 

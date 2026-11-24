@@ -302,7 +302,7 @@
     },
     "native": {
       "cells": 74,
-      "cells_match_excel": 48,
+      "cells_match_excel": 49,
       "errors": 0,
       "results": {
         "F01-let-lambda-call": {
@@ -395,7 +395,7 @@
           "Sheet1!A4": 0.333333333333
         },
         "F18-xlookup-return-and-empty": {
-          "Sheet1!D1": "#SPILL!",
+          "Sheet1!D1": "x",
           "Sheet1!G1": "a"
         },
         "F19-sort-empty-argument": {

@@ -764,21 +764,21 @@
    "https://github.com/ironcalc/IronCalc/issues/1789",
    "https://github.com/ironcalc/IronCalc/issues/1718"
   ],
-  "note": "A1:C3 and D1 are issue #1789. H1:I4 and G1 are issue #1718. The file was rebuilt so the spill fits after Adam's Excel opened the old file and showed #SPILL! in D1 (2026-11-23). The rebuilt file is pending Adam's Excel confirmation.",
+  "note": "A1:C3 and D1 are issue #1789. H1:I4 and G1 are issue #1718. The file was rebuilt so the spill fits after Adam's Excel opened the old file and showed #SPILL! in D1 because E1 was occupied (2026-11-23). primary: Adam Marsh, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt.",
   "cases": [
    [
     "Sheet1",
     "D1",
     "_xlfn.XLOOKUP(\"b\",A1:A3,B1:C3)",
     "x",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23, entered as a dynamic-array formula; previously: issue #1789 table (first spill cell)"
+    "primary: Adam Marsh, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt; previously: issue #1789 table (first spill cell)"
    ],
    [
     "Sheet1",
     "G1",
     "_xlfn.XLOOKUP(8,H1:H4,I1:I4,,,)",
     "a",
-    "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1718 table"
+    "primary: Adam Marsh, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt; previously: issue #1718 table"
    ]
   ],
   "primary_source": {

@@ -9,7 +9,7 @@ Source read:
 
 How `main` was checked: the repo was cloned, built with rustc 1.100.0, and each fixture was loaded with `ironcalc::import::load_from_xlsx`, recalculated with `Model::evaluate`, and read with `get_cell_value_by_index`. Every fixture imported as `DateSystem::Excel1900`, because xlsxwriter writes `Application` as `Microsoft Excel` and `date_system_for` in `xlsx/src/import/mod.rs` treats that as Excel 1900. The "main" column below is that run. Nothing was pushed to IronCalc.
 
-Expected values and citations are copied from [`fixtures/fixtures.json`](../fixtures/fixtures.json). The citation column below is the previous citation. Cells remeasured on 2026-11-23 are prefixed there with `primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously:` (F18 D1 adds that the formula was entered as a dynamic-array formula). F11–F13 already name the 2026-11-22 run. Formulas are the Excel display form. Stored `_xlfn.` / `_xlws.` prefixes are in that file.
+Expected values and citations are copied from [`fixtures/fixtures.json`](../fixtures/fixtures.json). The citation column below is the previous citation. Cells remeasured on 2026-11-23 are prefixed there with `primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously:` (F18 D1 and G1 cite the rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt). F11–F13 already name the 2026-11-22 run. Formulas are the Excel display form. Stored `_xlfn.` / `_xlws.` prefixes are in that file.
 
 ## Five fixes to try first
 

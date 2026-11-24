@@ -186,7 +186,7 @@ No misses. The baseline records no SheetJS write failures, so this mode passes e
 
 | Cell | Expected | Actual | Source |
 |---|---|---|---|
-| Sheet1!G1 | `"a"` | `#VALUE!` | primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1718 table |
+| Sheet1!G1 | `"a"` | `#VALUE!` | primary: Adam Marsh, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt; previously: issue #1718 table |
 
 #### F19-sort-empty-argument
 
@@ -281,8 +281,8 @@ No misses. The baseline records no SheetJS write failures, so this mode passes e
 
 | Cell | Expected | Actual | Source |
 |---|---|---|---|
-| Sheet1!D1 | `"x"` | `#VALUE!` | primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23, entered as a dynamic-array formula; previously: issue #1789 table (first spill cell) |
-| Sheet1!G1 | `"a"` | `#ERROR!` | primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1718 table |
+| Sheet1!D1 | `"x"` | `#VALUE!` | primary: Adam Marsh, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt; previously: issue #1789 table (first spill cell) |
+| Sheet1!G1 | `"a"` | `#ERROR!` | primary: Adam Marsh, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt; previously: issue #1718 table |
 
 #### F19-sort-empty-argument
 
@@ -394,8 +394,8 @@ No misses. The baseline records no SheetJS write failures, so this mode passes e
 
 | Cell | Expected | Actual | Source |
 |---|---|---|---|
-| Sheet1!D1 | `"x"` | `#VALUE!` | primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23, entered as a dynamic-array formula; previously: issue #1789 table (first spill cell) |
-| Sheet1!G1 | `"a"` | `#ERROR!` | primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1718 table |
+| Sheet1!D1 | `"x"` | `#VALUE!` | primary: Adam Marsh, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt; previously: issue #1789 table (first spill cell) |
+| Sheet1!G1 | `"a"` | `#ERROR!` | primary: Adam Marsh, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt; previously: issue #1718 table |
 
 #### F19-sort-empty-argument
 
@@ -507,8 +507,8 @@ No misses. The baseline records no SheetJS write failures, so this mode passes e
 
 | Cell | Expected | Actual | Source |
 |---|---|---|---|
-| Sheet1!D1 | `"x"` | `#VALUE!` | primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23, entered as a dynamic-array formula; previously: issue #1789 table (first spill cell) |
-| Sheet1!G1 | `"a"` | `#ERROR!` | primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously: issue #1718 table |
+| Sheet1!D1 | `"x"` | `#VALUE!` | primary: Adam Marsh, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt; previously: issue #1789 table (first spill cell) |
+| Sheet1!G1 | `"a"` | `#ERROR!` | primary: Adam Marsh, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt; previously: issue #1718 table |
 
 #### F19-sort-empty-argument
 

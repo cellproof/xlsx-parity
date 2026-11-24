@@ -4,10 +4,10 @@ make test uses the committed workbooks. Run this only to regenerate them.
 Expected values come from recorded desktop Excel runs, plus the remaining
 cited sources. F11-F13 are from Adam Marsh's desktop Excel run on
 2026-11-22. The other formula cells are from his desktop Excel (16.0300)
-run on 2026-11-23. F18 D1 was entered there as a dynamic-array formula.
-The F18 file was rebuilt so the spill fits after that Excel opened the old
-file and showed #SPILL! in D1; the rebuilt file is pending Adam's Excel
-confirmation.
+run on 2026-11-23. The F18 file was rebuilt so the spill fits after that
+Excel opened the old file and showed #SPILL! in D1 because E1 was occupied.
+primary: Adam Marsh, desktop Excel, 2026-11-23, rebuilt fixture file opened
+directly: D1 = x, E1 = y (spilled), G1 = a, no repair prompt.
 HyperFormula's differences page is only a secondary reference for the
 F11-F13 formulas.
 Each formula cell stores that expected value as its cached value, so a
@@ -55,6 +55,10 @@ def excel_run(results, when="2026-11-22", where="desktop Excel for Microsoft 365
 
 
 ADAM_2026_11_23 = "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23"
+F18_REBUILT = (
+    "primary: Adam Marsh, desktop Excel, 2026-11-23, rebuilt fixture file opened directly: "
+    "D1 = x, E1 = y (spilled), G1 = a, no repair prompt"
+)
 
 
 def previously(note):
@@ -157,11 +161,12 @@ FIXTURES = [
          ]),
     # Milestone 4. F11-F13 expected values are Adam Marsh's desktop Excel run
     # on 2026-11-22. HyperFormula's differences table is a secondary
-    # cross-reference. F14-F25 were remeasured on 2026-11-23. F18 D1 was
-    # entered as a dynamic-array formula. The F18 file was rebuilt so the
-    # spill fits after that Excel opened the old file and showed #SPILL! in
-    # D1; the rebuilt file is pending Adam's Excel confirmation. The issue
-    # text stays as the previous citation.
+    # cross-reference. F14-F25 were remeasured on 2026-11-23. The F18 file
+    # was rebuilt so the spill fits after that Excel opened the old file and
+    # showed #SPILL! in D1 because E1 was occupied. primary: Adam Marsh,
+    # desktop Excel, 2026-11-23, rebuilt fixture file opened directly:
+    # D1 = x, E1 = y (spilled), G1 = a, no repair prompt. The issue text
+    # stays as the previous citation.
     dict(id="F11-hf-negative-rounding",
          sources=[HF, MS["INT"], MS["ISEVEN"]],
          primary_source=excel_run({
@@ -278,7 +283,8 @@ FIXTURES = [
          sources=[IC + "1789", IC + "1718"],
          note=("A1:C3 and D1 are issue #1789. H1:I4 and G1 are issue #1718. "
                "The file was rebuilt so the spill fits after Adam's Excel opened the old file and showed #SPILL! in D1 "
-               "(2026-11-23). The rebuilt file is pending Adam's Excel confirmation."),
+               "because E1 was occupied (2026-11-23). "
+               + F18_REBUILT + "."),
          inputs={
              ("Sheet1", "A1"): "b", ("Sheet1", "A2"): "a", ("Sheet1", "A3"): "b",
              ("Sheet1", "B1"): "x", ("Sheet1", "C1"): "y",
@@ -288,8 +294,9 @@ FIXTURES = [
              ("Sheet1", "I1"): "b", ("Sheet1", "I2"): "d", ("Sheet1", "I3"): "a", ("Sheet1", "I4"): "c",
          }, cases=[
             ("Sheet1", "D1", '_xlfn.XLOOKUP("b",A1:A3,B1:C3)', "x",
-             "primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23, entered as a dynamic-array formula; previously: issue #1789 table (first spill cell)"),
-            ("Sheet1", "G1", "_xlfn.XLOOKUP(8,H1:H4,I1:I4,,,)", "a", previously("issue #1718 table")),
+             F18_REBUILT + "; previously: issue #1789 table (first spill cell)"),
+            ("Sheet1", "G1", "_xlfn.XLOOKUP(8,H1:H4,I1:I4,,,)", "a",
+             F18_REBUILT + "; previously: issue #1718 table"),
          ]),
     dict(id="F19-sort-empty-argument", issue=1597,
          sources=[IC + "1597"],
@@ -415,7 +422,8 @@ def record_desktop_run(fx):
     if fx.get("primary_source"):
         return
     notes = [case[4] for case in fx["cases"]]
-    if not notes or not all(note.startswith(ADAM_2026_11_23) for note in notes):
+    # F18's cells cite the rebuilt file, which does not use the 16.0300 prefix.
+    if not notes or not all(note.startswith((ADAM_2026_11_23, F18_REBUILT)) for note in notes):
         return
     # Key by cell. F10 stores one formula on two rows, so a formula key would drop one result.
     fx["primary_source"] = excel_run(

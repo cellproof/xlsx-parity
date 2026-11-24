@@ -1,6 +1,6 @@
-# IronCalc 0.9.1: 40 misses against Excel
+# IronCalc 0.9.1: 39 misses against Excel
 
-IronCalc 0.9.1 passes 34 of 74 formula cells in [`suite/baseline.json`](../suite/baseline.json). The other 40 are the same on the Python bindings and on `@ironcalc/nodejs`. This note groups those 40 by root cause. It does not change the baseline.
+IronCalc 0.9.1 passes 35 of 74 formula cells in [`suite/baseline.json`](../suite/baseline.json). The other 39 are the same on the Python bindings and on `@ironcalc/nodejs`. This note groups those 39 by root cause. It does not change the baseline.
 
 Source read:
 
@@ -9,7 +9,7 @@ Source read:
 
 How `main` was checked: the repo was cloned, built with rustc 1.100.0, and each fixture was loaded with `ironcalc::import::load_from_xlsx`, recalculated with `Model::evaluate`, and read with `get_cell_value_by_index`. Every fixture imported as `DateSystem::Excel1900`, because xlsxwriter writes `Application` as `Microsoft Excel` and `date_system_for` in `xlsx/src/import/mod.rs` treats that as Excel 1900. The "main" column below is that run. Nothing was pushed to IronCalc.
 
-Expected values and citations are copied from [`fixtures/fixtures.json`](../fixtures/fixtures.json). Formulas are the Excel display form. Stored `_xlfn.` / `_xlws.` prefixes are in that file.
+Expected values and citations are copied from [`fixtures/fixtures.json`](../fixtures/fixtures.json). The citation column below is the previous citation. Cells remeasured on 2026-11-23 are prefixed there with `primary: Adam Marsh, desktop Excel (16.0300), 2026-11-23; previously:` (F18 D1 adds that the formula was entered as a dynamic-array formula). F11–F13 already name the 2026-11-22 run. Formulas are the Excel display form. Stored `_xlfn.` / `_xlws.` prefixes are in that file.
 
 ## Five fixes to try first
 
@@ -26,7 +26,7 @@ These five are still wrong on `main`, have no open pull request that makes the c
 | 4 | F23 `E6`, `E7` | `IF`'s result arguments are vectors, so xlsx import does not wrap them in `@` | Proven. 17 and 100. The loaded formulas no longer contain `@`. |
 | 5 | F10 `Summary!B2`, `B301` | `SUMIFS` criteria arguments are scalars, so import intersects `$A:$A` | Proven. 10809 and 10800. The loaded formula is `SUMIFS(Data!B:B,Data!A:A,@$A:$A)`. |
 
-Two other one-function candidates were left untried. Their size below is a guess: `fn_weibull_dist` returning 0 for a pdf at `x = 0` (F12 `A6`), and `format_number` keeping a minus when a negative value rounds to a zero digit string (F04 `A1`). Open pull requests [#1754](https://github.com/ironcalc/IronCalc/pull/1754) and [#1697](https://github.com/ironcalc/IronCalc/pull/1697) edit the same `is_negative` expression in the digit formatter and still leave a rounded zero unsigned, so they do not fix F04.
+One other one-function candidate was left untried. Its size below is a guess: `fn_weibull_dist` returning 0 for a pdf at `x = 0` (F12 `A6`). F04 `A1` is not a candidate. The old expected `"-0"` was wrong: Adam Marsh's desktop Excel (16.0300) run on 2026-11-23 returned `"0"`, which is what IronCalc already returns. Open pull requests [#1754](https://github.com/ironcalc/IronCalc/pull/1754) and [#1697](https://github.com/ironcalc/IronCalc/pull/1697) edit the same `is_negative` expression in the digit formatter and still leave a rounded zero unsigned, so on this cell they match Excel.
 
 ### Diff that was tried
 
@@ -140,12 +140,11 @@ fn args_signature_sumifs(arg_count: usize) -> Vec<Signature> {
 | 16 | F18-xlookup-return-and-empty | Sheet1!G1 | `XLOOKUP(8,E1:E4,F1:F4,,,)` | a | issue #1718 table | #ERROR! | #ERROR! |
 | 17 | F12-hf-npv-sequence-errors | Sheet1!A1 | `NPV(1,TRUE(),1)` | 0.75 | primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table | 0.5 | 0.5 |
 | 18 | F12-hf-npv-sequence-errors | Sheet1!A6 | `WEIBULL.DIST(0,1,1,FALSE)` | 0 | primary: Adam Marsh, desktop Excel 2026-11-22; HF differences table; MS Q&A 5065194 | 1 | 1 |
-| 19 | F04-text-negative-zero | Sheet1!A1 | `TEXT(-0.4,"0")` | -0 | issue #8270 (author unverified in Excel; weaker). Format-section support is inferred, not a direct test | 0 | 0 |
 | 20 | F07-value-accounting-negatives | Sheet1!A1 | `VALUE("(5)")` | -5 | issue #8231 text | #VALUE! | #VALUE! |
 | 20 | F07-value-accounting-negatives | Sheet1!A2 | `VALUE("($1,000)")` | -1000 | issue #8231 text | #VALUE! | #VALUE! |
 | 20 | F07-value-accounting-negatives | Sheet1!A3 | `"(5)"+1` | -4 | issue #8231 text | #VALUE! | #VALUE! |
 
-F12 `A2` `NPV(1,B1)` with B1 TRUE is 0 in Excel and in IronCalc 0.9.1, so it is not in the failure list. F12 `A5`, `A7`, `A8`, and `A9` also match and are omitted here. F04 is the only weaker citation in the suite.
+F12 `A2` `NPV(1,B1)` with B1 TRUE is 0 in Excel and in IronCalc 0.9.1, so it is not in the failure list. F12 `A5`, `A7`, `A8`, and `A9` also match and are omitted here. F04 `TEXT(-0.4,"0")` matches too: Excel and IronCalc both return `"0"`. The old expected `"-0"` was the unverified statement in Univer issue #8270.
 
 ## Groups
 
@@ -250,7 +249,7 @@ Four call sites, one coercion rule, open pull requests, so this was not in the f
 
 ### 15. `XLOOKUP` return array must be the same shape as the lookup vector
 
-`fn_xlookup` in `base/src/functions/xlookup.rs`. After both arguments are ranges, it requires the same row count and the same column count. `A1:A3` is one column and `B1:C3` is two, so it returns `#VALUE!` with "Arrays must be of the same size". Excel returns the matching row and spills. The fixture scores the first spill cell, `x`.
+`fn_xlookup` in `base/src/functions/xlookup.rs`. After both arguments are ranges, it requires the same row count and the same column count. `A1:A3` is one column and `B1:C3` is two, so it returns `#VALUE!` with "Arrays must be of the same size". Excel returns the matching row and spills. The fixture scores the first spill cell, `x`. Adam Marsh entered this as a dynamic-array formula on 2026-11-23, with E1 cleared, and it spilled `x` and `y`. The legacy non-array form of this formula returns `#VALUE!` in Excel (implicit intersection), and the dynamic-array form returns `x`.
 
 `main` does not fix it. [#1789](https://github.com/ironcalc/IronCalc/issues/1789) is open. [#1703](https://github.com/ironcalc/IronCalc/pull/1703) and [#1440](https://github.com/ironcalc/IronCalc/pull/1440) are open and describe multi-column returns. They were not applied. Size guess: medium. The match has to return a row, and the cell has to spill.
 
@@ -274,9 +273,9 @@ Same function. `get_number` maps `EmptyArg` to 0 (`cast_to_number` in `base/src/
 
 ### 19. `TEXT` of a negative number that rounds to zero
 
-`fn_text` calls `format_number`. Format `"0"` is one section. In the digit loop, `is_negative` is `value < -(10^(-precision))`. Precision 0 makes the threshold -1, so -0.4 is formatted as `0`. The citation is weaker: Univer [#8270](https://github.com/dream-num/univer/issues/8270), whose author says they did not run it in Excel. The MrExcel thread and the Microsoft Q&A linked from the fixture are inferred support that Excel chooses the negative section from the sign before rounding.
+Not a miss. `fn_text` calls `format_number`. Format `"0"` is one section. In the digit loop, `is_negative` is `value < -(10^(-precision))`. Precision 0 makes the threshold -1, so -0.4 is formatted as `"0"`. That matches Excel. The old expected `"-0"` came from Univer [#8270](https://github.com/dream-num/univer/issues/8270), whose author says they did not run it in Excel. Adam Marsh's desktop Excel (16.0300) run on 2026-11-23 returned `"0"`. The MrExcel thread and the Microsoft Q&A linked from the fixture were inferred support that Excel chooses the negative section from the sign before rounding; that guess was wrong for this formula.
 
-`main` does not fix it. The run is still `"0"`. No IronCalc issue turned up. [#1754](https://github.com/ironcalc/IronCalc/pull/1754) and [#1697](https://github.com/ironcalc/IronCalc/pull/1697) both replace `is_negative` and still require the rounded digits to be non-zero before they print a minus, so a rounded zero stays unsigned. Size guess: small, one condition in `format_number`, with a real chance of disagreeing with those pull requests on other formats.
+`main` also returns `"0"`. [#1754](https://github.com/ironcalc/IronCalc/pull/1754) and [#1697](https://github.com/ironcalc/IronCalc/pull/1697) both replace `is_negative` and still require the rounded digits to be non-zero before they print a minus, so a rounded zero stays unsigned, which is what Excel returns here.
 
 ### 20. Accounting parentheses are not numbers
 
@@ -286,4 +285,4 @@ Same function. `get_number` maps `EmptyArg` to 0 (`cast_to_number` in `base/src/
 
 ## What `main` already matches
 
-Fourteen of the forty 0.9.1 misses match Excel on `f936620`: groups 6, 7, 8, 9, 10, and 11 (F15, F19, F20, F22, F25, and F24 `A1`/`A8`/`A9`). The other 26 are still misses. The five scratch edits cover ten of those 26. The remaining 16 are groups 12 through 20. Seven of those 16 sit under an open pull request (group 12, group 14, groups 15 and 16) and were left alone.
+Fourteen of the thirty-nine 0.9.1 misses match Excel on `f936620`: groups 6, 7, 8, 9, 10, and 11 (F15, F19, F20, F22, F25, and F24 `A1`/`A8`/`A9`). The other 25 are still misses. The five scratch edits cover ten of those 25. The remaining 15 are groups 12 through 18 and group 20. Seven of those 15 sit under an open pull request (group 12, group 14, groups 15 and 16) and were left alone.

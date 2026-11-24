@@ -5,7 +5,8 @@ citations come from fixtures/fixtures.json. Nothing in the table is typed
 by hand. The Excel match is the one suite/run.py uses (EXCEL_REL_TOL):
 strings, booleans, and errors are exact, and numbers use that relative
 tolerance. Regenerating does not read the clock. The last-updated line is
-the latest `when` date stored on a fixture source.
+the latest `when` date stored on a fixture source. The Provenance section
+counts cells by source type from each case's source string.
 """
 import ast
 import difflib
@@ -289,40 +290,69 @@ def latest_when(fixtures):
     return max(dates)
 
 
-def join_ids(ids):
-    if len(ids) == 1:
-        return ids[0]
-    if len(ids) == 2:
-        return f"{ids[0]} and {ids[1]}"
-    return ", ".join(ids[:-1]) + ", and " + ids[-1]
-
-
 def provenance(fixtures):
-    """One line. The named Excel run is whatever primary_source the fixtures store."""
-    groups = []
-    for fixture in fixtures:
-        primary = fixture.get("primary_source")
-        if not isinstance(primary, dict) or not primary.get("who"):
-            continue
-        short = fixture["id"].split("-", 1)[0]
-        key = (primary.get("who"), primary.get("where") or "", primary.get("when") or "")
-        if groups and groups[-1][0] == key:
-            groups[-1][1].append(short)
-        else:
-            groups.append((key, [short]))
-    recorded = []
-    for (who, where, when), ids in groups:
-        detail = ", ".join(part for part in (who, where, when) if part)
-        recorded.append(f"{join_ids(ids)} from {detail}")
-    recorded_text = "; ".join(recorded)
-    parenthetical = f" ({recorded_text})" if recorded_text else ""
+    """One line. Cell counts are the Provenance section."""
+    if not fixtures:
+        die("fixtures/fixtures.json has no fixtures")
     return (
-        "Expected values are Excel's, copied from a Univer issue, an IronCalc issue, "
-        "a Microsoft Support page, or a recorded desktop Excel result"
-        f"{parenthetical}; HyperFormula's differences page is a reference, not the source of the values. "
+        "Expected values come from recorded desktop Excel runs, "
+        "plus the remaining cited sources. "
+        "HyperFormula's differences page is a reference, not the source of the values. "
         "Each miss cites the source stored on that cell, and IronCalc's misses are grouped in "
         "[docs/ironcalc-triage.md](docs/ironcalc-triage.md)."
     )
+
+
+# Order is the order printed. Classification reads only the text before
+# "; previously:", so a kept citation does not change the cell's type.
+SOURCE_TYPES = (
+    "Adam's desktop Excel run",
+    "third-party report of an Excel run",
+    "issue-stated value",
+    "Microsoft docs",
+)
+
+
+def classify_source(source):
+    """Map one case source string to a SOURCE_TYPES label."""
+    primary = source.split("; previously:", 1)[0].strip()
+    if primary.startswith("primary: Adam Marsh"):
+        return SOURCE_TYPES[0]
+    if primary.startswith("MS "):
+        return SOURCE_TYPES[3]
+    lowered = primary.casefold()
+    names_run = "excel-saved" in lowered or (
+        re.search(r"\bexcel\b", lowered) is not None
+        and re.search(r"\b(?:ran|run|copied from)\b", lowered) is not None
+    )
+    if names_run:
+        return SOURCE_TYPES[1]
+    return SOURCE_TYPES[2]
+
+
+def render_provenance(cells):
+    counts = {name: 0 for name in SOURCE_TYPES}
+    for cell in cells:
+        counts[classify_source(cell["source"])] += 1
+    if sum(counts.values()) != len(cells):
+        die("provenance counts do not cover every fixture cell")
+    lines = [
+        "## Provenance",
+        "",
+        "Cell counts by source type. "
+        "Classification uses the text before `; previously:`: "
+        "a `primary: Adam Marsh` prefix is Adam's desktop Excel run; "
+        "a source starting with `MS ` is Microsoft docs; "
+        "a source that names an Excel run or an Excel-saved workbook is a third-party report of an Excel run; "
+        "anything else is an issue-stated value.",
+        "",
+        "| Source type | Cells |",
+        "|---|---|",
+    ]
+    for name in SOURCE_TYPES:
+        lines.append(f"| {name} | {counts[name]} |")
+    lines.append("")
+    return lines
 
 
 def percent(passed, total):
@@ -424,6 +454,12 @@ def render():
         "SheetJS read and write pass when the formula string and the cached value are preserved."
     )
     lines.append("")
+    lines.append(
+        "The Univer hook is IronCalc running inside Univer. "
+        "SheetJS CE does not calculate, so its row is a read/write (I/O) check."
+    )
+    lines.append("")
+    lines.extend(render_provenance(cells))
     lines.extend(render_misses(rows))
     text = "\n".join(lines).rstrip() + "\n"
     return text

@@ -12,6 +12,6 @@ export default defineConfig({
     chunkSizeWarningLimit: 800,
   },
   optimizeDeps: {
-    exclude: ["@ironcalc/wasm"],
+    exclude: ["@ironcalc/wasm-xlsx"],
   },
 });

@@ -10,8 +10,8 @@
 
 body {
   margin: 0 auto;
-  max-width: 1180px;
-  padding: 24px 20px 64px;
+  max-width: 1320px;
+  padding: 20px 16px 64px;
 }
 
 h1, h2, h3, p { margin: 0; }
@@ -102,7 +102,12 @@ button:disabled { cursor: wait; color: #6d695f; }
 
 input[type="search"] { min-width: 220px; }
 
-.table-wrap { overflow-x: auto; border: 1px solid #c8c4ba; background: #fff; }
+.table-wrap {
+  overflow-x: auto;
+  max-width: 100%;
+  border: 1px solid #c8c4ba;
+  background: #fff;
+}
 
 table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
 
@@ -114,9 +119,26 @@ th, td {
   white-space: nowrap;
 }
 
-th { background: #ebe6db; position: sticky; top: 0; font-weight: 650; }
+th { background: #ebe6db; font-weight: 650; }
 
-td.formula { white-space: normal; min-width: 220px; }
+#scan-table td.formula { white-space: normal; min-width: 220px; }
+
+#scoreboard-table {
+  table-layout: fixed;
+  width: 100%;
+  min-width: 1080px;
+  font-size: 11.5px;
+}
+
+#scoreboard-table th,
+#scoreboard-table td {
+  padding: 3px 5px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+#scoreboard-table th.engine span { display: block; line-height: 1.2; }
+#scoreboard-table th.engine .sub { color: #5c584f; font-weight: 500; }
 
 tr.match td.status, td.pass { color: #1d4a32; }
 tr.mismatch td.status, td.fail { color: #8a1f1f; }

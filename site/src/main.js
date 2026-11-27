@@ -1,9 +1,10 @@
-import init, { Model } from "@ironcalc/wasm";
+import init from "@ironcalc/wasm-xlsx";
 import scoreboard from "./generated/scoreboard.json";
 import { showValue } from "./compare.js";
 import { LOADER_SUMMARY, loaderDetail, scanWorkbook } from "./scan.js";
 
 const IRON_VERSION = scoreboard.runtime.ironcalc;
+const IRON_PACKAGE = scoreboard.runtime.package;
 
 const engineStatus = document.querySelector("#engine-status");
 const drop = document.querySelector("#drop");
@@ -30,7 +31,8 @@ function text(tag, value, attrs) {
 function setEngineStatus(state, message) {
   engineStatus.dataset.engine = state;
   engineStatus.dataset.ironcalc = IRON_VERSION;
-  engineStatus.dataset.nativeXlsx = "false";
+  engineStatus.dataset.nativeXlsx = "true";
+  engineStatus.dataset.loader = "fromXlsx";
   engineStatus.textContent = message;
   for (const button of sampleButtons.querySelectorAll("button")) {
     button.disabled = state !== "ready" || scanning;
@@ -63,14 +65,12 @@ async function loadSample(sample) {
 async function runScan(bytes, fileName) {
   if (!wasmReady || scanning) return;
   scanning = true;
-  setEngineStatus("ready", `IronCalc wasm: ready (@ironcalc/wasm ${IRON_VERSION}). Scanning ${fileName}.`);
+  setEngineStatus("ready", `${IRON_PACKAGE} ${IRON_VERSION}: scanning ${fileName} with Model.fromXlsx.`);
   scanOut.hidden = false;
   scanOut.replaceChildren(text("p", `Scanning ${fileName}…`, { class: "meta" }));
   await new Promise((resolve) => setTimeout(resolve, 0));
-  let model = null;
   try {
-    model = new Model(fileName, "en", "UTC", "en");
-    const result = scanWorkbook(model, bytes, fileName);
+    const result = scanWorkbook(bytes, fileName);
     result.ironcalc = IRON_VERSION;
     result.note = loaderDetail(result.sheetjs, IRON_VERSION);
     renderScan(result);
@@ -78,11 +78,8 @@ async function runScan(bytes, fileName) {
     const message = err instanceof Error ? err.message : String(err);
     scanOut.replaceChildren(text("p", message, { class: "summary", "data-scan-status": "error" }));
   } finally {
-    if (model) {
-      try { model.free(); } catch { /* the model is already released */ }
-    }
     scanning = false;
-    setEngineStatus("ready", `IronCalc wasm: ready (@ironcalc/wasm ${IRON_VERSION}). No native .xlsx import.`);
+    setEngineStatus("ready", `${IRON_PACKAGE} ${IRON_VERSION} ready. Workbooks load with Model.fromXlsx.`);
   }
 }
 
@@ -93,7 +90,7 @@ function renderScan(result) {
     id: "scan-summary",
     "data-scan-status": "done",
     "data-loader": result.loader,
-    "data-native-xlsx": "false",
+    "data-native-xlsx": "true",
     "data-match": String(summary.match),
     "data-total": String(summary.formulaCells),
     "data-mismatch": String(summary.mismatch),
@@ -109,9 +106,8 @@ function renderScan(result) {
   );
 
   const details = document.createElement("details");
-  details.append(text("summary", "How this load differs from the suite"));
+  details.append(text("summary", "How this scan loads the file"));
   details.append(text("p", result.note));
-  details.append(text("p", "Numbers use a relative tolerance of 1e-12 and an absolute tolerance of 0. Strings, booleans, and errors are exact. Same rule as suite/run.py excel_match. IronCalc numbers are read back through a 16-digit scientific format because getFormattedCellValue is the value this package exposes."));
   banner.append(details);
   if (result.warnings.length) {
     const list = text("ul", null, { class: "warn" });
@@ -223,7 +219,7 @@ function renderScan(result) {
       sheetjs: result.sheetjs,
       ironcalc: result.ironcalc,
       loader: result.loader,
-      nativeXlsxImport: false,
+      nativeXlsxImport: true,
       tolerance: { numericRelative: 1e-12, absolute: 0, strings: "exact", booleans: "exact", errors: "exact" },
       summary: result.summary,
       warnings: result.warnings,
@@ -241,6 +237,29 @@ function renderScan(result) {
 
   scanOut.replaceChildren(banner, toolbar, shown, wrap);
   paint();
+}
+
+function column(width) {
+  const col = document.createElement("col");
+  col.style.width = width;
+  return col;
+}
+
+const ENGINE_HEAD = {
+  "sheetjs-read": ["SheetJS", "read"],
+  "sheetjs-write": ["SheetJS", "write"],
+  "univer-native": ["Univer", "native"],
+  "libreoffice": ["LibreOffice", "recalc"],
+  "ironcalc-js": ["IronCalc", "JS"],
+  "ironcalc-py": ["IronCalc", "Py"],
+  "univer-hook": ["Univer", "hook"],
+};
+
+function engineHeader(engine) {
+  const lines = ENGINE_HEAD[engine.id] || [engine.engine, engine.mode];
+  const th = text("th", null, { class: "engine", title: `${engine.engine} ${engine.version} ${engine.mode}` });
+  th.append(text("span", lines[0]), text("span", lines[1], { class: "sub" }));
+  return th;
 }
 
 function missLabel(count) {
@@ -262,7 +281,7 @@ function markdownReport(result) {
     "",
     LOADER_SUMMARY,
     "",
-    `SheetJS CE ${result.sheetjs}. @ironcalc/wasm ${result.ironcalc}.`,
+    `SheetJS CE ${result.sheetjs}. ${IRON_PACKAGE} ${result.ironcalc}, Model.fromXlsx.`,
     "",
     `${summary.match} / ${summary.formulaCells} formula cells match Excel's cached values.`,
     "",
@@ -360,12 +379,13 @@ function renderScoreboard() {
   toolbar.append(fixtureSelect, engineSelect, resultSelect, search);
 
   const shown = text("p", "", { class: "meta" });
-  const wrap = text("div", null, { class: "table-wrap" });
+  const wrap = text("div", null, { class: "table-wrap", id: "scoreboard-wrap" });
   const table = document.createElement("table");
   table.id = "scoreboard-table";
+  const cols = document.createElement("colgroup");
   const head = document.createElement("thead");
   const body = document.createElement("tbody");
-  table.append(head, body);
+  table.append(cols, head, body);
   wrap.append(table);
 
   function engineCell(entry) {
@@ -384,11 +404,14 @@ function renderScoreboard() {
     const query = search.value.trim().toLowerCase();
     const columns = engineId ? scoreboard.engines.filter((engine) => engine.id === engineId) : scoreboard.engines;
     head.replaceChildren();
+    cols.replaceChildren();
+    const fixed = [["fixture", "14%"], ["cell", "9%"], ["formula", "20%"], ["excel", "7%"]];
+    const engineShare = (100 - 50) / Math.max(columns.length, 1);
+    for (const [, width] of fixed) cols.append(column(width));
+    for (let i = 0; i < columns.length; i++) cols.append(column(`${engineShare}%`));
     const headRow = document.createElement("tr");
     for (const label of ["Fixture", "Cell", "Formula", "Excel"]) headRow.append(text("th", label));
-    for (const engine of columns) {
-      headRow.append(text("th", `${engine.engine} ${engine.mode}`, { title: `${engine.engine} ${engine.version} ${engine.mode}` }));
-    }
+    for (const engine of columns) headRow.append(engineHeader(engine));
     head.append(headRow);
 
     const visible = scoreboard.cells.filter((cell) => {
@@ -405,7 +428,7 @@ function renderScoreboard() {
       tr.dataset.fixture = cell.fixture;
       tr.dataset.cell = cell.cell;
       tr.append(
-        text("td", cell.fixture),
+        text("td", cell.fixture, { class: "fixture" }),
         text("td", cell.cell),
         text("td", cell.formula, { class: "formula", title: cell.source }),
         text("td", showValue(cell.excel), { "data-col": "excel" }),
@@ -455,7 +478,7 @@ renderScoreboard();
 init()
   .then(() => {
     wasmReady = true;
-    setEngineStatus("ready", `IronCalc wasm: ready (@ironcalc/wasm ${IRON_VERSION}). No native .xlsx import.`);
+    setEngineStatus("ready", `${IRON_PACKAGE} ${IRON_VERSION} ready. Workbooks load with Model.fromXlsx.`);
   })
   .catch((err) => {
     const message = err instanceof Error ? err.message : String(err);

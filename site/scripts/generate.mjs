@@ -247,11 +247,15 @@ for (const file of SAMPLES) {
   copyFileSync(join(repoRoot, "fixtures", file), join(samplesDir, file));
 }
 
-const ironPkg = JSON.parse(readFileSync(join(siteRoot, "node_modules", "@ironcalc", "wasm", "package.json"), "utf8"));
+const ironDir = join(siteRoot, "node_modules", "@ironcalc", "wasm-xlsx");
+const ironPkg = JSON.parse(readFileSync(join(ironDir, "package.json"), "utf8"));
+const ironDts = readFileSync(join(ironDir, "wasm.d.ts"), "utf8");
 const xlsxPkg = JSON.parse(readFileSync(join(siteRoot, "node_modules", "xlsx", "package.json"), "utf8"));
-if (ironPkg.version !== "0.9.1") die(`@ironcalc/wasm is ${ironPkg.version}, expected 0.9.1`);
+if (ironPkg.name !== "@ironcalc/wasm-xlsx") die(`expected @ironcalc/wasm-xlsx, found ${ironPkg.name}`);
+if (ironPkg.version !== "0.9.1") die(`@ironcalc/wasm-xlsx is ${ironPkg.version}, expected 0.9.1`);
 if (xlsxPkg.version !== "0.20.3") die(`xlsx is ${xlsxPkg.version}, expected 0.20.3`);
-if (ironPkg.license !== "MIT OR Apache-2.0") die(`@ironcalc/wasm license is ${ironPkg.license}`);
+if (ironPkg.license !== "MIT OR Apache-2.0") die(`@ironcalc/wasm-xlsx license is ${ironPkg.license}`);
+if (!ironDts.includes("static fromXlsx(")) die("@ironcalc/wasm-xlsx does not declare Model.fromXlsx");
 
 const payload = {
   generatedFrom: ["suite/baseline.json", "fixtures/fixtures.json"],
@@ -262,7 +266,7 @@ const payload = {
   engines,
   cells: outCells,
   samples: SAMPLES.map((file) => ({ file, id: file.replace(/\.xlsx$/, "") })),
-  runtime: { ironcalc: ironPkg.version, sheetjs: xlsxPkg.version },
+  runtime: { package: ironPkg.name, ironcalc: ironPkg.version, sheetjs: xlsxPkg.version },
 };
 
 if (payload.fixtureCount !== baseline.fixtures) {

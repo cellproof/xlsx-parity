@@ -1,0 +1,20 @@
+{
+  "name": "xlsx-parity-site",
+  "private": true,
+  "version": "0.0.0",
+  "license": "MIT OR Apache-2.0",
+  "description": "Static GitHub Pages app: in-browser .xlsx parity scan and the 74-cell baseline scoreboard.",
+  "type": "module",
+  "scripts": {
+    "prebuild": "node scripts/generate.mjs",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ironcalc/wasm-xlsx": "0.9.1",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "devDependencies": {
+    "vite": "6.4.6"
+  }
+}

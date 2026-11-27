@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>xlsx-parity</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%231c1c1c'/%3E%3Cpath d='M3 4h4v8H3zm6 0h4v3H9zm0 5h4v3H9z' fill='%23f4f1ea'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <p class="mark">CellProof</p>
+      <h1>xlsx-parity</h1>
+    </div>
+    <nav>
+      <a href="#scanner">Scanner</a>
+      <a href="#scoreboard">Scoreboard</a>
+    </nav>
+  </header>
+  <p class="lede">In-browser check of formula cells against IronCalc, and the committed baseline for the same fixtures.</p>
+
+  <main>
+    <section id="scanner">
+      <h2>Scanner</h2>
+      <p id="engine-status" data-engine="loading">IronCalc wasm: loading.</p>
+      <div id="drop" class="drop">
+        <p class="drop-title">Drop a .xlsx file</p>
+        <p>Runs 100% locally in your browser. Your spreadsheet never leaves your machine.</p>
+        <label class="file">
+          Choose file
+          <input id="file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        </label>
+      </div>
+      <div class="samples">
+        <p>Try a sample fixture</p>
+        <div id="sample-buttons"></div>
+      </div>
+      <div id="scan-out" hidden></div>
+    </section>
+
+    <section id="scoreboard">
+      <h2>Scoreboard</h2>
+      <div id="scoreboard-root"></div>
+    </section>
+  </main>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

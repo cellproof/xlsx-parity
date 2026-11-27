@@ -124,7 +124,18 @@ No paid package is installed.
 
 ## CI actions
 
-`.github/workflows/test.yml` uses `actions/checkout@v4`, `actions/setup-python@v5`, and `actions/setup-node@v4`. Those are GitHub Actions, MIT licensed, pinned to a major tag, and not vendored.
+`.github/workflows/test.yml` uses `actions/checkout@v4`, `actions/setup-python@v5`, and `actions/setup-node@v4`. `.github/workflows/pages.yml` uses those checkout and setup-node actions, plus `actions/configure-pages@v5`, `actions/upload-pages-artifact@v3`, and `actions/deploy-pages@v4`. Those are GitHub Actions, MIT licensed, pinned to a major tag, and not vendored.
+
+## Site
+
+`npm run build:site` builds the static page in `site/`. The page runs in the browser. `npm ci` in `site/` installs two runtime packages and the Vite build tool. The runtime packages are the ones the page executes:
+
+| Package | Version | License | Where it comes from |
+|---|---|---|---|
+| @ironcalc/wasm | 0.9.1 | MIT OR Apache-2.0 | npm. Browser calc engine. `package.json` `license` is `MIT OR Apache-2.0`. The package ships `LICENSE-MIT`, `LICENSE-Apache-2.0`, and `THIRD-PARTY-NOTICES.md`. Installed `wasm.d.ts` exports `Model.fromBytes`, `setUserInput`, and `getFormattedCellValue`. It does not export `Model.fromXlsx` (`fromXlsx` is compiled only into `@ironcalc/wasm-xlsx`, which is not installed). The page enters cells with `setUserInput`. |
+| xlsx (SheetJS Community Edition) | 0.20.3 | Apache-2.0 | Same Community Edition tarball as the suite: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz. Bundled into the page to read `.xlsx`. SheetJS Pro is not installed. |
+
+`vite` 6.4.6 is a devDependency (`license` MIT). It builds the page and is not sent to the browser. Its own dependency tree is in `site/package-lock.json` and is not part of the published page. No paid package is installed for the site.
 
 ## Fixtures
 
